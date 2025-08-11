@@ -101,6 +101,9 @@
                   </div>
                   <div class="text-sm text-gray-500">ゲーム状況</div>
                 </div>
+                <div v-if="aiAdvice && aiDurationMs !== null" class="text-xs text-gray-500">
+                  AI生成 {{ aiDurationMs }}ms
+                </div>
               </div>
             </div>
           </div>
@@ -583,6 +586,8 @@ const error = ref('')
 const aiAdvice = ref<any | null>(null)
 const isAdviceGenerating = ref(false)
 let adviceController: AbortController | null = null
+// 生成AI処理時間（ミリ秒）
+const aiDurationMs = ref<number | null>(null)
 
 // AIモデル選択
 const selectedAiModel = ref('')
@@ -611,6 +616,7 @@ const searchSummoner = async () => {
   matchData.value = null
   liveMatchData.value = null
   aiAdvice.value = null
+  aiDurationMs.value = null
   
   // 進行中のアドバイス生成があればキャンセル
   if (adviceController) {
@@ -862,7 +868,11 @@ const generateAdvice = async () => {
     
     
     console.log('[DEBUG] Sending body to API:', body)
+    const now = (typeof performance !== 'undefined' && (performance as any)?.now) ? () => performance.now() : () => Date.now()
+    const start = now()
     const res: any = await $fetch('/api/advice/generate', { method: 'POST', body, signal: adviceController.signal })
+    const end = now()
+    aiDurationMs.value = Math.max(0, Math.round(end - start))
     aiAdvice.value = res
   } catch (err: any) {
     const statusCode = err?.status || err?.statusCode || 500
