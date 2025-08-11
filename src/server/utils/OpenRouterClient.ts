@@ -80,32 +80,294 @@ export class OpenRouterClient {
       // noop
     }
 
-    // 1回目: 通常生成（長文詳細出力用にトークン数大幅増加）
+    // 1回目: 通常生成
     const first = await this.client.chat.completions.create({
       model: modelToUse,
       temperature: 0.4,
-      max_tokens: 8000, // 3000 → 8000に大幅増量
-      response_format: { type: "json_object" } as any,
+      max_tokens: 65536,
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "lol_advice",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              マッチアップ分析: {
+                type: "array",
+                description: "敵チーム5人全員に対するマッチアップ分析",
+                items: {
+                  type: "object",
+                  properties: {
+                    自分のチャンピオン: {
+                      type: "string",
+                      description: "INPUT内のmyChampion.championNameと同じ値"
+                    },
+                    対戦相手: {
+                      type: "string", 
+                      description: "敵チャンピオン名"
+                    },
+                    相手ロール: {
+                      type: "string",
+                      enum: ["Top", "Jungle", "Mid", "ADC", "Support"],
+                      description: "敵のロール"
+                    },
+                    強み: {
+                      type: "array",
+                      description: "相手の強い部分",
+                      items: { type: "string" },
+                      minItems: 2,
+                      maxItems: 3
+                    },
+                    弱み: {
+                      type: "array", 
+                      description: "相手の弱い部分",
+                      items: { type: "string" },
+                      minItems: 2,
+                      maxItems: 3
+                    },
+                    戦略: {
+                      type: "array",
+                      description: "自分がどう戦うべきか",
+                      items: { type: "string" },
+                      minItems: 3,
+                      maxItems: 4
+                    },
+                    注意点: {
+                      type: "array",
+                      description: "気をつけるべきポイント",
+                      items: { type: "string" },
+                      minItems: 2,
+                      maxItems: 3
+                    }
+                  },
+                  required: ["自分のチャンピオン", "対戦相手", "相手ロール", "強み", "弱み", "戦略", "注意点"],
+                  additionalProperties: false
+                }
+              },
+              推奨装備: {
+                type: "object",
+                description: "装備戦略とアイテム推奨",
+                properties: {
+                  序盤装備: {
+                    type: "array",
+                    description: "序盤のアイテム",
+                    items: { type: "string" }
+                  },
+                  コアアイテム: {
+                    type: "array", 
+                    description: "コアアイテム3つ",
+                    items: { type: "string" },
+                    minItems: 3,
+                    maxItems: 3
+                  },
+                  状況対応装備: {
+                    type: "array",
+                    description: "状況に応じた装備選択",
+                    items: {
+                      type: "object",
+                      properties: {
+                        条件: {
+                          type: "string",
+                          description: "具体的で価値ある状況"
+                        },
+                        アイテム: {
+                          type: "string",
+                          description: "推奨アイテム名"
+                        },
+                        理由: {
+                          type: "string",
+                          description: "効果的な理由と使い方"
+                        }
+                      },
+                      required: ["条件", "アイテム", "理由"],
+                      additionalProperties: false
+                    }
+                  },
+                  装備優先度: {
+                    type: "array",
+                    description: "装備の優先順序",
+                    items: { type: "string" },
+                    minItems: 3,
+                    maxItems: 4
+                  }
+                },
+                required: ["序盤装備", "コアアイテム", "状況対応装備", "装備優先度"],
+                additionalProperties: false
+              },
+              相手チーム分析: {
+                type: "object",
+                description: "相手チーム全体の戦略的特徴",
+                properties: {
+                  チーム全体の強み: {
+                    type: "array",
+                    description: "相手チームの強い部分",
+                    items: { type: "string" },
+                    minItems: 3,
+                    maxItems: 4
+                  },
+                  チーム全体の弱み: {
+                    type: "array",
+                    description: "相手チームの弱い部分", 
+                    items: { type: "string" },
+                    minItems: 3,
+                    maxItems: 4
+                  },
+                  狙い目ターゲット: {
+                    type: "array",
+                    description: "優先的に狙うべき敵",
+                    items: {
+                      type: "object",
+                      properties: {
+                        チャンピオン: {
+                          type: "string",
+                          description: "狙いやすい敵"
+                        },
+                        理由: {
+                          type: "string", 
+                          description: "なぜ狙いやすいか"
+                        },
+                        攻略法: {
+                          type: "string",
+                          description: "どう倒すか"
+                        }
+                      },
+                      required: ["チャンピオン", "理由", "攻略法"],
+                      additionalProperties: false
+                    }
+                  }
+                },
+                required: ["チーム全体の強み", "チーム全体の弱み", "狙い目ターゲット"],
+                additionalProperties: false
+              },
+              自チャンピオン戦略: {
+                type: "object",
+                description: "自分のチャンピオン固有の戦略",
+                properties: {
+                  チーム内での役割: {
+                    type: "array",
+                    description: "自分のポジションと責任",
+                    items: { type: "string" },
+                    minItems: 2,
+                    maxItems: 3
+                  },
+                  時間帯別行動: {
+                    type: "object",
+                    description: "ゲーム進行に応じた行動",
+                    properties: {
+                      序盤: {
+                        type: "array",
+                        description: "序盤の行動指針",
+                        items: { type: "string" },
+                        minItems: 2,
+                        maxItems: 3
+                      },
+                      中盤: {
+                        type: "array", 
+                        description: "中盤の行動指針",
+                        items: { type: "string" },
+                        minItems: 2,
+                        maxItems: 3
+                      },
+                      終盤: {
+                        type: "array",
+                        description: "終盤の行動指針", 
+                        items: { type: "string" },
+                        minItems: 2,
+                        maxItems: 3
+                      }
+                    },
+                    required: ["序盤", "中盤", "終盤"],
+                    additionalProperties: false
+                  },
+                  チームファイト戦略: {
+                    type: "array",
+                    description: "集団戦での動き",
+                    items: { type: "string" },
+                    minItems: 2,
+                    maxItems: 3
+                  },
+                  ゲーム展開対応: {
+                    type: "object",
+                    description: "ゲーム状況別の対応",
+                    properties: {
+                      有利時: {
+                        type: "array",
+                        description: "リード時の行動",
+                        items: { type: "string" },
+                        minItems: 2,
+                        maxItems: 2
+                      },
+                      不利時: {
+                        type: "array",
+                        description: "劣勢時の立ち回り",
+                        items: { type: "string" },
+                        minItems: 2,
+                        maxItems: 2
+                      },
+                      接戦時: {
+                        type: "array",
+                        description: "均衡時の判断基準",
+                        items: { type: "string" },
+                        minItems: 2,
+                        maxItems: 2
+                      }
+                    },
+                    required: ["有利時", "不利時", "接戦時"],
+                    additionalProperties: false
+                  }
+                },
+                required: ["チーム内での役割", "時間帯別行動", "チームファイト戦略", "ゲーム展開対応"],
+                additionalProperties: false
+              }
+            },
+            required: ["マッチアップ分析", "推奨装備", "相手チーム分析", "自チャンピオン戦略"],
+            additionalProperties: false
+          }
+        }
+      } as any,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `${instruction}\n\n[INPUT]\n${inputJson}` },
       ],
     });
     const finish1 = first.choices?.[0]?.finish_reason;
-    const raw1 = first.choices?.[0]?.message?.content || "";
-    const text1 = this.extractJson(raw1);
+    const text1 = first.choices?.[0]?.message?.content || "";
     console.log("[AI] Response meta", {
       finish_reason: finish1,
       model: first.model,
       usage: (first as any).usage || undefined,
     });
     console.log("[AI] Response content", text1);
+    
+    // デバッグ用: レスポンスをtmpフォルダに保存
+    try {
+      const fs = await import('node:fs');
+      const path = await import('node:path');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `ai-response-${timestamp}.json`;
+      const tmpDir = path.resolve(process.cwd(), 'tmp');
+      
+      // tmpディレクトリが存在しない場合は作成
+      if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir, { recursive: true });
+      }
+      
+      const filepath = path.join(tmpDir, filename);
+      fs.writeFileSync(filepath, text1, 'utf-8');
+      console.log(`[AI] Response saved to: ${filepath}`);
+    } catch (saveError) {
+      console.log("[AI] Failed to save response:", saveError);
+    }
+    
     try {
       return JSON.parse(text1);
     } catch (e1: any) {
       const snippet1 = text1.slice(0, 500);
       const msg1 = String(e1?.message || e1);
-      throw new Error(`JSON parse failed: ${msg1}. snippet=${snippet1}`);
+      
+      
+      throw new Error(`JSON parse failed: ${msg1}. finish_reason=${finish1}. snippet=${snippet1}`);
     }
   }
 
@@ -149,6 +411,20 @@ export class OpenRouterClient {
             },
           ],
         },
+        自チャンピオン戦略: {
+          チーム内での役割: ["string"],
+          時間帯別行動: {
+            序盤: ["string"],
+            中盤: ["string"],
+            終盤: ["string"],
+          },
+          チームファイト戦略: ["string"],
+          ゲーム展開対応: {
+            有利時: ["string"],
+            不利時: ["string"],
+            接戦時: ["string"],
+          },
+        },
       },
     });
   }
@@ -165,121 +441,7 @@ export class OpenRouterClient {
     return { systemPrompt: sysBuf.trim(), instruction: insBuf.trim() };
   }
 
-  private extractJson(text: string): string {
-    if (!text) return "{}";
-    // コードフェンス内のJSONを優先
-    const fence = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-    let body: string = (fence ? fence[1] : text) ?? "";
-    body = body.trim().replace(/^\uFEFF/, "");
 
-    // バランスドスキャン（{}, [] と文字列）で最初のJSONブロックを抽出
-    const firstBrace = body.indexOf("{");
-    if (firstBrace === -1) return "{}";
-    let i = firstBrace;
-    const stack: string[] = [];
-    let inString = false;
-    let escaped = false;
-    for (; i < body.length; i++) {
-      const ch = body.charAt(i);
-      if (inString) {
-        if (escaped) {
-          escaped = false;
-        } else if (ch === "\\") {
-          escaped = true;
-        } else if (ch === '"') {
-          inString = false;
-        }
-      } else {
-        if (ch === '"') {
-          inString = true;
-        } else if (ch === "{" || ch === "[") {
-          stack.push(ch);
-        } else if (ch === "}" || ch === "]") {
-          const top = stack[stack.length - 1];
-          if ((ch === "}" && top === "{") || (ch === "]" && top === "[")) {
-            stack.pop();
-            if (stack.length === 0) {
-              i++;
-              break;
-            }
-          } else {
-            // 不整合の場合は無視して続行
-          }
-        }
-      }
-    }
-    let candidate = body.slice(firstBrace, i);
-    if (stack.length > 0) {
-      // 最後まで到達したのに閉じていない → 足りない閉じ括弧を補完
-      const closers = stack
-        .slice()
-        .reverse()
-        .map((s) => (s === "{" ? "}" : "]"))
-        .join("");
-      candidate = body.slice(firstBrace) + closers;
-    }
 
-    // 文字列中の改行/復帰/タブをエスケープ（未エスケープ改行対策）
-    candidate = this.escapeNewlinesInStrings(candidate);
-    // スマートクォートの正規化
-    candidate = candidate
-      .replace(/[\u201C\u201D]/g, '"')
-      .replace(/[\u2018\u2019]/g, '"');
-    // 末尾カンマの除去（,] / ,}）
-    candidate = candidate.replace(/,\s*(?=[}\]])/g, "");
-    return candidate;
-  }
 
-  private escapeNewlinesInStrings(jsonLike: string): string {
-    let out = "";
-    let inString = false;
-    let escaped = false;
-    for (let i = 0; i < jsonLike.length; i++) {
-      const ch = jsonLike.charAt(i);
-      if (inString) {
-        if (escaped) {
-          out += ch;
-          escaped = false;
-          continue;
-        }
-        if (ch === "\\") {
-          out += ch;
-          escaped = true;
-          continue;
-        }
-        if (ch === '"') {
-          out += ch;
-          inString = false;
-          continue;
-        }
-        if (ch === "\n") {
-          out += "\\n";
-          continue;
-        }
-        if (ch === "\r") {
-          out += "\\r";
-          continue;
-        }
-        if (ch === "\t") {
-          out += "\\t";
-          continue;
-        }
-        // 制御文字の除去（安全側）
-        const code = ch.charCodeAt(0);
-        if (code >= 0 && code < 0x20) {
-          out += "";
-          continue;
-        }
-        out += ch;
-      } else {
-        if (ch === '"') {
-          inString = true;
-          out += ch;
-          continue;
-        }
-        out += ch;
-      }
-    }
-    return out;
-  }
 }

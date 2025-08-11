@@ -353,6 +353,97 @@
                   </div>
                 </div>
               </div>
+
+              <!-- 自チャンピオン戦略 -->
+              <div>
+                <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  <span class="bg-green-100 text-green-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2">4</span>
+                  自チャンピオン戦略
+                </h4>
+                <div v-if="aiAdvice['自チャンピオン戦略']" class="space-y-6">
+                  <!-- チーム内での役割 -->
+                  <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-4">
+                    <h5 class="font-semibold text-green-800 mb-3 flex items-center">
+                      <span class="mr-2">👑</span>チーム内での役割
+                    </h5>
+                    <ul class="space-y-2">
+                      <li v-for="(role, i) in (aiAdvice['自チャンピオン戦略']['チーム内での役割'] || [])" :key="'role'+i"
+                          class="text-sm text-gray-700 bg-white p-2 rounded shadow-sm">{{ role }}</li>
+                    </ul>
+                  </div>
+
+                  <!-- 時間帯別行動 -->
+                  <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4">
+                    <h5 class="font-semibold text-blue-800 mb-3 flex items-center">
+                      <span class="mr-2">⏰</span>時間帯別行動
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div v-if="aiAdvice['自チャンピオン戦略']['時間帯別行動']?.['序盤']" class="bg-white p-3 rounded shadow-sm">
+                        <div class="font-medium text-blue-700 mb-2">🌅 序盤</div>
+                        <ul class="space-y-1">
+                          <li v-for="(action, i) in aiAdvice['自チャンピオン戦略']['時間帯別行動']['序盤']" :key="'early'+i"
+                              class="text-sm text-gray-700">• {{ action }}</li>
+                        </ul>
+                      </div>
+                      <div v-if="aiAdvice['自チャンピオン戦略']['時間帯別行動']?.['中盤']" class="bg-white p-3 rounded shadow-sm">
+                        <div class="font-medium text-blue-700 mb-2">🌞 中盤</div>
+                        <ul class="space-y-1">
+                          <li v-for="(action, i) in aiAdvice['自チャンピオン戦略']['時間帯別行動']['中盤']" :key="'mid'+i"
+                              class="text-sm text-gray-700">• {{ action }}</li>
+                        </ul>
+                      </div>
+                      <div v-if="aiAdvice['自チャンピオン戦略']['時間帯別行動']?.['終盤']" class="bg-white p-3 rounded shadow-sm">
+                        <div class="font-medium text-blue-700 mb-2">🌙 終盤</div>
+                        <ul class="space-y-1">
+                          <li v-for="(action, i) in aiAdvice['自チャンピオン戦略']['時間帯別行動']['終盤']" :key="'late'+i"
+                              class="text-sm text-gray-700">• {{ action }}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- チームファイト戦略 -->
+                  <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4">
+                    <h5 class="font-semibold text-purple-800 mb-3 flex items-center">
+                      <span class="mr-2">⚔️</span>チームファイト戦略
+                    </h5>
+                    <ul class="space-y-2">
+                      <li v-for="(strategy, i) in (aiAdvice['自チャンピオン戦略']['チームファイト戦略'] || [])" :key="'teamfight'+i"
+                          class="text-sm text-gray-700 bg-white p-2 rounded shadow-sm">{{ strategy }}</li>
+                    </ul>
+                  </div>
+
+                  <!-- ゲーム展開対応 -->
+                  <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-4">
+                    <h5 class="font-semibold text-orange-800 mb-3 flex items-center">
+                      <span class="mr-2">📈</span>ゲーム展開対応
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div v-if="aiAdvice['自チャンピオン戦略']['ゲーム展開対応']?.['有利時']" class="bg-white p-3 rounded shadow-sm">
+                        <div class="font-medium text-green-700 mb-2">📈 有利時</div>
+                        <ul class="space-y-1">
+                          <li v-for="(action, i) in aiAdvice['自チャンピオン戦略']['ゲーム展開対応']['有利時']" :key="'adv'+i"
+                              class="text-sm text-gray-700">• {{ action }}</li>
+                        </ul>
+                      </div>
+                      <div v-if="aiAdvice['自チャンピオン戦略']['ゲーム展開対応']?.['不利時']" class="bg-white p-3 rounded shadow-sm">
+                        <div class="font-medium text-red-700 mb-2">📉 不利時</div>
+                        <ul class="space-y-1">
+                          <li v-for="(action, i) in aiAdvice['自チャンピオン戦略']['ゲーム展開対応']['不利時']" :key="'dis'+i"
+                              class="text-sm text-gray-700">• {{ action }}</li>
+                        </ul>
+                      </div>
+                      <div v-if="aiAdvice['自チャンピオン戦略']['ゲーム展開対応']?.['接戦時']" class="bg-white p-3 rounded shadow-sm">
+                        <div class="font-medium text-blue-700 mb-2">⚖️ 接戦時</div>
+                        <ul class="space-y-1">
+                          <li v-for="(action, i) in aiAdvice['自チャンピオン戦略']['ゲーム展開対応']['接戦時']" :key="'even'+i"
+                              class="text-sm text-gray-700">• {{ action }}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <div v-else class="text-center py-8 text-gray-500">
@@ -498,8 +589,6 @@ const selectedAiModel = ref('')
 
 // モデル変更時の処理
 const onModelChange = (model: string) => {
-  console.log('AIモデルが変更されました:', model)
-  selectedAiModel.value = model
   // 既存のアドバイスがある場合は再生成を促す
   if (liveMatchData.value && aiAdvice.value) {
     // 自動再生成は行わず、ユーザーが再生成ボタンを押すまで待機
@@ -770,6 +859,7 @@ const generateAdvice = async () => {
       })),
       model: selectedAiModel.value || undefined, // 選択されたAIモデルを送信
     }
+    
     
     console.log('[DEBUG] Sending body to API:', body)
     const res: any = await $fetch('/api/advice/generate', { method: 'POST', body, signal: adviceController.signal })

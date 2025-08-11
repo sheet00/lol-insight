@@ -3,6 +3,8 @@ CLAUDE.md
 AGENTS.md
 work/
 
+tmp/
+
 # Nuxt.js
 node_modules/
 *.log

@@ -8,6 +8,7 @@
       v-model="selectedModel"
       class="model-selector-dropdown"
       @change="onModelChange"
+      @input="onModelChange"
     >
       <option v-for="model in availableModels" :key="model" :value="model">
         {{ model }}
@@ -39,24 +40,26 @@ const emit = defineEmits<Emits>()
 const config = useRuntimeConfig()
 const availableModels = config.public.availableAiModels as string[]
 
-// 選択中のモデル（v-model 対応）
-const selectedModel = computed({
-  get: () => props.modelValue || availableModels[0] || 'google/gemini-2.5-flash',
-  set: (value: string) => emit('update:modelValue', value)
+// 単純なref（computedを使わない）
+const selectedModel = ref(props.modelValue || availableModels[0] || '')
+
+// propsが変更されたら内部状態も更新
+watch(() => props.modelValue, (newValue) => {
+  if (newValue && newValue !== selectedModel.value) {
+    selectedModel.value = newValue
+  }
 })
 
 // モデル変更時の処理
 const onModelChange = () => {
+  emit('update:modelValue', selectedModel.value)
   emit('change', selectedModel.value)
 }
 
 // 初期値設定（マウント時にデフォルト値をemit）
 onMounted(() => {
-  if (!props.modelValue && availableModels.length > 0) {
-    const defaultModel = availableModels[0]
-    if (defaultModel) {
-      emit('update:modelValue', defaultModel)
-    }
+  if (selectedModel.value) {
+    emit('update:modelValue', selectedModel.value)
   }
 })
 </script>
