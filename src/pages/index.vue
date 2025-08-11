@@ -66,19 +66,14 @@
           <!-- 進行中試合ヘッダー -->
           <div class="card">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-              <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold animate-pulse">
-                  🔴
-                </div>
-                <div>
-                  <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                    <span>進行中の試合</span>
-                    <span class="text-green-600 text-sm font-normal">LIVE</span>
-                  </h2>
-                  <p class="text-gray-600">
-                    {{ formatGameMode(liveMatchData.gameInfo.queueId) }} - {{ formatGameTime(liveMatchData.gameInfo.gameLength) }}経過
-                  </p>
-                </div>
+              <div>
+                <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                  <span>進行中の試合</span>
+                  <span class="text-green-600 text-sm font-normal">LIVE</span>
+                </h2>
+                <p class="text-gray-600">
+                  {{ formatGameMode(liveMatchData.gameInfo.queueId) }} - {{ formatGameTime(liveMatchData.gameInfo.gameLength) }}経過
+                </p>
               </div>
               
               <div class="text-center">
@@ -88,18 +83,6 @@
                 <div class="text-sm text-gray-500">ゲーム状況</div>
               </div>
             </div>
-            
-            <!-- Ban情報 -->
-            <div v-if="liveMatchData.bannedChampions.length > 0" class="bg-gray-50 p-4 rounded-lg">
-              <h4 class="text-sm font-semibold text-gray-700 mb-3">Ban されたチャンピオン</h4>
-              <div class="flex flex-wrap gap-2">
-                <div v-for="ban in liveMatchData.bannedChampions" :key="`${ban.teamId}-${ban.championId}`"
-                     class="text-xs px-2 py-1 rounded"
-                     :class="ban.teamId === liveMatchData.myParticipant.teamId ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'">
-                  {{ getChampionName(ban.championId) }}
-                </div>
-              </div>
-            </div>
           </div>
 
           <!-- ライブマッチアップ詳細 -->
@@ -107,9 +90,14 @@
             <!-- 味方チーム -->
             <div class="card">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-blue-600">
-                  味方チーム
-                </h3>
+                <div>
+                  <h3 class="text-lg font-semibold text-blue-600">
+                    味方チーム
+                  </h3>
+                  <div v-if="liveMatchData.teamAverages" class="text-sm text-gray-600">
+                    平均ティア: <span class="font-semibold text-blue-600">{{ formatTierScore(liveMatchData.teamAverages.myTeam.tierScore) }}</span>
+                  </div>
+                </div>
                 <div class="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-800">
                   あなたのチーム
                 </div>
@@ -137,9 +125,14 @@
             <!-- 敵チーム -->
             <div class="card">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-red-600">
-                  敵チーム
-                </h3>
+                <div>
+                  <h3 class="text-lg font-semibold text-red-600">
+                    敵チーム
+                  </h3>
+                  <div v-if="liveMatchData.teamAverages" class="text-sm text-gray-600">
+                    平均ティア: <span class="font-semibold text-red-600">{{ formatTierScore(liveMatchData.teamAverages.enemyTeam.tierScore) }}</span>
+                  </div>
+                </div>
                 <div class="text-sm font-medium px-3 py-1 rounded-full bg-red-100 text-red-800">
                   相手チーム
                 </div>
@@ -170,18 +163,13 @@
           <!-- 分析対象プレイヤーとゲーム情報 -->
           <div class="card">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-              <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                  🎮
-                </div>
-                <div>
-                  <h2 class="text-xl font-bold text-gray-900">
-                    {{ matchData.myParticipant.summonerName }}
-                  </h2>
-                  <p class="text-gray-600">
-                    {{ matchData.myParticipant.championName }} - {{ formatGameMode(matchData.gameInfo.queueId) }}
-                  </p>
-                </div>
+              <div>
+                <h2 class="text-xl font-bold text-gray-900">
+                  {{ matchData.myParticipant.summonerName }}
+                </h2>
+                <p class="text-gray-600">
+                  {{ matchData.myParticipant.championName }} - {{ formatGameMode(matchData.gameInfo.queueId) }}
+                </p>
               </div>
               
               <div class="flex items-center space-x-6">
@@ -503,6 +491,23 @@ const getSummonerSpellName = (spellId: number) => {
     32: 'Mark/Dash'
   }
   return spellMap[spellId] || `Spell ${spellId}`
+}
+
+// ティアスコアをランク名+数値形式でフォーマット
+const formatTierScore = (tierScore: number) => {
+  const tierNames = ['', 'Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Emerald', 'Diamond', 'Master', 'Grandmaster', 'Challenger']
+  const baseTier = Math.floor(tierScore)
+  const tierName = tierNames[baseTier] || 'Unranked'
+  
+  if (baseTier >= 8) {
+    // Master以上はランクなし、数値のみ
+    return `${tierName}${tierScore.toFixed(1)}`
+  } else if (baseTier >= 1) {
+    // 通常ティアは名前+数値
+    return `${tierName}${tierScore.toFixed(1)}`
+  } else {
+    return 'Unranked'
+  }
 }
 
 // メタ情報

@@ -148,6 +148,17 @@ export interface LiveMatchDetail {
   myParticipant: LiveParticipant
   bannedChampions: BannedChampion[]
   observers: Observer
+  teamAverages: TeamAverages
+}
+
+export interface TeamAverages {
+  myTeam: TeamAverage
+  enemyTeam: TeamAverage
+}
+
+export interface TeamAverage {
+  averageRank: string
+  tierScore: number
 }
 
 export interface LiveGameInfo {

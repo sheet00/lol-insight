@@ -1,6 +1,70 @@
 import type { LiveMatchDetail } from '~/types'
 import { RiotApiManager } from '~/server/utils/RiotApiManager'
 
+// ティアを数値に変換する関数
+function getTierScore(tier: string, rank: string): number {
+  const tierMap: { [key: string]: number } = {
+    'IRON': 1,
+    'BRONZE': 2,
+    'SILVER': 3,
+    'GOLD': 4,
+    'PLATINUM': 5,
+    'EMERALD': 6,
+    'DIAMOND': 7,
+    'MASTER': 8,
+    'GRANDMASTER': 9,
+    'CHALLENGER': 10
+  }
+
+  const rankMap: { [key: string]: number } = {
+    'IV': 0.0,
+    'III': 0.25,
+    'II': 0.5,
+    'I': 0.75
+  }
+
+  const tierScore = tierMap[tier] || 0
+  const rankScore = rankMap[rank] || 0
+  
+  return tierScore + rankScore
+}
+
+// ティア平均を計算してフォーマットする関数
+function calculateAverageRank(participants: any[]): { tierScore: number, displayRank: string } {
+  const rankedParticipants = participants.filter(p => p.rank && p.rank.tier && p.rank.rank)
+  
+  if (rankedParticipants.length === 0) {
+    return { tierScore: 0, displayRank: 'Unranked' }
+  }
+
+  const totalScore = rankedParticipants.reduce((sum, p) => {
+    return sum + getTierScore(p.rank.tier, p.rank.rank)
+  }, 0)
+
+  const averageScore = totalScore / rankedParticipants.length
+  
+  // 平均スコアからティアとランクを逆算
+  const baseTier = Math.floor(averageScore)
+  const rankPart = averageScore - baseTier
+
+  const tierNames = ['', 'Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Emerald', 'Diamond', 'Master', 'Grandmaster', 'Challenger']
+  const rankNames = ['IV', 'III', 'II', 'I']
+
+  let displayRank = ''
+  
+  if (baseTier >= 8) {
+    // Master以上はランクなし
+    displayRank = tierNames[baseTier] || 'Unranked'
+  } else if (baseTier >= 1) {
+    const rankIndex = Math.round(rankPart * 4) % 4
+    displayRank = `${tierNames[baseTier]} ${rankNames[rankIndex]}`
+  } else {
+    displayRank = 'Unranked'
+  }
+
+  return { tierScore: averageScore, displayRank }
+}
+
 export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
   try {
     // リクエストボディを取得
@@ -151,6 +215,15 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
       enemyTeamSize: enemyTeam.length
     })
 
+    // 4. 味方チームと敵チームのティア平均を計算
+    const myTeamAverage = calculateAverageRank(myTeam)
+    const enemyTeamAverage = calculateAverageRank(enemyTeam)
+
+    console.log('Debug - ティア平均計算完了:', {
+      myTeamAverage: myTeamAverage.displayRank,
+      enemyTeamAverage: enemyTeamAverage.displayRank
+    })
+
     // レスポンスデータを整形
     const result: LiveMatchDetail = {
       gameId: currentGameInfo.gameId,
@@ -166,7 +239,17 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
       enemyTeam: enemyTeam,
       myParticipant: myParticipant,
       bannedChampions: currentGameInfo.bannedChampions || [],
-      observers: currentGameInfo.observers
+      observers: currentGameInfo.observers,
+      teamAverages: {
+        myTeam: {
+          averageRank: myTeamAverage.displayRank,
+          tierScore: myTeamAverage.tierScore
+        },
+        enemyTeam: {
+          averageRank: enemyTeamAverage.displayRank,
+          tierScore: enemyTeamAverage.tierScore
+        }
+      }
     }
 
     return result
