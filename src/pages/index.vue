@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50">
     <!-- 帯状ヘッダ（トップの余白0） -->
     <header class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur border-b">
-      <div class="mx-auto max-w-7xl px-4">
+      <div class="mx-auto main-content-width px-4">
         <div class="h-14 flex items-center justify-between gap-4">
           <div class="min-w-0">
             <h1 class="text-lg font-bold text-gray-900 leading-none">LoL Insight</h1>
@@ -46,8 +46,8 @@
     </header>
 
     <!-- メインコンテンツ -->
-    <div class="container mx-auto px-4 py-10">
-      <div class="max-w-7xl mx-auto">
+    <div class="w-full mx-auto px-4 py-10">
+      <div class="main-content-width mx-auto">
 
         <!-- 分析対象プレイヤー表示 -->
         <div v-if="summonerData && !matchData && !liveMatchData" class="card text-center">
