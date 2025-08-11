@@ -2,33 +2,33 @@
   <div class="min-h-screen bg-gray-50">
     <!-- 帯状ヘッダ（トップの余白0） -->
     <header class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur border-b">
-      <div class="mx-auto main-content-width px-4">
-        <div class="h-14 flex items-center justify-between gap-4">
+      <div class="mx-auto main-content-width px-6">
+        <div class="h-16 flex items-center justify-between gap-6">
           <div class="min-w-0">
             <h1 class="text-lg font-bold text-gray-900 leading-none">LoL Insight</h1>
             <p class="hidden sm:block text-xs text-gray-600 truncate">最新試合のマッチアップを分析</p>
           </div>
 
           <!-- 検索フォーム（ヘッダ内・コンパクト） -->
-          <form @submit.prevent="searchSummoner" class="flex items-center gap-2 w-full sm:w-auto max-w-md">
+          <form @submit.prevent="searchSummoner" class="flex items-center gap-3 w-full sm:w-auto max-w-4xl">
             <input
               v-model="searchForm.summonerName"
               type="text"
               required
-              class="flex-1 min-w-0 px-3 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              class="flex-1 min-w-52 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               placeholder="ゲーム名"
             />
             <input
               v-model="searchForm.tagLine"
               type="text"
               required
-              class="w-20 px-3 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               placeholder="JP1"
             />
             <button
               type="submit"
               :disabled="loading"
-              class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed h-9 px-3 text-sm flex items-center justify-center"
+              class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed h-10 px-4 text-sm flex items-center justify-center whitespace-nowrap"
             >
               <span v-if="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
               {{ loading ? '分析中...' : 'マッチ分析' }}
@@ -37,7 +37,7 @@
               type="button"
               :disabled="loading || isAdviceGenerating"
               @click="onFetchFeaturedUser"
-              class="h-9 px-3 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="h-10 px-4 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               title="/lol/spectator/v5/featured-games から実行中ユーザーを取得して入力欄にセット"
             >実行中ユーザー取得</button>
           </form>
