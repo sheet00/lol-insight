@@ -96,6 +96,48 @@ export interface Challenge {
   playersInLevel?: number
 }
 
+// 試合詳細情報の型
+export interface MatchDetail {
+  matchId: string
+  gameInfo: GameInfo
+  myTeam: ParticipantWithRank[]
+  enemyTeam: ParticipantWithRank[]
+  myParticipant: ParticipantWithRank
+}
+
+export interface GameInfo {
+  gameMode: string
+  queueId: number
+  gameDuration: number
+  gameCreation: number
+  gameEndTimestamp: number
+  gameVersion: string
+}
+
+export interface ParticipantWithRank {
+  puuid: string
+  summonerName: string
+  championId: number
+  championName: string
+  teamId: number
+  kills: number
+  deaths: number
+  assists: number
+  win: boolean
+  totalDamageDealt: number
+  goldEarned: number
+  rank: RankInfo | null
+  summonerLevel: number
+}
+
+export interface RankInfo {
+  tier: string
+  rank: string
+  leaguePoints: number
+  wins: number
+  losses: number
+}
+
 export interface MatchInfo {
   matchId: string
   gameCreation: number

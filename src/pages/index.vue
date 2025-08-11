@@ -2,135 +2,174 @@
   <div class="min-h-screen bg-gray-50">
     <div class="container mx-auto px-4 py-16">
       <!-- ヘッダー -->
-      <header class="text-center mb-12">
-        <h1 class="text-5xl font-bold text-gray-900 mb-4">
-          LoL Insight
-        </h1>
-        <p class="text-xl text-gray-600">
-          League of Legends プレイヤー情報分析ツール
-        </p>
+      <header class="bg-white shadow-sm border-b mb-8">
+        <div class="container mx-auto px-4 py-6">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900">
+                LoL Insight
+              </h1>
+              <p class="text-gray-600 mt-1">
+                最新試合のマッチアップを分析
+              </p>
+            </div>
+            
+            <!-- 検索フォーム（ヘッダー内） -->
+            <form @submit.prevent="searchSummoner" class="flex flex-col sm:flex-row gap-2 max-w-md w-full lg:w-auto">
+              <div class="flex gap-2">
+                <input
+                  v-model="searchForm.summonerName"
+                  type="text"
+                  required
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="ゲーム名"
+                />
+                <input
+                  v-model="searchForm.tagLine"
+                  type="text"
+                  required
+                  class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="JP1"
+                />
+              </div>
+              <button
+                type="submit"
+                :disabled="loading"
+                class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm px-4 py-2"
+              >
+                <span v-if="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+                {{ loading ? '分析中...' : 'マッチ分析' }}
+              </button>
+            </form>
+          </div>
+        </div>
       </header>
 
-      <!-- サモナー検索フォーム -->
-      <div class="max-w-2xl mx-auto">
-        <div class="card mb-8">
-          <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">
-            プレイヤー検索（Riot ID）
-          </h2>
-          
-          <form @submit.prevent="searchSummoner" class="space-y-6">
-            <!-- ゲーム名入力 -->
-            <div>
-              <label for="summonerName" class="block text-sm font-medium text-gray-700 mb-2">
-                ゲーム名（Riot ID）
-              </label>
-              <input
-                id="summonerName"
-                v-model="searchForm.summonerName"
-                type="text"
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="例：shaat00"
-              />
-            </div>
+      <!-- メインコンテンツ -->
+      <div class="max-w-7xl mx-auto">
 
-            <!-- タグライン入力 -->
-            <div>
-              <label for="tagLine" class="block text-sm font-medium text-gray-700 mb-2">
-                タグライン
-              </label>
-              <input
-                id="tagLine"
-                v-model="searchForm.tagLine"
-                type="text"
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="例：JP1"
-              />
+        <!-- 分析対象プレイヤー表示 -->
+        <div v-if="summonerData && !matchData" class="card text-center">
+          <div class="py-8">
+            <div class="text-2xl font-bold text-gray-900 mb-2">
+              {{ summonerData.account.gameName }}#{{ summonerData.account.tagLine }}
             </div>
-
-            <!-- 検索ボタン -->
-            <button
-              type="submit"
-              :disabled="loading"
-              class="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-            >
-              <span v-if="loading" class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
-              {{ loading ? '検索中...' : 'プレイヤー情報を取得' }}
-            </button>
-          </form>
+            <div class="text-gray-600 mb-4">
+              プレイヤーの最新試合を分析中...
+            </div>
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
         </div>
 
-        <!-- 検索結果表示エリア -->
-        <div v-if="summonerData" class="card">
-          <h3 class="text-xl font-semibold text-gray-800 mb-6">
-            プレイヤー情報
-          </h3>
-          
-          <!-- プレイヤー基本情報 -->
-          <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg mb-6">
-            <div class="flex items-center space-x-4">
-              <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                🎮
+        <!-- マッチアップ分析結果 -->
+        <div v-if="matchData" class="space-y-6">
+          <!-- 分析対象プレイヤーとゲーム情報 -->
+          <div class="card">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                  🎮
+                </div>
+                <div>
+                  <h2 class="text-xl font-bold text-gray-900">
+                    {{ matchData.myParticipant.summonerName }}
+                  </h2>
+                  <p class="text-gray-600">
+                    {{ matchData.myParticipant.championName }} - {{ formatGameMode(matchData.gameInfo.queueId) }}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 class="text-2xl font-bold text-gray-900">
-                  {{ summonerData.account.gameName }}#{{ summonerData.account.tagLine }}
-                </h4>
-                <p v-if="summonerData.challenges" class="text-gray-600">
-                  総合ランク: {{ summonerData.challenges.totalPoints.level }}
-                </p>
+              
+              <div class="flex items-center space-x-6">
+                <div class="text-center">
+                  <div class="text-2xl font-bold" :class="matchData.myParticipant.win ? 'text-green-600' : 'text-red-600'">
+                    {{ matchData.myParticipant.win ? '勝利' : '敗北' }}
+                  </div>
+                  <div class="text-sm text-gray-500">結果</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-gray-800">
+                    {{ matchData.myParticipant.kills }}/{{ matchData.myParticipant.deaths }}/{{ matchData.myParticipant.assists }}
+                  </div>
+                  <div class="text-sm text-gray-500">KDA</div>
+                </div>
               </div>
             </div>
           </div>
-          
-          <!-- 詳細情報 -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- アカウント情報 -->
-            <div class="bg-white border border-gray-200 p-4 rounded-lg">
-              <h5 class="font-semibold text-gray-800 mb-3">アカウント情報</h5>
-              <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-gray-600">ゲーム名:</span>
-                  <span class="font-medium">{{ summonerData.account.gameName }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">タグライン:</span>
-                  <span class="font-medium">{{ summonerData.account.tagLine }}</span>
-                </div>
-                <div v-if="summonerData.challenges" class="flex justify-between">
-                  <span class="text-gray-600">総合実力:</span>
-                  <span class="font-medium">{{ summonerData.challenges.totalPoints.level }}</span>
+
+          <!-- マッチアップ詳細 -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 味方チーム -->
+            <div class="card">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold" :class="matchData.myParticipant.win ? 'text-blue-600' : 'text-gray-600'">
+                  味方チーム
+                </h3>
+                <div class="text-sm font-medium px-3 py-1 rounded-full"
+                     :class="matchData.myParticipant.win ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                  {{ matchData.myParticipant.win ? '勝利' : '敗北' }}
                 </div>
               </div>
-            </div>
-            
-            <!-- ランク情報 -->
-            <div class="bg-white border border-gray-200 p-4 rounded-lg">
-              <h5 class="font-semibold text-gray-800 mb-3">ランク情報</h5>
-              <div v-if="summonerData.leagues.length > 0" class="space-y-2">
-                <div v-for="league in summonerData.leagues" :key="league.queueType" class="text-sm">
-                  <div class="flex justify-between">
-                    <span class="text-gray-600">{{ league.queueType }}:</span>
-                    <span class="font-medium">{{ league.tier }} {{ league.rank }}</span>
+              <div class="space-y-3">
+                <div v-for="player in matchData.myTeam" :key="player.puuid" 
+                     class="flex items-center justify-between p-3 rounded-lg transition-colors"
+                     :class="player.puuid === matchData.myParticipant.puuid ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 hover:bg-gray-100'">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gray-300 rounded flex items-center justify-center text-xs font-bold">
+                      {{ player.championName.slice(0, 2) }}
+                    </div>
+                    <div>
+                      <div class="font-medium text-gray-900">{{ player.summonerName }}</div>
+                      <div class="text-sm text-gray-600">{{ player.championName }}</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-medium text-gray-900">
+                      {{ player.kills }}/{{ player.deaths }}/{{ player.assists }}
+                    </div>
+                    <div class="text-xs" :class="player.rank ? 'text-blue-600' : 'text-gray-500'">
+                      {{ player.rank ? `${player.rank.tier} ${player.rank.rank}` : `Lv.${player.summonerLevel}` }}
+                    </div>
                   </div>
                 </div>
               </div>
-              <div v-else class="text-gray-500 text-sm">
-                ランク情報が見つかりませんでした
+            </div>
+
+            <!-- 敵チーム -->
+            <div class="card">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold" :class="!matchData.myParticipant.win ? 'text-red-600' : 'text-gray-600'">
+                  敵チーム
+                </h3>
+                <div class="text-sm font-medium px-3 py-1 rounded-full"
+                     :class="!matchData.myParticipant.win ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                  {{ !matchData.myParticipant.win ? '勝利' : '敗北' }}
+                </div>
+              </div>
+              <div class="space-y-3">
+                <div v-for="player in matchData.enemyTeam" :key="player.puuid" 
+                     class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gray-300 rounded flex items-center justify-center text-xs font-bold">
+                      {{ player.championName.slice(0, 2) }}
+                    </div>
+                    <div>
+                      <div class="font-medium text-gray-900">{{ player.summonerName }}</div>
+                      <div class="text-sm text-gray-600">{{ player.championName }}</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-medium text-gray-900">
+                      {{ player.kills }}/{{ player.deaths }}/{{ player.assists }}
+                    </div>
+                    <div class="text-xs" :class="player.rank ? 'text-red-600' : 'text-gray-500'">
+                      {{ player.rank ? `${player.rank.tier} ${player.rank.rank}` : `Lv.${player.summonerLevel}` }}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          
-          <!-- デバッグ情報（開発時のみ） -->
-          <details class="mt-6">
-            <summary class="cursor-pointer text-gray-600 text-sm hover:text-gray-800">
-              詳細なデータを表示（デバッグ用）
-            </summary>
-            <div class="bg-gray-50 p-4 rounded-lg mt-2">
-              <pre class="text-xs text-gray-700 whitespace-pre-wrap">{{ JSON.stringify(summonerData, null, 2) }}</pre>
-            </div>
-          </details>
         </div>
 
         <!-- エラー表示 -->
@@ -150,7 +189,7 @@
 
 <script setup lang="ts">
 import "@/assets/styles/main.css"
-import type { SummonerSearchResult } from '~/types'
+import type { SummonerSearchResult, MatchDetail } from '~/types'
 
 // リアクティブデータ
 const searchForm = ref({
@@ -159,7 +198,9 @@ const searchForm = ref({
 })
 
 const loading = ref(false)
+const loadingMatch = ref(false)
 const summonerData = ref<SummonerSearchResult | null>(null)
+const matchData = ref<MatchDetail | null>(null)
 const error = ref('')
 
 // サモナー検索処理
@@ -184,6 +225,16 @@ const searchSummoner = async () => {
     })
 
     summonerData.value = response
+    
+    // プレイヤー情報取得成功後、自動で最新試合情報も取得
+    try {
+      console.log('プレイヤー情報取得成功、最新試合情報を自動取得中...')
+      await getLatestMatchInternal(response.account.puuid)
+    } catch (matchError) {
+      console.warn('最新試合情報の自動取得に失敗:', matchError)
+      // 試合情報取得失敗は致命的エラーではないので、エラー表示はしない
+      matchData.value = null
+    }
   } catch (err: any) {
     console.error('サモナー検索エラー:', err)
     
@@ -210,6 +261,74 @@ const searchSummoner = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// 最新試合情報取得処理（内部用）
+const getLatestMatchInternal = async (puuid: string) => {
+  // 最新試合情報APIにリクエスト
+  const response = await $fetch<MatchDetail>('/api/match/latest', {
+    method: 'POST',
+    body: {
+      puuid: puuid
+    }
+  })
+
+  matchData.value = response
+  console.log('最新試合情報取得成功:', response)
+}
+
+// 最新試合情報取得処理（ボタン用）
+const getLatestMatch = async () => {
+  if (!summonerData.value) {
+    error.value = 'まずプレイヤー情報を取得してください'
+    return
+  }
+
+  loadingMatch.value = true
+  error.value = ''
+
+  try {
+    await getLatestMatchInternal(summonerData.value.account.puuid)
+  } catch (err: any) {
+    console.error('最新試合情報取得エラー:', err)
+    
+    // エラー内容を詳しく表示
+    let errorMessage = '最新試合情報の取得に失敗しました'
+    
+    if (err.data?.message) {
+      errorMessage = err.data.message
+    } else if (err.statusMessage) {
+      errorMessage = err.statusMessage
+    } else if (err.message) {
+      errorMessage = err.message
+    } else if (typeof err === 'string') {
+      errorMessage = err
+    }
+    
+    // ステータスコードも表示
+    if (err.status || err.statusCode) {
+      const statusCode = err.status || err.statusCode
+      errorMessage = `[${statusCode}] ${errorMessage}`
+    }
+    
+    error.value = errorMessage
+  } finally {
+    loadingMatch.value = false
+  }
+}
+
+// ゲームモード表示用関数
+const formatGameMode = (queueId: number) => {
+  const queueMap: { [key: number]: string } = {
+    420: 'ランクソロ/デュオ',
+    440: 'ランクフレックス',
+    450: 'ARAM',
+    480: 'カジュアル',
+    830: 'Co-op vs AI',
+    400: 'ノーマルドラフト',
+    430: 'ノーマルブラインド'
+  }
+  return queueMap[queueId] || `ゲームモード (${queueId})`
 }
 
 // メタ情報
