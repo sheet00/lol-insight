@@ -71,13 +71,15 @@
           <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg mb-6">
             <div class="flex items-center space-x-4">
               <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                {{ summonerData.summoner.profileIconId }}
+                🎮
               </div>
               <div>
                 <h4 class="text-2xl font-bold text-gray-900">
                   {{ summonerData.account.gameName }}#{{ summonerData.account.tagLine }}
                 </h4>
-                <p class="text-gray-600">レベル {{ summonerData.summoner.summonerLevel }}</p>
+                <p v-if="summonerData.challenges" class="text-gray-600">
+                  総合ランク: {{ summonerData.challenges.totalPoints.level }}
+                </p>
               </div>
             </div>
           </div>
@@ -96,9 +98,9 @@
                   <span class="text-gray-600">タグライン:</span>
                   <span class="font-medium">{{ summonerData.account.tagLine }}</span>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">レベル:</span>
-                  <span class="font-medium">{{ summonerData.summoner.summonerLevel }}</span>
+                <div v-if="summonerData.challenges" class="flex justify-between">
+                  <span class="text-gray-600">総合実力:</span>
+                  <span class="font-medium">{{ summonerData.challenges.totalPoints.level }}</span>
                 </div>
               </div>
             </div>

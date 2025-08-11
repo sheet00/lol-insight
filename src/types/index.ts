@@ -50,14 +50,50 @@ export interface SummonerSearchResult {
     gameName: string
     tagLine: string
   }
-  summoner: {
-    id: string | null
-    accountId: string | null
-    name: string
-    summonerLevel: number
-    profileIconId: number
-  }
   leagues: LeagueEntry[]
+  challenges: ChallengesData | null
+}
+
+// Challenges API レスポンス型
+export interface ChallengesData {
+  totalPoints: {
+    level: string
+    current: number
+    max: number
+    percentile: number
+  }
+  categoryPoints: {
+    TEAMWORK: CategoryPoint
+    IMAGINATION: CategoryPoint
+    EXPERTISE: CategoryPoint
+    VETERANCY: CategoryPoint
+    COLLECTION: CategoryPoint
+  }
+  challenges: Challenge[]
+  preferences: {
+    bannerAccent: string
+    title: string
+    challengeIds: number[]
+    crestBorder: string
+    prestigeCrestBorderLevel: number
+  }
+}
+
+export interface CategoryPoint {
+  level: string
+  current: number
+  max: number
+  percentile: number
+}
+
+export interface Challenge {
+  challengeId: number
+  percentile: number
+  level: string
+  value: number
+  achievedTime?: number
+  position?: number
+  playersInLevel?: number
 }
 
 export interface MatchInfo {

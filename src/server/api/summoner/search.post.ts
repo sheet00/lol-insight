@@ -46,37 +46,33 @@ export default defineEventHandler(async (event): Promise<SummonerSearchResult> =
       })
     }
 
-    // 2. Summoner API でサモナー情報を取得
-    const summonerUrl = `https://jp1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${accountResponse.puuid}`
-    console.log('Debug - Summoner URL:', summonerUrl)
-    
-    const summonerResponse = await $fetch<SummonerInfo>(summonerUrl, {
-      headers: {
-        'X-Riot-Token': apiKey
-      }
-    })
-    
-    console.log('Debug - Summoner Response:', JSON.stringify(summonerResponse, null, 2))
+    console.log('Debug - Summoner API は廃止、PUUIDから直接必要な情報を取得します')
 
-    // 3. League API でランク情報を取得（idがある場合のみ）
+    // 3. League API でランク情報を取得（by-puuid エンドポイントを使用）
     let leagueResponse: LeagueEntry[] = []
     
-    if (summonerResponse.id) {
-      const leagueUrl = `https://jp1.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerResponse.id}`
-      console.log('Debug - League URL:', leagueUrl)
+    try {
+      const leagueUrl = `https://jp1.api.riotgames.com/lol/league/v4/entries/by-puuid/${accountResponse.puuid}?api_key=${apiKey}`
+      console.log('Debug - League by PUUID URL:', leagueUrl)
       
-      try {
-        leagueResponse = await $fetch<LeagueEntry[]>(leagueUrl, {
-          headers: {
-            'X-Riot-Token': apiKey
-          }
-        })
-        console.log('Debug - League Response:', JSON.stringify(leagueResponse, null, 2))
-      } catch (leagueError) {
-        console.warn('League API エラー (スキップします):', leagueError)
-      }
-    } else {
-      console.log('Debug - Summoner ID がないため League API をスキップします')
+      leagueResponse = await $fetch<LeagueEntry[]>(leagueUrl)
+      console.log('Debug - League by PUUID Response:', JSON.stringify(leagueResponse, null, 2))
+    } catch (leagueError) {
+      console.warn('League API by PUUID エラー:', leagueError)
+    }
+
+    // Challenges API V1でプレイヤーデータを取得（追加情報として）
+    let challengesData = null
+    try {
+      const challengesUrl = `https://jp1.api.riotgames.com/lol/challenges/v1/player-data/${accountResponse.puuid}?api_key=${apiKey}`
+      console.log('Debug - Challenges URL:', challengesUrl)
+      
+      challengesData = await $fetch<any>(challengesUrl)
+      
+      console.log('Debug - Challenges Response - Total Points:', challengesData.totalPoints)
+      console.log('Debug - Challenges Response - Category Points:', challengesData.categoryPoints)
+    } catch (challengesError: any) {
+      console.warn('Challenges API エラー (スキップします):', challengesError.status, challengesError.statusText)
     }
 
     // レスポンスデータを整形
@@ -86,14 +82,8 @@ export default defineEventHandler(async (event): Promise<SummonerSearchResult> =
         gameName: accountResponse.gameName,
         tagLine: accountResponse.tagLine
       },
-      summoner: {
-        id: summonerResponse.id || null,
-        accountId: summonerResponse.accountId || null,
-        name: summonerResponse.name || accountResponse.gameName,
-        summonerLevel: summonerResponse.summonerLevel,
-        profileIconId: summonerResponse.profileIconId
-      },
-      leagues: leagueResponse
+      leagues: leagueResponse,
+      challenges: challengesData || null
     }
 
     return result
