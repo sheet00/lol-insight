@@ -159,6 +159,8 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
             leaguePoints: soloRank.leaguePoints,
             wins: soloRank.wins,
             losses: soloRank.losses,
+            winRate: soloRank.wins + soloRank.losses > 0 ? 
+              Math.round((soloRank.wins / (soloRank.wins + soloRank.losses)) * 100) : 0,
             queueType: soloRank.queueType
           } : null
         }

@@ -136,6 +136,7 @@ export interface RankInfo {
   leaguePoints: number
   wins: number
   losses: number
+  winRate: number
   queueType: string
 }
 

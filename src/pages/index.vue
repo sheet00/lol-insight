@@ -115,7 +115,7 @@
                       {{ player.rank ? `${player.rank.tier} ${player.rank.rank}` : `レベル${player.summonerLevel || 0}` }}
                     </div>
                     <div v-if="player.rank" class="text-xs text-gray-500" :title="`${player.rank.queueType}の戦績`">
-                      Win {{ player.rank.wins }} Lose {{ player.rank.losses }} ({{ player.rank.queueType }})
+                      Win {{ player.rank.wins }} Lose {{ player.rank.losses }} ({{ player.rank.winRate }}%)
                     </div>
                   </div>
                 </div>
@@ -149,7 +149,7 @@
                       {{ player.rank ? `${player.rank.tier} ${player.rank.rank}` : `レベル${player.summonerLevel || 0}` }}
                     </div>
                     <div v-if="player.rank" class="text-xs text-gray-500" :title="`${player.rank.queueType}の戦績`">
-                      Win {{ player.rank.wins }} Lose {{ player.rank.losses }} ({{ player.rank.queueType }})
+                      Win {{ player.rank.wins }} Lose {{ player.rank.losses }} ({{ player.rank.winRate }}%)
                     </div>
                   </div>
                 </div>
