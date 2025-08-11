@@ -168,7 +168,7 @@
                   {{ matchData.myParticipant.summonerName }}
                 </h2>
                 <p class="text-gray-600">
-                  {{ matchData.myParticipant.championName }} - {{ formatGameMode(matchData.gameInfo.queueId) }}
+                  {{ getChampionName(matchData.myParticipant.championId) }} - {{ formatGameMode(matchData.gameInfo.queueId) }}
                 </p>
               </div>
               
@@ -208,7 +208,7 @@
                      :class="player.puuid === matchData.myParticipant.puuid ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 hover:bg-gray-100'">
                   <div>
                     <div class="font-medium text-gray-900">{{ player.summonerName }}</div>
-                    <div class="text-sm text-gray-600">{{ player.championName }}</div>
+                    <div class="text-sm text-gray-600">{{ getChampionName(player.championId) }}</div>
                   </div>
                   <div class="text-right">
                     <div class="text-sm font-medium text-gray-900">
@@ -238,7 +238,7 @@
                      class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <div>
                     <div class="font-medium text-gray-900">{{ player.summonerName }}</div>
-                    <div class="text-sm text-gray-600">{{ player.championName }}</div>
+                    <div class="text-sm text-gray-600">{{ getChampionName(player.championId) }}</div>
                   </div>
                   <div class="text-right">
                     <div class="text-sm font-medium text-gray-900">
@@ -438,49 +438,25 @@ const formatGameMode = (queueId: number) => {
 
 // ゲーム時間表示用関数
 const formatGameTime = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
+  // 不正値や負の秒数を0に丸めてMM:SS表示
+  const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0
+  const minutes = Math.floor(safeSeconds / 60)
+  const remainingSeconds = safeSeconds % 60
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
+// チャンピオンデータ読み込み
+import championData from '@/data/champion.json'
+
+// チャンピオンIDマップを初期化時に作成
+const championIdMap: { [key: number]: string } = {}
+Object.values(championData.data).forEach((champion: any) => {
+  championIdMap[parseInt(champion.key)] = champion.name
+})
+
 // チャンピオン名取得関数
 const getChampionName = (championId: number) => {
-  const championMap: { [key: number]: string } = {
-    // 主要チャンピオンのマッピング
-    1: 'Annie', 2: 'Olaf', 3: 'Galio', 4: 'Twisted Fate', 5: 'Xin Zhao',
-    6: 'Urgot', 7: 'LeBlanc', 8: 'Vladimir', 9: 'Fiddlesticks', 10: 'Kayle',
-    11: 'Master Yi', 12: 'Alistar', 13: 'Ryze', 14: 'Sion', 15: 'Sivir',
-    16: 'Soraka', 17: 'Teemo', 18: 'Tristana', 19: 'Warwick', 20: 'Nunu',
-    21: 'Miss Fortune', 22: 'Ashe', 23: 'Tryndamere', 24: 'Jax', 25: 'Morgana',
-    26: 'Zilean', 27: 'Singed', 28: 'Evelynn', 29: 'Twitch', 30: 'Karthus',
-    31: "Cho'Gath", 32: 'Amumu', 33: 'Rammus', 34: 'Anivia', 35: 'Shaco',
-    36: 'Dr. Mundo', 37: 'Sona', 38: 'Kassadin', 39: 'Irelia', 40: 'Janna',
-    41: 'Gangplank', 42: 'Corki', 43: 'Karma', 44: 'Taric', 45: 'Veigar',
-    48: 'Trundle', 50: 'Swain', 51: 'Caitlyn', 53: 'Blitzcrank', 54: 'Malphite',
-    55: 'Katarina', 56: 'Nocturne', 57: 'Maokai', 58: 'Renekton', 59: 'Jarvan IV',
-    60: 'Elise', 61: 'Orianna', 62: 'Wukong', 63: 'Brand', 64: 'Lee Sin',
-    67: 'Vayne', 68: 'Rumble', 69: 'Cassiopeia', 72: 'Skarner', 74: 'Heimerdinger',
-    75: 'Nasus', 76: 'Nidalee', 77: 'Udyr', 78: 'Poppy', 79: 'Gragas',
-    80: 'Pantheon', 81: 'Ezreal', 82: 'Mordekaiser', 83: 'Yorick', 84: 'Akali',
-    85: 'Kennen', 86: 'Garen', 89: 'Leona', 90: 'Malzahar', 91: 'Talon',
-    92: 'Riven', 96: "Kog'Maw", 98: 'Shen', 99: 'Lux', 101: 'Xerath',
-    102: 'Shyvana', 103: 'Ahri', 104: 'Graves', 105: 'Fizz', 106: 'Volibear',
-    107: 'Rengar', 110: 'Varus', 111: 'Nautilus', 112: 'Viktor', 113: 'Sejuani',
-    114: 'Fiora', 115: 'Ziggs', 117: 'Lulu', 119: 'Draven', 120: 'Hecarim',
-    121: "Kha'Zix", 122: 'Darius', 126: 'Jayce', 127: 'Lissandra', 131: 'Diana',
-    133: 'Quinn', 134: 'Syndra', 136: 'Aurelion Sol', 141: 'Kayn', 142: 'Zoe',
-    143: 'Zyra', 145: "Kai'Sa", 147: "Seraphine", 150: 'Gnar', 154: 'Zac',
-    157: 'Yasuo', 161: "Vel'Koz", 163: 'Taliyah', 164: 'Camille', 166: 'Akshan',
-    200: 'Bel\'Veth', 201: 'Braum', 202: 'Jhin', 203: 'Kindred', 221: 'Zeri',
-    222: 'Jinx', 223: 'Tahm Kench', 234: 'Viego', 235: 'Senna', 236: 'Lucian',
-    238: 'Zed', 240: 'Kled', 245: 'Ekko', 246: 'Qiyana', 254: 'Vi',
-    266: 'Aatrox', 267: 'Nami', 268: 'Azir', 350: 'Yuumi', 360: 'Samira',
-    412: 'Thresh', 420: 'Illaoi', 421: "Rek'Sai", 427: 'Ivern', 429: 'Kalista',
-    432: 'Bard', 516: 'Ornn', 517: 'Sylas', 518: 'Neeko', 523: 'Aphelios',
-    526: 'Rell', 555: 'Pyke', 875: 'Sett', 876: 'Lillia', 887: 'Gwen',
-    888: 'Renata Glasc', 895: 'Nilah', 897: 'K\'Sante', 901: 'Smolder', 910: 'Hwei', 950: 'Naafiri'
-  }
-  return championMap[championId] || `Champion ${championId}`
+  return championIdMap[championId] || `Champion ${championId}`
 }
 
 // サモナースペル名取得関数

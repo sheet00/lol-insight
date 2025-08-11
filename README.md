@@ -126,3 +126,5 @@ npm run dev
 - [Riot Developer Portal](https://developer.riotgames.com/)
 - [Riot Games API Documentation](https://developer.riotgames.com/docs/lol)
 - [Nuxt.js Documentation](https://nuxt.com/docs)
+
+https://ddragon.leagueoflegends.com/cdn/15.15.1/data/ja_JP/champion.json

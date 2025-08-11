@@ -1,6 +1,7 @@
 .env
 CLAUDE.md
-work
+AGENTS.md
+work/
 
 # Nuxt.js
 node_modules/
