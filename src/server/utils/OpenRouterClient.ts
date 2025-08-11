@@ -67,11 +67,11 @@ export class OpenRouterClient {
       // noop
     }
 
-    // 1回目: 通常生成
+    // 1回目: 通常生成（長文詳細出力用にトークン数大幅増加）
     const first = await this.client.chat.completions.create({
       model: this.model,
       temperature: 0.4,
-      max_tokens: 3000,
+      max_tokens: 8000, // 3000 → 8000に大幅増量
       response_format: { type: "json_object" } as any,
       messages: [
         { role: "system", content: systemPrompt },
@@ -92,43 +92,6 @@ export class OpenRouterClient {
     } catch (e1: any) {
       const snippet1 = text1.slice(0, 500);
       const msg1 = String(e1?.message || e1);
-      const isTrunc =
-        finish1 === "length" ||
-        /Unexpected end|Unterminated string/i.test(msg1);
-      // 2回目: 短縮指示＋トークン増量で再試行
-      if (isTrunc) {
-        const compactInstruction = `${instruction}\n\n[重要]\n- ショート版スキーマのみで返すこと。\n- 各配列は最大2要素。各文字列は50文字以内。\n- 文字列内に改行・箇条書き記号(・/•/-)を含めない。\n- JSONのみ出力。`;
-        const second = await this.client.chat.completions.create({
-          model: this.model,
-          temperature: 0.3,
-          max_tokens: 3000,
-          response_format: { type: "json_object" } as any,
-          messages: [
-            { role: "system", content: systemPrompt },
-            {
-              role: "user",
-              content: `${compactInstruction}\n\n[INPUT]\n${inputJson}`,
-            },
-          ],
-        });
-        const finish2 = second.choices?.[0]?.finish_reason;
-        const raw2 = second.choices?.[0]?.message?.content || "";
-        const text2 = this.extractJson(raw2);
-        console.log("[AI] Retry meta", {
-          finish_reason: finish2,
-          model: second.model,
-          usage: (second as any).usage || undefined,
-        });
-        console.log("[AI] Retry content", text2);
-        try {
-          return JSON.parse(text2);
-        } catch (e2: any) {
-          const snippet2 = text2.slice(0, 500);
-          throw new Error(
-            `JSON parse failed after retry: ${e2?.message}. first_error=${msg1}. first_snippet=${snippet1} retry_snippet=${snippet2}`
-          );
-        }
-      }
       throw new Error(`JSON parse failed: ${msg1}. snippet=${snippet1}`);
     }
   }
@@ -138,40 +101,39 @@ export class OpenRouterClient {
       // ChampionID ではなく ChampionName を含む入力を渡す
       ...payload,
       schema: {
-        警戒対象: [
+        マッチアップ分析: [
           {
-            名前: "string",
-            ロール: "string",
-            理由: "string",
-            対処行動: ["string"],
+            自分のチャンピオン: "string",
+            対戦相手: "string",
+            相手ロール: "string",
+            強み: ["string"],
+            弱み: ["string"],
+            戦略: ["string"],
+            注意点: ["string"],
           },
         ],
-        討伐優先: [
-          {
-            名前: "string",
-            ロール: "string",
-            理由: "string",
-            倒し方: ["string"],
-          },
-        ],
-        ビルド方針: {
-          ダメージタイプ: "AD | AP | ハイブリッド",
-          プレイスタイル: "攻撃 | 防御 | バランス",
-          最初の購入: ["string"],
-          コア: ["string"],
-          状況対応: ["string"],
-          ルーン: { キーストーン: "string", 主要: ["string"], 副: ["string"] },
-          サモナースペル: ["string"],
-          切替条件: ["string"],
+        推奨装備: {
+          序盤装備: ["string"],
+          コアアイテム: ["string"],
+          状況対応装備: [
+            {
+              条件: "string",
+              アイテム: "string",
+            },
+          ],
+          装備優先度: ["string"],
         },
-        自分の行動計画: {
-          "レーン戦(0-5分)": ["string"],
-          "レーン戦(5-14分)": ["string"],
-          "中盤(14-22分)": ["string"],
-          "終盤(22分〜)": ["string"],
+        相手チーム分析: {
+          チーム全体の強み: ["string"],
+          チーム全体の弱み: ["string"],
+          狙い目ターゲット: [
+            {
+              チャンピオン: "string",
+              理由: "string",
+              攻略法: "string",
+            },
+          ],
         },
-        具体アクションTOP5: ["string"],
-        リスクシグナル: ["string"],
       },
     });
   }
