@@ -136,6 +136,56 @@ export interface RankInfo {
   leaguePoints: number
   wins: number
   losses: number
+  queueType: string
+}
+
+// 進行中試合詳細情報の型
+export interface LiveMatchDetail {
+  gameId: number
+  gameInfo: LiveGameInfo
+  myTeam: LiveParticipant[]
+  enemyTeam: LiveParticipant[]
+  myParticipant: LiveParticipant
+  bannedChampions: BannedChampion[]
+  observers: Observer
+}
+
+export interface LiveGameInfo {
+  gameMode: string
+  queueId: number
+  gameStartTime: number
+  gameLength: number
+  mapId: number
+  platformId: string
+}
+
+export interface LiveParticipant {
+  puuid: string
+  championId: number
+  teamId: number
+  spell1Id: number
+  spell2Id: number
+  profileIconId: number
+  bot: boolean
+  perks: Perks
+  rank: RankInfo | null
+  summonerLevel: number
+}
+
+export interface BannedChampion {
+  pickTurn: number
+  championId: number
+  teamId: number
+}
+
+export interface Observer {
+  encryptionKey: string
+}
+
+export interface Perks {
+  perkIds: number[]
+  perkStyle: number
+  perkSubStyle: number
 }
 
 export interface MatchInfo {

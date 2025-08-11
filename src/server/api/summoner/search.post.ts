@@ -1,4 +1,5 @@
 import type { RiotAccount, SummonerInfo, LeagueEntry, SummonerSearchResult } from '~/types'
+import { RiotApiManager } from '~/server/utils/RiotApiManager'
 
 export default defineEventHandler(async (event): Promise<SummonerSearchResult> => {
   try {
@@ -27,15 +28,13 @@ export default defineEventHandler(async (event): Promise<SummonerSearchResult> =
     
     console.log('Debug - API Key starts with:', apiKey.substring(0, 15) + '...')
 
+    // Riot API マネージャーを初期化
+    const riotApi = new RiotApiManager(apiKey)
+
     // 1. Account API でRiot IDからPUUIDを取得
-    const accountUrl = `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(summonerName)}/${encodeURIComponent(tagLine)}`
-    console.log('Debug - Making request to:', accountUrl)
+    console.log('Debug - Making request for account info')
     
-    const accountResponse = await $fetch<RiotAccount>(accountUrl, {
-      headers: {
-        'X-Riot-Token': apiKey
-      }
-    })
+    const accountResponse = await riotApi.getAccountByRiotId(summonerName, tagLine)
     
     console.log('Debug - Account Response:', JSON.stringify(accountResponse, null, 2))
 
@@ -52,10 +51,8 @@ export default defineEventHandler(async (event): Promise<SummonerSearchResult> =
     let leagueResponse: LeagueEntry[] = []
     
     try {
-      const leagueUrl = `https://jp1.api.riotgames.com/lol/league/v4/entries/by-puuid/${accountResponse.puuid}?api_key=${apiKey}`
-      console.log('Debug - League by PUUID URL:', leagueUrl)
-      
-      leagueResponse = await $fetch<LeagueEntry[]>(leagueUrl)
+      console.log('Debug - Getting league entries by PUUID')
+      leagueResponse = await riotApi.getLeagueEntries(accountResponse.puuid)
       console.log('Debug - League by PUUID Response:', JSON.stringify(leagueResponse, null, 2))
     } catch (leagueError) {
       console.warn('League API by PUUID エラー:', leagueError)
@@ -64,10 +61,8 @@ export default defineEventHandler(async (event): Promise<SummonerSearchResult> =
     // Challenges API V1でプレイヤーデータを取得（追加情報として）
     let challengesData = null
     try {
-      const challengesUrl = `https://jp1.api.riotgames.com/lol/challenges/v1/player-data/${accountResponse.puuid}?api_key=${apiKey}`
-      console.log('Debug - Challenges URL:', challengesUrl)
-      
-      challengesData = await $fetch<any>(challengesUrl)
+      console.log('Debug - Getting player challenges')
+      challengesData = await riotApi.getPlayerChallenges(accountResponse.puuid)
       
       console.log('Debug - Challenges Response - Total Points:', challengesData.totalPoints)
       console.log('Debug - Challenges Response - Category Points:', challengesData.categoryPoints)

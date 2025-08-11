@@ -1,7 +1,7 @@
-import type { MatchDetail, ParticipantWithRank } from '~/types'
+import type { LiveMatchDetail } from '~/types'
 import { RiotApiManager } from '~/server/utils/RiotApiManager'
 
-export default defineEventHandler(async (event): Promise<MatchDetail> => {
+export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
   try {
     // リクエストボディを取得
     const body = await readBody(event)
@@ -26,67 +26,69 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
       })
     }
     
-    console.log('Debug - 最新試合情報を取得します, PUUID:', puuid.substring(0, 20) + '...')
+    console.log('Debug - 進行中試合情報を取得します, PUUID:', puuid.substring(0, 20) + '...')
 
     // Riot API マネージャーを初期化
     const riotApi = new RiotApiManager(apiKey)
 
-    // 1. Match List API で最新の試合IDを取得
-    console.log('Debug - Getting match IDs')
-    const matchIds = await riotApi.getMatchIds(puuid, 0, 1)
+    // 1. Spectator API V5 で進行中の試合情報を取得
+    console.log('Debug - Spectator API呼び出し開始')
     
-    if (!matchIds || matchIds.length === 0) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: '試合履歴が見つかりません'
+    let currentGameInfo
+    try {
+      currentGameInfo = await riotApi.getCurrentGame(puuid)
+      console.log('Debug - 進行中試合情報取得成功:', {
+        gameId: currentGameInfo.gameId,
+        gameMode: currentGameInfo.gameMode,
+        queueId: currentGameInfo.gameQueueConfigId,
+        gameLength: currentGameInfo.gameLength,
+        participants: currentGameInfo.participants?.length
       })
+    } catch (spectatorError: any) {
+      if (spectatorError.status === 404) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: '現在試合中ではありません。ゲーム中に再度お試行ください。'
+        })
+      }
+      throw spectatorError
     }
 
-    const latestMatchId = matchIds[0]
-    if (!latestMatchId) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: '最新試合IDが取得できませんでした'
-      })
-    }
-    console.log('Debug - 最新試合ID:', latestMatchId)
-
-    // 2. Match Detail API で試合詳細を取得
-    console.log('Debug - Getting match detail for:', latestMatchId)
-    const matchDetail = await riotApi.getMatchDetail(latestMatchId)
-
-    console.log('Debug - 試合詳細取得完了:', {
-      matchId: latestMatchId,
-      gameMode: matchDetail.info?.gameMode,
-      queueId: matchDetail.info?.queueId,
-      gameDuration: matchDetail.info?.gameDuration,
-      participants: matchDetail.info?.participants?.length
-    })
-
-    // 3. 各参加者のランク情報を並列取得
-    const participants = matchDetail.info?.participants || []
+    // 2. 各参加者のランク情報を並列取得
+    const participants = currentGameInfo.participants || []
     console.log('Debug - 参加者のランク情報を取得開始:', participants.length + '人')
 
     const participantPromises = participants.map(async (participant: any, index: number) => {
       try {
-        console.log(`Debug - ${index + 1}/10 プレイヤー ${participant.summonerName} のランク情報取得開始`)
+        console.log(`Debug - ${index + 1}/10 プレイヤー PUUID: ${participant.puuid?.substring(0, 20)}... のランク情報取得開始`)
         
         // 各プレイヤーのランク情報を取得
         const rankInfo = await riotApi.getLeagueEntries(participant.puuid)
         
-        console.log(`Debug - ${participant.summonerName} のランクAPI応答:`, rankInfo?.length, '件')
+        // 各プレイヤーのサモナー情報（レベル含む）を取得
+        const summonerInfo = await riotApi.getSummonerByPuuid(participant.puuid)
+        
+        console.log(`Debug - プレイヤー ${index + 1} のランクAPI応答:`, rankInfo?.length, '件')
         
         // ソロランク情報を抽出（RANKED_SOLO_5x5）
         const soloRank = rankInfo.find((rank: any) => rank.queueType === 'RANKED_SOLO_5x5')
         
         if (soloRank) {
-          console.log(`Debug - ${participant.summonerName} のソロランク: ${soloRank.tier} ${soloRank.rank}`)
+          console.log(`Debug - プレイヤー ${index + 1} のソロランク: ${soloRank.tier} ${soloRank.rank}`)
         } else {
-          console.log(`Debug - ${participant.summonerName} はソロランク未プレイまたは非公開`)
+          console.log(`Debug - プレイヤー ${index + 1} はソロランク未プレイまたは非公開`)
         }
         
         return {
-          ...participant,
+          puuid: participant.puuid,
+          championId: participant.championId,
+          teamId: participant.teamId,
+          spell1Id: participant.spell1Id,
+          spell2Id: participant.spell2Id,
+          profileIconId: participant.profileIconId,
+          bot: participant.bot,
+          perks: participant.perks,
+          summonerLevel: summonerInfo.summonerLevel,
           rank: soloRank ? {
             tier: soloRank.tier,
             rank: soloRank.rank,
@@ -94,19 +96,35 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
             wins: soloRank.wins,
             losses: soloRank.losses,
             queueType: soloRank.queueType
-          } : null,
-          summonerLevel: participant.summonerLevel || 0 // レベル情報を追加
+          } : null
         }
       } catch (error: any) {
-        console.warn(`Debug - プレイヤー ${participant.summonerName} のランク情報取得失敗:`, {
+        console.warn(`Debug - プレイヤー ${index + 1} のランク情報取得失敗:`, {
           status: error.status,
           statusText: error.statusText,
           message: error.message
         })
+        
+        // エラー時でもサモナー情報は取得を試みる
+        let fallbackSummonerLevel = 0
+        try {
+          const summonerInfo = await riotApi.getSummonerByPuuid(participant.puuid)
+          fallbackSummonerLevel = summonerInfo.summonerLevel || 0
+        } catch (summonerError) {
+          console.warn(`Debug - プレイヤー ${index + 1} のサモナー情報取得も失敗`)
+        }
+        
         return {
-          ...participant,
-          rank: null,
-          summonerLevel: participant.summonerLevel || 0 // レベル情報を追加（エラー時も）
+          puuid: participant.puuid,
+          championId: participant.championId,
+          teamId: participant.teamId,
+          spell1Id: participant.spell1Id,
+          spell2Id: participant.spell2Id,
+          profileIconId: participant.profileIconId,
+          bot: participant.bot,
+          perks: participant.perks,
+          summonerLevel: fallbackSummonerLevel,
+          rank: null
         }
       }
     })
@@ -114,7 +132,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
     const participantsWithRank = await Promise.all(participantPromises)
     console.log('Debug - ランク情報付き参加者データ取得完了')
 
-    // 4. 自分がどちらのチームかを判定
+    // 3. 自分がどちらのチームかを判定
     const myParticipant = participantsWithRank.find(p => p.puuid === puuid)
     if (!myParticipant) {
       throw createError({
@@ -134,25 +152,27 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
     })
 
     // レスポンスデータを整形
-    const result: MatchDetail = {
-      matchId: latestMatchId,
+    const result: LiveMatchDetail = {
+      gameId: currentGameInfo.gameId,
       gameInfo: {
-        gameMode: matchDetail.info.gameMode,
-        queueId: matchDetail.info.queueId,
-        gameDuration: matchDetail.info.gameDuration,
-        gameCreation: matchDetail.info.gameCreation,
-        gameEndTimestamp: matchDetail.info.gameEndTimestamp,
-        gameVersion: matchDetail.info.gameVersion
+        gameMode: currentGameInfo.gameMode,
+        queueId: currentGameInfo.gameQueueConfigId,
+        gameStartTime: currentGameInfo.gameStartTime,
+        gameLength: currentGameInfo.gameLength,
+        mapId: currentGameInfo.mapId,
+        platformId: currentGameInfo.platformId
       },
       myTeam: myTeam,
       enemyTeam: enemyTeam,
-      myParticipant: myParticipant
+      myParticipant: myParticipant,
+      bannedChampions: currentGameInfo.bannedChampions || [],
+      observers: currentGameInfo.observers
     }
 
     return result
 
   } catch (error: any) {
-    console.error('最新試合情報取得エラー:', error)
+    console.error('進行中試合情報取得エラー:', error)
     
     // Riot APIのエラーレスポンスを詳しく処理
     if (error.status === 401) {
@@ -168,7 +188,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
     } else if (error.status === 404) {
       throw createError({
         statusCode: 404,
-        statusMessage: '試合情報が見つかりません。'
+        statusMessage: '現在試合中ではありません。ゲーム中に再度お試しください。'
       })
     } else if (error.status === 429) {
       throw createError({
