@@ -33,13 +33,6 @@
               <span v-if="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
               {{ loading ? '分析中...' : 'マッチ分析' }}
             </button>
-            <button
-              type="button"
-              :disabled="loading || isAdviceGenerating"
-              @click="onFetchFeaturedUser"
-              class="h-9 px-3 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              title="/lol/spectator/v5/featured-games から実行中ユーザーを取得して入力欄にセット"
-            >実行中ユーザー取得</button>
           </form>
         </div>
       </div>
@@ -115,18 +108,10 @@
               <div class="space-y-3">
                 <div v-for="player in liveMatchData.myTeam" :key="player.puuid" 
                      class="flex items-center justify-between p-3 rounded-lg transition-colors"
-                     :class="[
-                       player.puuid === liveMatchData.myParticipant.puuid ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 hover:bg-gray-100',
-                       player.isHighestWinRate ? 'ring-1 ring-green-300' : '',
-                       player.isLowestWinRate ? 'ring-1 ring-red-300' : ''
-                     ]">
+                     :class="player.puuid === liveMatchData.myParticipant.puuid ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 hover:bg-gray-100'">
                   <div>
                     <div class="font-medium text-gray-900">{{ getChampionName(player.championId) }}</div>
                     <div class="text-sm text-gray-600">{{ getSummonerSpellName(player.spell1Id) }}/{{ getSummonerSpellName(player.spell2Id) }}</div>
-                    <div v-if="player.rank && (player.isHighestWinRate || player.isLowestWinRate)" class="mt-1 space-x-2">
-                      <span v-if="player.isHighestWinRate" class="inline-block text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">最高勝率</span>
-                      <span v-if="player.isLowestWinRate" class="inline-block text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-medium">最低勝率</span>
-                    </div>
                   </div>
                   <div class="text-right">
                     <div class="text-xs" :class="player.rank ? 'text-blue-600' : 'text-gray-500'">
@@ -157,19 +142,10 @@
               </div>
               <div class="space-y-3">
                 <div v-for="player in liveMatchData.enemyTeam" :key="player.puuid" 
-                     class="flex items-center justify-between p-3 rounded-lg transition-colors"
-                     :class="[
-                       'bg-gray-50 hover:bg-gray-100',
-                       player.isHighestWinRate ? 'ring-1 ring-green-300' : '',
-                       player.isLowestWinRate ? 'ring-1 ring-red-300' : ''
-                     ]">
+                     class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <div>
                     <div class="font-medium text-gray-900">{{ getChampionName(player.championId) }}</div>
                     <div class="text-sm text-gray-600">{{ getSummonerSpellName(player.spell1Id) }}/{{ getSummonerSpellName(player.spell2Id) }}</div>
-                    <div v-if="player.rank && (player.isHighestWinRate || player.isLowestWinRate)" class="mt-1 space-x-2">
-                      <span v-if="player.isHighestWinRate" class="inline-block text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">最高勝率</span>
-                      <span v-if="player.isLowestWinRate" class="inline-block text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-medium">最低勝率</span>
-                    </div>
                   </div>
                   <div class="text-right">
                     <div class="text-xs" :class="player.rank ? 'text-red-600' : 'text-gray-500'">
@@ -186,8 +162,15 @@
 
           <!-- AIアドバイス（新スキーマ対応） -->
           <div class="card">
-            <div class="mb-3">
+            <div class="flex items-center justify-between mb-3">
               <h3 class="text-lg font-semibold">AI アドバイス</h3>
+              <button
+                class="btn-secondary px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="isAdviceGenerating || !liveMatchData"
+                @click="onRegenerateAdvice"
+              >
+                {{ isAdviceGenerating ? '生成中…' : '再生成' }}
+              </button>
             </div>
             <div v-if="isAdviceGenerating" class="text-gray-500">アドバイス生成中…</div>
             <div v-else-if="aiAdvice">
@@ -295,7 +278,15 @@
                   </ul>
                 </div>
 
-                <!-- （不足データ/確信度 は仕様から削除） -->
+                <!-- 不足データ / 確信度 -->
+                <div class="lg:col-span-2 flex items-center justify-between text-sm text-gray-600">
+                  <div>
+                    不足データ: <span class="text-gray-800">{{ (aiAdvice['不足データ'] || []).join(', ') || 'なし' }}</span>
+                  </div>
+                  <div>
+                    確信度: <span class="text-gray-800">{{ aiAdvice['確信度'] }}</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div v-else class="text-gray-500">まだアドバイスはありません</div>
@@ -529,29 +520,6 @@ const getLatestMatchInternal = async (puuid: string) => {
   console.log('最新試合情報取得成功:', response)
 }
 
-// テスト用：Featured Games から実行中ユーザーを取得し、入力欄へセット（実行はユーザー側）
-const onFetchFeaturedUser = async () => {
-  try {
-    error.value = ''
-    const res = await $fetch<{ puuid: string; summonerName?: string | null; gameName?: string | null; tagLine?: string | null; sampleGameId?: number | null }>(
-      '/api/test/live',
-      { method: 'GET' }
-    )
-    const gn = (res.gameName || res.summonerName || '').toString()
-    const tl = (res.tagLine || '').toString() || 'JP1'
-    if (!gn) {
-      error.value = '実行中ユーザーのサモナー名を取得できませんでした'
-      return
-    }
-    // 入力欄にセット（実行はユーザーの操作）
-    searchForm.value.summonerName = gn
-    searchForm.value.tagLine = tl
-  } catch (err: any) {
-    const msg = err?.data?.message || err?.message || String(err)
-    error.value = `[FEATURED] ${msg}`
-  }
-}
-
 // 最新試合情報取得処理（ボタン用）
 const getLatestMatch = async () => {
   if (!summonerData.value) {
@@ -638,15 +606,10 @@ const generateAdvice = async () => {
   if (adviceController) adviceController.abort()
   adviceController = new AbortController()
   isAdviceGenerating.value = true
-  error.value = ''
-  aiAdvice.value = null
   try {
     const body = {
       gameId: String(liveMatchData.value.gameId),
-      gameInfo: {
-        gameMode: liveMatchData.value.gameInfo.gameMode,
-        queueId: liveMatchData.value.gameInfo.queueId
-      },
+      gameInfo: liveMatchData.value.gameInfo,
       myTeam: liveMatchData.value.myTeam.map((p: any) => ({
         championName: getChampionNameById(p.championId),
         rank: p.rank,
@@ -663,11 +626,9 @@ const generateAdvice = async () => {
       })),
     }
     const res: any = await $fetch('/api/advice/generate', { method: 'POST', body, signal: adviceController.signal })
-    aiAdvice.value = res
-  } catch (err: any) {
-    const statusCode = err?.status || err?.statusCode || 500
-    const msg = err?.data?.message || err?.statusMessage || err?.message || String(err)
-    error.value = `[AI ${statusCode}] ${msg}`
+    aiAdvice.value = res.advice || res
+  } catch (e) {
+    console.warn('AIアドバイス生成失敗:', e)
   } finally {
     isAdviceGenerating.value = false
   }

@@ -1,4 +1,4 @@
-import type { LiveMatchDetail } from '~/types'
+import type { LiveMatchDetail, RankInfo } from '~/types'
 import { RiotApiManager } from '~/server/utils/RiotApiManager'
 
 // ティアを数値に変換する関数
@@ -75,7 +75,7 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
     if (!puuid) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'PUUIDが必要です'
+        message: 'PUUIDが必要です'
       })
     }
 
@@ -86,7 +86,7 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
     if (!apiKey) {
       throw createError({
         statusCode: 500,
-        statusMessage: 'Riot API キーが設定されていません'
+        message: 'Riot API キーが設定されていません'
       })
     }
     
@@ -112,7 +112,7 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
       if (spectatorError.status === 404) {
         throw createError({
           statusCode: 404,
-          statusMessage: '現在試合中ではありません。ゲーム中に再度お試行ください。'
+          message: '現在試合中ではありません。ゲーム中に再度お試しください。'
         })
       }
       throw spectatorError
@@ -203,7 +203,7 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
     if (!myParticipant) {
       throw createError({
         statusCode: 404,
-        statusMessage: '試合内でプレイヤーが見つかりません'
+        message: '試合内でプレイヤーが見つかりません'
       })
     }
 
@@ -217,7 +217,39 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
       enemyTeamSize: enemyTeam.length
     })
 
-    // 4. 味方チームと敵チームのティア平均を計算
+    // 4. チーム内 勝率トップ/ボトムをマーキング
+    const markWinRateExtremes = (team: any[]) => {
+      const candidates = team
+        .map((p, idx) => ({ p, idx, rank: p.rank as RankInfo | null }))
+        .filter(({ rank }) => !!rank && (rank!.wins + rank!.losses) > 0) as { p: any; idx: number; rank: RankInfo }[]
+
+      const [first] = candidates
+      if (!first) return
+
+      let maxIdx = first.idx
+      let minIdx = first.idx
+      let maxRate = first.rank.winRate
+      let minRate = first.rank.winRate
+
+      for (const { idx, rank } of candidates) {
+        if (rank.winRate > maxRate) {
+          maxRate = rank.winRate
+          maxIdx = idx
+        }
+        if (rank.winRate < minRate) {
+          minRate = rank.winRate
+          minIdx = idx
+        }
+      }
+      // マーキング（複数該当は先頭のみ）
+      team[maxIdx].isHighestWinRate = true
+      team[minIdx].isLowestWinRate = true
+    }
+
+    markWinRateExtremes(myTeam)
+    markWinRateExtremes(enemyTeam)
+
+    // 5. 味方チームと敵チームのティア平均を計算
     const myTeamAverage = calculateAverageRank(myTeam)
     const enemyTeamAverage = calculateAverageRank(enemyTeam)
 
@@ -263,34 +295,34 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
     if (error.status === 401) {
       throw createError({
         statusCode: 401,
-        statusMessage: `APIキーが無効または期限切れです。 (${error.statusText})`
+        message: `APIキーが無効または期限切れです。 (${error.statusText})`
       })
     } else if (error.status === 403) {
       throw createError({
         statusCode: 403,
-        statusMessage: `APIアクセスが拒否されました。 (${error.statusText})`
+        message: `APIアクセスが拒否されました。 (${error.statusText})`
       })
     } else if (error.status === 404) {
       throw createError({
         statusCode: 404,
-        statusMessage: '現在試合中ではありません。ゲーム中に再度お試しください。'
+        message: '現在試合中ではありません。ゲーム中に再度お試しください。'
       })
     } else if (error.status === 429) {
       throw createError({
         statusCode: 429,
-        statusMessage: 'API使用制限に達しました。しばらく待ってから再試行してください。'
+        message: 'API使用制限に達しました。しばらく待ってから再試行してください。'
       })
     } else if (error.status >= 500) {
       throw createError({
         statusCode: 500,
-        statusMessage: `Riot APIサーバーエラーが発生しました。 (${error.status}: ${error.statusText})`
+        message: `Riot APIサーバーエラーが発生しました。 (${error.status}: ${error.statusText})`
       })
     }
 
     // その他のエラー
     throw createError({
       statusCode: 500,
-      statusMessage: `予期しないエラーが発生しました: ${error.message || error.statusText || 'Unknown error'}`
+      message: `予期しないエラーが発生しました: ${error.message || error.statusText || 'Unknown error'}`
     })
   }
 })

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event): Promise<SummonerSearchResult> =
     if (!summonerName || !tagLine) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'サモナー名とタグラインが必要です'
+        message: 'サモナー名とタグラインが必要です'
       })
     }
 
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event): Promise<SummonerSearchResult> =
     if (!apiKey) {
       throw createError({
         statusCode: 500,
-        statusMessage: 'Riot API キーが設定されていません'
+        message: 'Riot API キーが設定されていません'
       })
     }
     
@@ -41,11 +41,11 @@ export default defineEventHandler(async (event): Promise<SummonerSearchResult> =
     if (!accountResponse || !accountResponse.puuid) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'プレイヤーが見つかりません'
+        message: 'プレイヤーが見つかりません'
       })
     }
 
-    console.log('Debug - Summoner API は廃止、PUUIDから直接必要な情報を取得します')
+    // Summoner API は利用せず、PUUIDベースで取得（ログ出力は省略）
 
     // 3. League API でランク情報を取得（by-puuid エンドポイントを使用）
     let leagueResponse: LeagueEntry[] = []
@@ -90,34 +90,34 @@ export default defineEventHandler(async (event): Promise<SummonerSearchResult> =
     if (error.status === 401) {
       throw createError({
         statusCode: 401,
-        statusMessage: `APIキーが無効または期限切れです。Riot Developer PortalでAPIキーを確認してください。 (Riot API Error: ${error.statusText})`
+        message: `APIキーが無効または期限切れです。Riot Developer PortalでAPIキーを確認してください。 (Riot API Error: ${error.statusText})`
       })
     } else if (error.status === 403) {
       throw createError({
         statusCode: 403,
-        statusMessage: `APIアクセスが拒否されました。APIキーの権限を確認してください。 (Riot API Error: ${error.statusText})`
+        message: `APIアクセスが拒否されました。APIキーの権限を確認してください。 (Riot API Error: ${error.statusText})`
       })
     } else if (error.status === 404) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'プレイヤーが見つかりません。ゲーム名とタグラインを確認してください。'
+        message: 'プレイヤーが見つかりません。ゲーム名とタグラインを確認してください。'
       })
     } else if (error.status === 429) {
       throw createError({
         statusCode: 429,
-        statusMessage: 'API使用制限に達しました。しばらく待ってから再試行してください。'
+        message: 'API使用制限に達しました。しばらく待ってから再試行してください。'
       })
     } else if (error.status >= 500) {
       throw createError({
         statusCode: 500,
-        statusMessage: `Riot APIサーバーエラーが発生しました。 (${error.status}: ${error.statusText})`
+        message: `Riot APIサーバーエラーが発生しました。 (${error.status}: ${error.statusText})`
       })
     }
 
     // その他のエラー
     throw createError({
       statusCode: 500,
-      statusMessage: `予期しないエラーが発生しました: ${error.message || error.statusText || 'Unknown error'} (Status: ${error.status || 'Unknown'})`
+      message: `予期しないエラーが発生しました: ${error.message || error.statusText || 'Unknown error'} (Status: ${error.status || 'Unknown'})`
     })
   }
 })

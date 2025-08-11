@@ -42,6 +42,13 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // プライベート（サーバーサイドのみ）
     riotApiKey: process.env.RIOT_API_KEY,
+    openRouter: {
+      apiKey: process.env.OPENROUTER_API_KEY,
+      model: process.env.OPENROUTER_MODEL,
+      baseURL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+      httpReferer: process.env.OPENROUTER_HTTP_REFERER,
+      xTitle: process.env.OPENROUTER_X_TITLE,
+    },
     
     // パブリック（クライアントサイドでも利用可能）
     public: {

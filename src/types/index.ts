@@ -182,6 +182,9 @@ export interface LiveParticipant {
   perks: Perks
   rank: RankInfo | null
   summonerLevel: number
+  // 進行中試合表示用フラグ
+  isHighestWinRate?: boolean
+  isLowestWinRate?: boolean
 }
 
 export interface BannedChampion {

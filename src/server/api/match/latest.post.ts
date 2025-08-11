@@ -11,7 +11,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
     if (!puuid) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'PUUIDが必要です'
+        message: 'PUUIDが必要です'
       })
     }
 
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
     if (!apiKey) {
       throw createError({
         statusCode: 500,
-        statusMessage: 'Riot API キーが設定されていません'
+        message: 'Riot API キーが設定されていません'
       })
     }
     
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
     if (!matchIds || matchIds.length === 0) {
       throw createError({
         statusCode: 404,
-        statusMessage: '試合履歴が見つかりません'
+        message: '試合履歴が見つかりません'
       })
     }
 
@@ -46,7 +46,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
     if (!latestMatchId) {
       throw createError({
         statusCode: 404,
-        statusMessage: '最新試合IDが取得できませんでした'
+        message: '最新試合IDが取得できませんでした'
       })
     }
     console.log('Debug - 最新試合ID:', latestMatchId)
@@ -119,7 +119,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
     if (!myParticipant) {
       throw createError({
         statusCode: 404,
-        statusMessage: '試合内でプレイヤーが見つかりません'
+        message: '試合内でプレイヤーが見つかりません'
       })
     }
 
@@ -158,34 +158,34 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
     if (error.status === 401) {
       throw createError({
         statusCode: 401,
-        statusMessage: `APIキーが無効または期限切れです。 (${error.statusText})`
+        message: `APIキーが無効または期限切れです。 (${error.statusText})`
       })
     } else if (error.status === 403) {
       throw createError({
         statusCode: 403,
-        statusMessage: `APIアクセスが拒否されました。 (${error.statusText})`
+        message: `APIアクセスが拒否されました。 (${error.statusText})`
       })
     } else if (error.status === 404) {
       throw createError({
         statusCode: 404,
-        statusMessage: '試合情報が見つかりません。'
+        message: '試合情報が見つかりません。'
       })
     } else if (error.status === 429) {
       throw createError({
         statusCode: 429,
-        statusMessage: 'API使用制限に達しました。しばらく待ってから再試行してください。'
+        message: 'API使用制限に達しました。しばらく待ってから再試行してください。'
       })
     } else if (error.status >= 500) {
       throw createError({
         statusCode: 500,
-        statusMessage: `Riot APIサーバーエラーが発生しました。 (${error.status}: ${error.statusText})`
+        message: `Riot APIサーバーエラーが発生しました。 (${error.status}: ${error.statusText})`
       })
     }
 
     // その他のエラー
     throw createError({
       statusCode: 500,
-      statusMessage: `予期しないエラーが発生しました: ${error.message || error.statusText || 'Unknown error'}`
+      message: `予期しないエラーが発生しました: ${error.message || error.statusText || 'Unknown error'}`
     })
   }
 })
