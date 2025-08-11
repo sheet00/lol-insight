@@ -9,38 +9,48 @@
             <p class="hidden sm:block text-xs text-gray-600 truncate">最新試合のマッチアップを分析</p>
           </div>
 
-          <!-- 検索フォーム（ヘッダ内・コンパクト） -->
-          <form @submit.prevent="searchSummoner" class="flex items-center gap-3 w-full sm:w-auto max-w-4xl">
-            <input
-              v-model="searchForm.summonerName"
-              type="text"
-              required
-              class="flex-1 min-w-52 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-              placeholder="ゲーム名"
+          <!-- 検索フォーム・AIモデル選択（ヘッダ内・コンパクト） -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto max-w-5xl">
+            <!-- AIモデル選択 -->
+            <ModelSelector
+              v-model="selectedAiModel"
+              class="compact"
+              @change="onModelChange"
             />
-            <input
-              v-model="searchForm.tagLine"
-              type="text"
-              required
-              class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-              placeholder="JP1"
-            />
-            <button
-              type="submit"
-              :disabled="loading"
-              class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed h-10 px-4 text-sm flex items-center justify-center whitespace-nowrap"
-            >
-              <span v-if="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-              {{ loading ? '分析中...' : 'マッチ分析' }}
-            </button>
-            <button
-              type="button"
-              :disabled="loading || isAdviceGenerating"
-              @click="onFetchFeaturedUser"
-              class="h-10 px-4 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-              title="/lol/spectator/v5/featured-games から実行中ユーザーを取得して入力欄にセット"
-            >実行中ユーザー取得</button>
-          </form>
+            
+            <!-- 検索フォーム -->
+            <form @submit.prevent="searchSummoner" class="flex items-center gap-3 w-full sm:w-auto">
+              <input
+                v-model="searchForm.summonerName"
+                type="text"
+                required
+                class="flex-1 min-w-52 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="ゲーム名"
+              />
+              <input
+                v-model="searchForm.tagLine"
+                type="text"
+                required
+                class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="JP1"
+              />
+              <button
+                type="submit"
+                :disabled="loading"
+                class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed h-10 px-4 text-sm flex items-center justify-center whitespace-nowrap"
+              >
+                <span v-if="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+                {{ loading ? '分析中...' : 'マッチ分析' }}
+              </button>
+              <button
+                type="button"
+                :disabled="loading || isAdviceGenerating"
+                @click="onFetchFeaturedUser"
+                class="h-10 px-4 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                title="/lol/spectator/v5/featured-games から実行中ユーザーを取得して入力欄にセット"
+              >実行中ユーザー取得</button>
+            </form>
+          </div>
         </div>
       </div>
     </header>
@@ -483,6 +493,20 @@ const aiAdvice = ref<any | null>(null)
 const isAdviceGenerating = ref(false)
 let adviceController: AbortController | null = null
 
+// AIモデル選択
+const selectedAiModel = ref('')
+
+// モデル変更時の処理
+const onModelChange = (model: string) => {
+  console.log('AIモデルが変更されました:', model)
+  selectedAiModel.value = model
+  // 既存のアドバイスがある場合は再生成を促す
+  if (liveMatchData.value && aiAdvice.value) {
+    // 自動再生成は行わず、ユーザーが再生成ボタンを押すまで待機
+    console.log('モデル変更により、アドバイス再生成が可能です')
+  }
+}
+
 // サモナー検索処理
 const searchSummoner = async () => {
   if (!searchForm.value.summonerName.trim() || !searchForm.value.tagLine.trim()) {
@@ -492,7 +516,19 @@ const searchSummoner = async () => {
 
   loading.value = true
   error.value = ''
+  
+  // 前の結果をすべてクリア
   summonerData.value = null
+  matchData.value = null
+  liveMatchData.value = null
+  aiAdvice.value = null
+  
+  // 進行中のアドバイス生成があればキャンセル
+  if (adviceController) {
+    adviceController.abort()
+    adviceController = null
+  }
+  isAdviceGenerating.value = false
 
   try {
     // APIエンドポイントにリクエスト
@@ -695,18 +731,35 @@ const generateAdvice = async () => {
   error.value = ''
   aiAdvice.value = null
   try {
+    console.log('[DEBUG] liveMatchData.value.myParticipant:', liveMatchData.value.myParticipant)
+    console.log('[DEBUG] championId:', liveMatchData.value.myParticipant?.championId)
+    console.log('[DEBUG] championName:', getChampionNameById(liveMatchData.value.myParticipant?.championId))
+    
+    const myChampionData = {
+      championName: getChampionNameById(liveMatchData.value.myParticipant.championId),
+      puuid: liveMatchData.value.myParticipant.puuid,
+      rank: liveMatchData.value.myParticipant.rank,
+      summonerLevel: liveMatchData.value.myParticipant.summonerLevel,
+      teamId: liveMatchData.value.myParticipant.teamId,
+    }
+    
+    console.log('[DEBUG] myChampionData:', myChampionData)
+    
     const body = {
       gameId: String(liveMatchData.value.gameId),
       gameInfo: {
         gameMode: liveMatchData.value.gameInfo.gameMode,
         queueId: liveMatchData.value.gameInfo.queueId
       },
+      // 自分のチャンピオン情報を明確に追加
+      myChampion: myChampionData,
       myTeam: liveMatchData.value.myTeam.map((p: any) => ({
         championName: getChampionNameById(p.championId),
         rank: p.rank,
         summonerLevel: p.summonerLevel,
         role: undefined,
         teamId: p.teamId,
+        isMyself: p.puuid === liveMatchData.value.myParticipant.puuid, // 自分かどうかのフラグ
       })),
       enemyTeam: liveMatchData.value.enemyTeam.map((p: any) => ({
         championName: getChampionNameById(p.championId),
@@ -715,7 +768,10 @@ const generateAdvice = async () => {
         role: undefined,
         teamId: p.teamId,
       })),
+      model: selectedAiModel.value || undefined, // 選択されたAIモデルを送信
     }
+    
+    console.log('[DEBUG] Sending body to API:', body)
     const res: any = await $fetch('/api/advice/generate', { method: 'POST', body, signal: adviceController.signal })
     aiAdvice.value = res
   } catch (err: any) {

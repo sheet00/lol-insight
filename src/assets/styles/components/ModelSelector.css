@@ -1,0 +1,32 @@
+.model-selector {
+  @apply flex flex-col gap-2;
+}
+
+.model-selector-label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.model-selector-dropdown {
+  @apply px-3 py-2 border border-gray-300 rounded-md
+         bg-white text-gray-900 text-sm
+         focus:ring-2 focus:ring-blue-500 focus:border-transparent
+         hover:border-gray-400 transition-colors
+         min-w-48;
+}
+
+.model-selector-dropdown:disabled {
+  @apply bg-gray-100 text-gray-500 cursor-not-allowed;
+}
+
+/* コンパクト表示用 */
+.model-selector.compact {
+  @apply flex-row items-center gap-3;
+}
+
+.model-selector.compact .model-selector-label {
+  @apply whitespace-nowrap;
+}
+
+.model-selector.compact .model-selector-dropdown {
+  @apply min-w-0 flex-1;
+}

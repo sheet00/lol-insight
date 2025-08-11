@@ -3,15 +3,33 @@ import { OpenRouterClient, type AdvicePayload } from '~/server/utils/OpenRouterC
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { gameId, gameInfo, myTeam, enemyTeam } = body || {}
+  const { gameId, gameInfo, myChampion, myTeam, enemyTeam, model } = body || {}
 
-  if (!gameId || !gameInfo || !Array.isArray(myTeam) || !Array.isArray(enemyTeam)) {
+  console.log('[DEBUG] Received request body:', {
+    hasGameId: !!gameId,
+    hasGameInfo: !!gameInfo,
+    hasMyChampion: !!myChampion,
+    myChampion: myChampion,
+    hasMyTeam: Array.isArray(myTeam),
+    hasEnemyTeam: Array.isArray(enemyTeam),
+    myTeamLength: Array.isArray(myTeam) ? myTeam.length : 0,
+    enemyTeamLength: Array.isArray(enemyTeam) ? enemyTeam.length : 0,
+  })
+
+  if (!gameId || !gameInfo || !myChampion || !Array.isArray(myTeam) || !Array.isArray(enemyTeam)) {
+    console.error('[DEBUG] Missing fields validation failed:', {
+      gameId: !!gameId,
+      gameInfo: !!gameInfo,
+      myChampion: !!myChampion,
+      myTeam: Array.isArray(myTeam),
+      enemyTeam: Array.isArray(enemyTeam),
+    })
     throw createError({ statusCode: 400, message: '必要なフィールドが不足しています' })
   }
 
   // championName を含むことを軽く検証
   const hasNames = [...myTeam, ...enemyTeam].every((p: any) => typeof p?.championName === 'string' && p.championName.length > 0)
-  if (!hasNames) {
+  if (!hasNames || typeof myChampion?.championName !== 'string' || !myChampion.championName.length) {
     throw createError({ statusCode: 400, message: 'championName が必要です（IDではなく名称を送ってください）' })
   }
 
@@ -21,12 +39,13 @@ export default defineEventHandler(async (event) => {
         gameId,
         gameMode: gameInfo?.gameMode,
         queueId: gameInfo?.queueId,
+        myChampion: myChampion?.championName,
         myTeam: myTeam.map((p: any) => p?.championName),
         enemyTeam: enemyTeam.map((p: any) => p?.championName),
       })
     } catch { /* noop */ }
     const client = new OpenRouterClient()
-    const payload: AdvicePayload = { gameId, gameInfo, myTeam, enemyTeam }
+    const payload: AdvicePayload = { gameId, gameInfo, myChampion, myTeam, enemyTeam, model }
     const json = await client.generateAdvice(payload)
     return json
   } catch (e: any) {

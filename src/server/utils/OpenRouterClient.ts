@@ -5,12 +5,20 @@ import { resolve } from "node:path";
 export type AdvicePayload = {
   gameId: string;
   gameInfo: { gameMode: string; queueId: number };
+  myChampion: {
+    championName: string;
+    puuid: string;
+    rank?: any;
+    summonerLevel?: number;
+    teamId?: number;
+  };
   myTeam: Array<{
     championName: string;
     rank?: any;
     summonerLevel?: number;
     role?: string;
     teamId?: number;
+    isMyself?: boolean;
   }>;
   enemyTeam: Array<{
     championName: string;
@@ -19,11 +27,12 @@ export type AdvicePayload = {
     role?: string;
     teamId?: number;
   }>;
+  model?: string; // 使用するAIモデルを指定（オプション）
 };
 
 export class OpenRouterClient {
   private client: OpenAI;
-  private model: string;
+  private defaultModel: string;
 
   constructor() {
     const config = useRuntimeConfig() as any;
@@ -41,12 +50,15 @@ export class OpenRouterClient {
         "X-Title": or.xTitle || "lol-insight",
       },
     });
-    this.model = or.model;
+    this.defaultModel = or.model;
   }
 
   async generateAdvice(payload: AdvicePayload) {
     const { systemPrompt, instruction } = await this.loadPrompts();
     const inputJson = this.buildPromptPayload(payload);
+    
+    // payloadで指定されたモデルを使用、なければデフォルトモデル
+    const modelToUse = payload.model || this.defaultModel;
 
     try {
       const my = Array.isArray(payload.myTeam)
@@ -56,10 +68,11 @@ export class OpenRouterClient {
         ? payload.enemyTeam.map((p) => p.championName)
         : [];
       console.log("[AI] Request summary", {
-        model: this.model,
+        model: modelToUse,
         gameId: payload.gameId,
         gameMode: payload.gameInfo?.gameMode,
         queueId: payload.gameInfo?.queueId,
+        myChampion: payload.myChampion?.championName,
         myTeam: my,
         enemyTeam: en,
       });
@@ -69,7 +82,7 @@ export class OpenRouterClient {
 
     // 1回目: 通常生成（長文詳細出力用にトークン数大幅増加）
     const first = await this.client.chat.completions.create({
-      model: this.model,
+      model: modelToUse,
       temperature: 0.4,
       max_tokens: 8000, // 3000 → 8000に大幅増量
       response_format: { type: "json_object" } as any,
@@ -98,12 +111,14 @@ export class OpenRouterClient {
 
   private buildPromptPayload(payload: AdvicePayload) {
     return JSON.stringify({
+      // 自分のチャンピオンを明確に指定
+      myChampionName: payload.myChampion?.championName,
       // ChampionID ではなく ChampionName を含む入力を渡す
       ...payload,
       schema: {
         マッチアップ分析: [
           {
-            自分のチャンピオン: "string",
+            自分のチャンピオン: "string (必ず myChampionName と同じ値を使用)",
             対戦相手: "string",
             相手ロール: "string",
             強み: ["string"],

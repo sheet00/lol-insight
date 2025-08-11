@@ -52,7 +52,15 @@ export default defineNuxtConfig({
     
     // パブリック（クライアントサイドでも利用可能）
     public: {
-      apiBase: '/api'
+      apiBase: '/api',
+      availableAiModels: (() => {
+        try {
+          return JSON.parse(process.env.AVAILABLE_AI_MODELS || '["google/gemini-2.5-flash"]')
+        } catch (e) {
+          console.warn('AVAILABLE_AI_MODELS の解析に失敗、デフォルト値を使用:', e)
+          return ["google/gemini-2.5-flash"]
+        }
+      })()
     }
   }
 })
