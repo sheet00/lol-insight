@@ -617,6 +617,7 @@ const searchSummoner = async () => {
   liveMatchData.value = null
   aiAdvice.value = null
   aiDurationMs.value = null
+  aiDurationMs.value = null
   
   // 進行中のアドバイス生成があればキャンセル
   if (adviceController) {
@@ -830,33 +831,34 @@ const generateAdvice = async () => {
     console.log('[DEBUG] championId:', liveMatchData.value.myParticipant?.championId)
     console.log('[DEBUG] championName:', getChampionNameById(liveMatchData.value.myParticipant?.championId))
     
+    const lm = liveMatchData.value as LiveMatchDetail
     const myChampionData = {
-      championName: getChampionNameById(liveMatchData.value.myParticipant.championId),
-      puuid: liveMatchData.value.myParticipant.puuid,
-      rank: liveMatchData.value.myParticipant.rank,
-      summonerLevel: liveMatchData.value.myParticipant.summonerLevel,
-      teamId: liveMatchData.value.myParticipant.teamId,
+      championName: getChampionNameById(lm.myParticipant.championId),
+      puuid: lm.myParticipant.puuid,
+      rank: lm.myParticipant.rank,
+      summonerLevel: lm.myParticipant.summonerLevel,
+      teamId: lm.myParticipant.teamId,
     }
     
     console.log('[DEBUG] myChampionData:', myChampionData)
     
     const body = {
-      gameId: String(liveMatchData.value.gameId),
+      gameId: String(lm.gameId),
       gameInfo: {
-        gameMode: liveMatchData.value.gameInfo.gameMode,
-        queueId: liveMatchData.value.gameInfo.queueId
+        gameMode: lm.gameInfo.gameMode,
+        queueId: lm.gameInfo.queueId
       },
       // 自分のチャンピオン情報を明確に追加
       myChampion: myChampionData,
-      myTeam: liveMatchData.value.myTeam.map((p: any) => ({
+      myTeam: lm.myTeam.map((p: any) => ({
         championName: getChampionNameById(p.championId),
         rank: p.rank,
         summonerLevel: p.summonerLevel,
         role: undefined,
         teamId: p.teamId,
-        isMyself: p.puuid === liveMatchData.value.myParticipant.puuid, // 自分かどうかのフラグ
+        isMyself: p.puuid === lm.myParticipant.puuid, // 自分かどうかのフラグ
       })),
-      enemyTeam: liveMatchData.value.enemyTeam.map((p: any) => ({
+      enemyTeam: lm.enemyTeam.map((p: any) => ({
         championName: getChampionNameById(p.championId),
         rank: p.rank,
         summonerLevel: p.summonerLevel,
