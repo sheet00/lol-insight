@@ -3,7 +3,7 @@ CLAUDE.md
 work
 
 # Nuxt.js
-node_modules
+node_modules/
 *.log
 .nuxt
 .nitro

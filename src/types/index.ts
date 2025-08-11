@@ -1,13 +1,63 @@
 // Riot Games API 関連の型定義
 
-export interface SummonerInfo {
-  id: string
-  accountId: string
+// Account API レスポンス型
+export interface RiotAccount {
   puuid: string
-  name: string
+  gameName: string
+  tagLine: string
+}
+
+// Summoner API レスポンス型
+export interface SummonerInfo {
+  id?: string
+  accountId?: string
+  puuid: string
+  name?: string
   profileIconId: number
   revisionDate: number
   summonerLevel: number
+}
+
+// League API レスポンス型
+export interface LeagueEntry {
+  leagueId: string
+  summonerId: string
+  summonerName: string
+  queueType: string
+  tier: string
+  rank: string
+  leaguePoints: number
+  wins: number
+  losses: number
+  hotStreak: boolean
+  veteran: boolean
+  freshBlood: boolean
+  inactive: boolean
+  miniSeries?: MiniSeries
+}
+
+export interface MiniSeries {
+  losses: number
+  progress: string
+  target: number
+  wins: number
+}
+
+// サモナー検索結果の型
+export interface SummonerSearchResult {
+  account: {
+    puuid: string
+    gameName: string
+    tagLine: string
+  }
+  summoner: {
+    id: string | null
+    accountId: string | null
+    name: string
+    summonerLevel: number
+    profileIconId: number
+  }
+  leagues: LeagueEntry[]
 }
 
 export interface MatchInfo {
