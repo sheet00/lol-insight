@@ -10,7 +10,7 @@
       @change="onModelChange"
     >
       <option v-for="model in availableModels" :key="model" :value="model">
-        {{ formatModelName(model) }}
+        {{ model }}
       </option>
     </select>
   </div>
@@ -48,19 +48,6 @@ const selectedModel = computed({
 // モデル変更時の処理
 const onModelChange = () => {
   emit('change', selectedModel.value)
-}
-
-// モデル名を表示用にフォーマット
-const formatModelName = (modelId: string) => {
-  const modelNames: { [key: string]: string } = {
-    'google/gemini-2.5-flash': 'Gemini 2.5 Flash',
-    'google/gemini-2.0-flash': 'Gemini 2.0 Flash',
-    'anthropic/claude-3.5-sonnet': 'Claude 3.5 Sonnet',
-    'openai/gpt-4o': 'GPT-4o',
-    'openai/gpt-4o-mini': 'GPT-4o Mini',
-    'meta-llama/llama-3.3-70b-instruct': 'Llama 3.3 70B'
-  }
-  return modelNames[modelId] || modelId
 }
 
 // 初期値設定（マウント時にデフォルト値をemit）
