@@ -101,9 +101,6 @@
                   </div>
                   <div class="text-sm text-gray-500">ゲーム状況</div>
                 </div>
-                <div v-if="aiAdvice && aiDurationMs !== null" class="text-xs text-gray-500">
-                  AI生成 {{ aiDurationMs }}ms
-                </div>
               </div>
             </div>
           </div>
@@ -201,6 +198,9 @@
           <div class="card">
             <div class="mb-6">
               <h3 class="text-xl font-semibold">AI アドバイス</h3>
+              <div v-if="aiDurationMs !== null" class="mt-2 mb-2 p-2 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded text-sm">
+                AI生成 {{ aiDurationMs }}ms
+              </div>
               <p class="text-gray-600 text-sm mt-1">自分のチャンピオンと敵チーム5人に対する詳細分析</p>
             </div>
             
