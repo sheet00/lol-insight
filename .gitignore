@@ -1,0 +1,18 @@
+.env
+CLAUDE.md
+work
+
+# Nuxt.js
+node_modules
+*.log
+.nuxt
+.nitro
+.cache
+.output
+dist
+
+# OS
+.DS_Store
+
+# IDE
+.vscode

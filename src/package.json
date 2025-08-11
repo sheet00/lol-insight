@@ -1,0 +1,25 @@
+{
+  "name": "lol-insight",
+  "version": "1.0.0",
+  "description": "League of Legends Insight Application",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --host 0.0.0.0 --port 3000",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@volar/typescript": "^2.0.0",
+    "nuxt": "^4.0.3",
+    "typescript": "^5.2.0",
+    "vue-tsc": "^2.0.0"
+  },
+  "dependencies": {
+    "@nuxtjs/tailwindcss": "^6.8.0",
+    "@pinia/nuxt": "^0.5.1",
+    "pinia": "^2.1.7"
+  }
+}
