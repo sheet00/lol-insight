@@ -314,13 +314,12 @@
           <!-- AIアドバイス（新スキーマ対応） -->
           <div class="card">
             <div class="mb-6">
-              <h3 class="text-xl font-semibold">AI アドバイス</h3>
-              <div
-                v-if="aiDurationMs !== null"
-                class="mt-2 mb-2 p-2 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded text-sm"
-              >
-                実行時間 {{ formatNumber(aiDurationMs) }}ms
-              </div>
+              <h3 class="text-xl font-semibold flex items-center justify-between">
+                <span>AI アドバイス</span>
+                <span v-if="aiDurationMs !== null" class="text-sm text-gray-500 font-normal">
+                  生成時間: {{formatNumber(aiDurationMs)}}ms
+                </span>
+              </h3>
               <p class="text-gray-600 text-sm mt-1">
                 自分のチャンピオンと敵チーム5人に対する詳細分析
               </p>
