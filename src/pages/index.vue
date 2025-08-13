@@ -311,17 +311,22 @@
             </div>
           </div>
 
-          <!-- AIアドバイス（新スキーマ対応） -->
+          <!-- AIアドバイス（シンプル版） -->
           <div class="card">
             <div class="mb-6">
-              <h3 class="text-xl font-semibold flex items-center justify-between">
+              <h3
+                class="text-xl font-semibold flex items-center justify-between"
+              >
                 <span>AI アドバイス</span>
-                <span v-if="aiDurationMs !== null" class="text-sm text-gray-500 font-normal">
-                  生成時間: {{formatNumber(aiDurationMs)}}ms
+                <span
+                  v-if="aiDurationMs !== null"
+                  class="text-sm text-gray-500 font-normal"
+                >
+                  生成時間: {{ formatNumber(aiDurationMs) }}ms
                 </span>
               </h3>
               <p class="text-gray-600 text-sm mt-1">
-                自分のチャンピオンと敵チーム5人に対する詳細分析
+                試合開始直前に確認すべき重要なポイント
               </p>
             </div>
 
@@ -329,522 +334,159 @@
               <div
                 class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-3"
               ></div>
-              <div class="text-gray-500">AIがマッチアップを詳細分析中…</div>
+              <div class="text-gray-500">AIがマッチアップを分析中…</div>
             </div>
 
-            <div v-else-if="aiAdvice" class="space-y-8">
-              <!-- マッチアップ分析 -->
-              <div>
-                <h4
-                  class="text-lg font-semibold text-gray-800 mb-4 flex items-center"
-                >
-                  <span
-                    class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2"
-                    >1</span
+            <div v-else-if="aiAdvice" class="space-y-6">
+              <!-- 対面チャンピオン分析 -->
+              <div v-if="aiAdvice['対面チャンピオン分析']" class="space-y-4">
+                <!-- 警戒ポイント -->
+                <div>
+                  <h4
+                    class="text-lg font-semibold text-red-800 mb-3 flex items-center"
                   >
-                  マッチアップ分析
-                </h4>
-                <div
-                  v-if="aiAdvice['マッチアップ分析']?.length"
-                  class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4"
-                >
+                    <span
+                      class="bg-red-100 text-red-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2"
+                      >⚠️</span
+                    >
+                    対面の警戒ポイント
+                  </h4>
                   <div
-                    v-for="(matchup, i) in aiAdvice['マッチアップ分析']"
-                    :key="'matchup' + i"
-                    class="border rounded-lg p-4 bg-gradient-to-br from-gray-50 to-gray-100 hover:shadow-md transition-shadow"
+                    class="bg-gradient-to-br from-red-50 to-pink-50 rounded-lg p-4"
                   >
-                    <div class="flex items-center justify-between mb-3">
-                      <div>
-                        <h5 class="font-bold text-lg text-gray-900">
-                          {{ matchup.対戦相手 }}
-                        </h5>
-                        <div class="text-xs text-blue-600">
-                          {{ matchup.自分のチャンピオン }} vs
-                          {{ matchup.対戦相手 }}
-                        </div>
-                      </div>
-                      <span
-                        class="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700"
-                        >{{ matchup.相手ロール }}</span
-                      >
-                    </div>
-
-                    <div class="space-y-3">
-                      <div>
-                        <div class="text-sm font-medium text-green-700 mb-1">
-                          💪 相手の強み
-                        </div>
-                        <ul
-                          class="list-disc pl-4 text-sm text-gray-700 space-y-1"
-                        >
-                          <li
-                            v-for="(strength, j) in matchup.強み"
-                            :key="'str' + i + j"
-                          >
-                            {{ strength }}
-                          </li>
-                        </ul>
-                      </div>
-
-                      <div>
-                        <div class="text-sm font-medium text-red-700 mb-1">
-                          🎯 相手の弱み
-                        </div>
-                        <ul
-                          class="list-disc pl-4 text-sm text-gray-700 space-y-1"
-                        >
-                          <li
-                            v-for="(weakness, j) in matchup.弱み"
-                            :key="'weak' + i + j"
-                          >
-                            {{ weakness }}
-                          </li>
-                        </ul>
-                      </div>
-
-                      <div>
-                        <div class="text-sm font-medium text-blue-700 mb-1">
-                          ⚔️ 戦略
-                        </div>
-                        <ul
-                          class="list-disc pl-4 text-sm text-gray-700 space-y-1"
-                        >
-                          <li
-                            v-for="(strategy, j) in matchup.戦略"
-                            :key="'strat' + i + j"
-                          >
-                            {{ strategy }}
-                          </li>
-                        </ul>
-                      </div>
-
-                      <div>
-                        <div class="text-sm font-medium text-orange-700 mb-1">
-                          ⚠️ 注意点
-                        </div>
-                        <ul
-                          class="list-disc pl-4 text-sm text-gray-700 space-y-1"
-                        >
-                          <li
-                            v-for="(caution, j) in matchup.注意点"
-                            :key="'caut' + i + j"
-                          >
-                            {{ caution }}
-                          </li>
-                        </ul>
-                      </div>
+                    <div
+                      v-if="aiAdvice['対面チャンピオン分析']['警戒ポイント']"
+                      class="prose prose-sm max-w-none"
+                    >
+                      <div
+                        class="text-gray-800 leading-relaxed"
+                        v-html="
+                          formatTextWithBreaks(
+                            aiAdvice['対面チャンピオン分析']['警戒ポイント']
+                          )
+                        "
+                      ></div>
                     </div>
                   </div>
                 </div>
-                <div v-else class="text-gray-500 text-center py-4">
-                  マッチアップ分析データがありません
-                </div>
-              </div>
 
-              <!-- 推奨装備 -->
-              <div>
-                <h4
-                  class="text-lg font-semibold text-gray-800 mb-4 flex items-center"
-                >
-                  <span
-                    class="bg-purple-100 text-purple-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2"
-                    >2</span
+                <!-- 対策方法 -->
+                <div>
+                  <h4
+                    class="text-lg font-semibold text-red-700 mb-3 flex items-center"
                   >
-                  推奨装備
-                </h4>
-                <div
-                  v-if="aiAdvice['推奨装備']"
-                  class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6"
-                >
+                    <span
+                      class="bg-red-100 text-red-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2"
+                      >🎯</span
+                    >
+                    対面への対策
+                  </h4>
                   <div
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                    class="bg-gradient-to-br from-red-50 to-rose-50 rounded-lg p-4"
                   >
-                    <div>
-                      <div class="text-sm font-medium text-purple-700 mb-2">
-                        🏁 序盤装備
-                      </div>
-                      <ul class="space-y-1">
-                        <li
-                          v-for="(item, i) in aiAdvice['推奨装備'][
-                            '序盤装備'
-                          ] || []"
-                          :key="'early' + i"
-                          class="text-sm bg-white px-2 py-1 rounded shadow-sm"
-                        >
-                          {{ item }}
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div>
-                      <div class="text-sm font-medium text-purple-700 mb-2">
-                        ⭐ コアアイテム
-                      </div>
-                      <ul class="space-y-1">
-                        <li
-                          v-for="(item, i) in aiAdvice['推奨装備'][
-                            'コアアイテム'
-                          ] || []"
-                          :key="'core' + i"
-                          class="text-sm bg-white px-2 py-1 rounded shadow-sm font-medium"
-                        >
-                          {{ item }}
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div>
-                      <div class="text-sm font-medium text-purple-700 mb-2">
-                        🔄 状況対応装備
-                      </div>
-                      <div class="space-y-2">
-                        <div
-                          v-for="(situational, i) in aiAdvice['推奨装備'][
-                            '状況対応装備'
-                          ] || []"
-                          :key="'sit' + i"
-                          class="text-xs bg-white p-2 rounded shadow-sm"
-                        >
-                          <div class="text-gray-600">
-                            {{ situational.条件 }}
-                          </div>
-                          <div class="font-medium">
-                            → {{ situational.アイテム }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div class="text-sm font-medium text-purple-700 mb-2">
-                        📊 装備優先度
-                      </div>
-                      <ol class="space-y-1">
-                        <li
-                          v-for="(item, i) in aiAdvice['推奨装備'][
-                            '装備優先度'
-                          ] || []"
-                          :key="'priority' + i"
-                          class="text-sm bg-white px-2 py-1 rounded shadow-sm"
-                        >
-                          <span class="text-purple-600 font-bold"
-                            >{{ i + 1 }}.</span
-                          >
-                          {{ item }}
-                        </li>
-                      </ol>
+                    <div
+                      v-if="aiAdvice['対面チャンピオン分析']['対策方法']"
+                      class="prose prose-sm max-w-none"
+                    >
+                      <div
+                        class="text-gray-800 leading-relaxed"
+                        v-html="
+                          formatTextWithBreaks(
+                            aiAdvice['対面チャンピオン分析']['対策方法']
+                          )
+                        "
+                      ></div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- 相手チーム分析 -->
-              <div>
-                <h4
-                  class="text-lg font-semibold text-gray-800 mb-4 flex items-center"
-                >
-                  <span
-                    class="bg-red-100 text-red-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2"
-                    >3</span
+              <!-- 自分の戦略 -->
+              <div v-if="aiAdvice['自分の戦略']" class="space-y-4">
+                <!-- レーン戦 -->
+                <div>
+                  <h4
+                    class="text-lg font-semibold text-blue-800 mb-3 flex items-center"
                   >
-                  相手チーム分析
-                </h4>
-                <div v-if="aiAdvice['相手チーム分析']" class="space-y-6">
-                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- チーム全体の強み -->
-                    <div
-                      class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4"
+                    <span
+                      class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2"
+                      >⚔️</span
                     >
-                      <h5
-                        class="font-semibold text-green-800 mb-3 flex items-center"
-                      >
-                        <span class="mr-2">💪</span>相手チームの強み
-                      </h5>
-                      <ul class="space-y-2">
-                        <li
-                          v-for="(strength, i) in aiAdvice['相手チーム分析'][
-                            'チーム全体の強み'
-                          ] || []"
-                          :key="'team_str' + i"
-                          class="text-sm text-gray-700 bg-white p-2 rounded shadow-sm"
-                        >
-                          {{ strength }}
-                        </li>
-                      </ul>
-                    </div>
-
-                    <!-- チーム全体の弱み -->
-                    <div
-                      class="bg-gradient-to-br from-red-50 to-pink-50 rounded-lg p-4"
-                    >
-                      <h5
-                        class="font-semibold text-red-800 mb-3 flex items-center"
-                      >
-                        <span class="mr-2">🎯</span>相手チームの弱み
-                      </h5>
-                      <ul class="space-y-2">
-                        <li
-                          v-for="(weakness, i) in aiAdvice['相手チーム分析'][
-                            'チーム全体の弱み'
-                          ] || []"
-                          :key="'team_weak' + i"
-                          class="text-sm text-gray-700 bg-white p-2 rounded shadow-sm"
-                        >
-                          {{ weakness }}
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <!-- 狙い目ターゲット -->
+                    レーン戦の立ち回り
+                  </h4>
                   <div
                     class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-4"
                   >
-                    <h5
-                      class="font-semibold text-blue-800 mb-3 flex items-center"
+                    <div
+                      v-if="aiAdvice['自分の戦略']['レーン戦']"
+                      class="prose prose-sm max-w-none"
                     >
-                      <span class="mr-2">🎯</span>狙い目ターゲット
-                    </h5>
-                    <div class="space-y-3">
                       <div
-                        v-for="(target, i) in aiAdvice['相手チーム分析'][
-                          '狙い目ターゲット'
-                        ] || []"
-                        :key="'target' + i"
-                        class="bg-white p-3 rounded shadow-sm"
-                      >
-                        <div class="font-medium text-blue-800 mb-1">
-                          {{ target.チャンピオン }}
-                        </div>
-                        <div class="text-sm text-gray-600 mb-2">
-                          {{ target.理由 }}
-                        </div>
-                        <div class="text-sm text-blue-700 font-medium">
-                          攻略法: {{ target.攻略法 }}
-                        </div>
-                      </div>
+                        class="text-gray-800 leading-relaxed"
+                        v-html="
+                          formatTextWithBreaks(
+                            aiAdvice['自分の戦略']['レーン戦']
+                          )
+                        "
+                      ></div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- 自チャンピオン戦略 -->
-              <div>
-                <h4
-                  class="text-lg font-semibold text-gray-800 mb-4 flex items-center"
-                >
-                  <span
-                    class="bg-green-100 text-green-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2"
-                    >4</span
+                <!-- 集団戦 -->
+                <div>
+                  <h4
+                    class="text-lg font-semibold text-green-800 mb-3 flex items-center"
                   >
-                  自チャンピオン戦略
-                </h4>
-                <div v-if="aiAdvice['自チャンピオン戦略']" class="space-y-6">
-                  <!-- チーム内での役割 -->
-                  <div
-                    class="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-4"
-                  >
-                    <h5
-                      class="font-semibold text-green-800 mb-3 flex items-center"
+                    <span
+                      class="bg-green-100 text-green-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2"
+                      >👥</span
                     >
-                      <span class="mr-2">👑</span>チーム内での役割
-                    </h5>
-                    <ul class="space-y-2">
-                      <li
-                        v-for="(role, i) in aiAdvice['自チャンピオン戦略'][
-                          'チーム内での役割'
-                        ] || []"
-                        :key="'role' + i"
-                        class="text-sm text-gray-700 bg-white p-2 rounded shadow-sm"
-                      >
-                        {{ role }}
-                      </li>
-                    </ul>
-                  </div>
-
-                  <!-- 時間帯別行動 -->
+                    集団戦での役割
+                  </h4>
                   <div
-                    class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4"
+                    class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4"
                   >
-                    <h5
-                      class="font-semibold text-blue-800 mb-3 flex items-center"
+                    <div
+                      v-if="aiAdvice['自分の戦略']['集団戦']"
+                      class="prose prose-sm max-w-none"
                     >
-                      <span class="mr-2">⏰</span>時間帯別行動
-                    </h5>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div
-                        v-if="
-                          aiAdvice['自チャンピオン戦略']['時間帯別行動']?.[
-                            '序盤'
-                          ]
+                        class="text-gray-800 leading-relaxed"
+                        v-html="
+                          formatTextWithBreaks(aiAdvice['自分の戦略']['集団戦'])
                         "
-                        class="bg-white p-3 rounded shadow-sm"
-                      >
-                        <div class="font-medium text-blue-700 mb-2">
-                          🌅 序盤
-                        </div>
-                        <ul class="space-y-1">
-                          <li
-                            v-for="(action, i) in aiAdvice[
-                              '自チャンピオン戦略'
-                            ]['時間帯別行動']['序盤']"
-                            :key="'early' + i"
-                            class="text-sm text-gray-700"
-                          >
-                            • {{ action }}
-                          </li>
-                        </ul>
-                      </div>
-                      <div
-                        v-if="
-                          aiAdvice['自チャンピオン戦略']['時間帯別行動']?.[
-                            '中盤'
-                          ]
-                        "
-                        class="bg-white p-3 rounded shadow-sm"
-                      >
-                        <div class="font-medium text-blue-700 mb-2">
-                          🌞 中盤
-                        </div>
-                        <ul class="space-y-1">
-                          <li
-                            v-for="(action, i) in aiAdvice[
-                              '自チャンピオン戦略'
-                            ]['時間帯別行動']['中盤']"
-                            :key="'mid' + i"
-                            class="text-sm text-gray-700"
-                          >
-                            • {{ action }}
-                          </li>
-                        </ul>
-                      </div>
-                      <div
-                        v-if="
-                          aiAdvice['自チャンピオン戦略']['時間帯別行動']?.[
-                            '終盤'
-                          ]
-                        "
-                        class="bg-white p-3 rounded shadow-sm"
-                      >
-                        <div class="font-medium text-blue-700 mb-2">
-                          🌙 終盤
-                        </div>
-                        <ul class="space-y-1">
-                          <li
-                            v-for="(action, i) in aiAdvice[
-                              '自チャンピオン戦略'
-                            ]['時間帯別行動']['終盤']"
-                            :key="'late' + i"
-                            class="text-sm text-gray-700"
-                          >
-                            • {{ action }}
-                          </li>
-                        </ul>
-                      </div>
+                      ></div>
                     </div>
                   </div>
+                </div>
 
-                  <!-- チームファイト戦略 -->
-                  <div
-                    class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4"
+                <!-- 装備戦略 -->
+                <div>
+                  <h4
+                    class="text-lg font-semibold text-purple-800 mb-3 flex items-center"
                   >
-                    <h5
-                      class="font-semibold text-purple-800 mb-3 flex items-center"
+                    <span
+                      class="bg-purple-100 text-purple-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2"
+                      >🛡️</span
                     >
-                      <span class="mr-2">⚔️</span>チームファイト戦略
-                    </h5>
-                    <ul class="space-y-2">
-                      <li
-                        v-for="(strategy, i) in aiAdvice['自チャンピオン戦略'][
-                          'チームファイト戦略'
-                        ] || []"
-                        :key="'teamfight' + i"
-                        class="text-sm text-gray-700 bg-white p-2 rounded shadow-sm"
-                      >
-                        {{ strategy }}
-                      </li>
-                    </ul>
-                  </div>
-
-                  <!-- ゲーム展開対応 -->
+                    おすすめ装備
+                  </h4>
                   <div
-                    class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-4"
+                    class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-4"
                   >
-                    <h5
-                      class="font-semibold text-orange-800 mb-3 flex items-center"
+                    <div
+                      v-if="aiAdvice['自分の戦略']['装備戦略']"
+                      class="prose prose-sm max-w-none"
                     >
-                      <span class="mr-2">📈</span>ゲーム展開対応
-                    </h5>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div
-                        v-if="
-                          aiAdvice['自チャンピオン戦略']['ゲーム展開対応']?.[
-                            '有利時'
-                          ]
+                        class="text-gray-800 leading-relaxed"
+                        v-html="
+                          formatTextWithBreaks(
+                            aiAdvice['自分の戦略']['装備戦略']
+                          )
                         "
-                        class="bg-white p-3 rounded shadow-sm"
-                      >
-                        <div class="font-medium text-green-700 mb-2">
-                          📈 有利時
-                        </div>
-                        <ul class="space-y-1">
-                          <li
-                            v-for="(action, i) in aiAdvice[
-                              '自チャンピオン戦略'
-                            ]['ゲーム展開対応']['有利時']"
-                            :key="'adv' + i"
-                            class="text-sm text-gray-700"
-                          >
-                            • {{ action }}
-                          </li>
-                        </ul>
-                      </div>
-                      <div
-                        v-if="
-                          aiAdvice['自チャンピオン戦略']['ゲーム展開対応']?.[
-                            '不利時'
-                          ]
-                        "
-                        class="bg-white p-3 rounded shadow-sm"
-                      >
-                        <div class="font-medium text-red-700 mb-2">
-                          📉 不利時
-                        </div>
-                        <ul class="space-y-1">
-                          <li
-                            v-for="(action, i) in aiAdvice[
-                              '自チャンピオン戦略'
-                            ]['ゲーム展開対応']['不利時']"
-                            :key="'dis' + i"
-                            class="text-sm text-gray-700"
-                          >
-                            • {{ action }}
-                          </li>
-                        </ul>
-                      </div>
-                      <div
-                        v-if="
-                          aiAdvice['自チャンピオン戦略']['ゲーム展開対応']?.[
-                            '接戦時'
-                          ]
-                        "
-                        class="bg-white p-3 rounded shadow-sm"
-                      >
-                        <div class="font-medium text-blue-700 mb-2">
-                          ⚖️ 接戦時
-                        </div>
-                        <ul class="space-y-1">
-                          <li
-                            v-for="(action, i) in aiAdvice[
-                              '自チャンピオン戦略'
-                            ]['ゲーム展開対応']['接戦時']"
-                            :key="'even' + i"
-                            class="text-sm text-gray-700"
-                          >
-                            • {{ action }}
-                          </li>
-                        </ul>
-                      </div>
+                      ></div>
                     </div>
                   </div>
                 </div>
@@ -1046,12 +688,35 @@
 </template>
 
 <script setup lang="ts">
-import "@/assets/styles/main.css";
 import type {
   SummonerSearchResult,
   MatchDetail,
   LiveMatchDetail,
 } from "~/types";
+import { formatTextWithBreaks } from "@/utils/textFormatter";
+import {
+  formatGameMode,
+  formatGameTime,
+  formatNumber,
+  formatTierScore,
+} from "@/utils/gameFormatters";
+import { createChampionIdMap, createGetChampionName, getSummonerSpellName } from "@/utils/championUtils";
+import championData from "@/data/champion.json";
+import { useMatchApi } from "@/composables/useMatchApi";
+
+// チャンピオンデータ初期化（SSR対応）
+const championIdMap = createChampionIdMap(championData);
+const getChampionName = createGetChampionName(championIdMap);
+const getChampionNameById = (id: number) => getChampionName(id);
+
+// Composable
+const {
+  searchSummoner: apiSearchSummoner,
+  getLiveMatchInternal,
+  getLatestMatchInternal,
+  fetchFeaturedUser,
+  generateAdvice,
+} = useMatchApi();
 
 // リアクティブデータ
 const searchForm = ref({
@@ -1060,7 +725,6 @@ const searchForm = ref({
 });
 
 const loading = ref(false);
-const loadingMatch = ref(false);
 const summonerData = ref<SummonerSearchResult | null>(null);
 const matchData = ref<MatchDetail | null>(null);
 const liveMatchData = ref<LiveMatchDetail | null>(null);
@@ -1102,7 +766,6 @@ const searchSummoner = async () => {
   liveMatchData.value = null;
   aiAdvice.value = null;
   aiDurationMs.value = null;
-  aiDurationMs.value = null;
 
   // 進行中のアドバイス生成があればキャンセル
   if (adviceController) {
@@ -1112,16 +775,10 @@ const searchSummoner = async () => {
   isAdviceGenerating.value = false;
 
   try {
-    // APIエンドポイントにリクエスト
-    const response = await $fetch<SummonerSearchResult>(
-      "/api/summoner/search",
-      {
-        method: "POST",
-        body: {
-          summonerName: searchForm.value.summonerName.trim(),
-          tagLine: searchForm.value.tagLine.trim(),
-        },
-      }
+    // APIを使用してサモナー検索
+    const response = await apiSearchSummoner(
+      searchForm.value.summonerName,
+      searchForm.value.tagLine
     );
 
     summonerData.value = response;
@@ -1129,12 +786,18 @@ const searchSummoner = async () => {
     // プレイヤー情報取得成功後、まず進行中試合をチェック
     try {
       console.log("プレイヤー情報取得成功、進行中試合をチェック中...");
-      await getLiveMatchInternal(response.account.puuid);
+      const liveData = await getLiveMatchInternal(response.account.puuid);
+      liveMatchData.value = liveData;
+      matchData.value = null;
     } catch (liveError) {
       console.log("進行中試合なし、過去試合を取得中...");
       // 進行中試合がない場合、過去の試合を取得
       try {
-        await getLatestMatchInternal(response.account.puuid);
+        const latestMatchData = await getLatestMatchInternal(
+          response.account.puuid
+        );
+        matchData.value = latestMatchData;
+        liveMatchData.value = null;
       } catch (matchError) {
         console.warn("過去試合情報の取得にも失敗:", matchError);
         matchData.value = null;
@@ -1147,20 +810,10 @@ const searchSummoner = async () => {
     // エラー内容を詳しく表示
     let errorMessage = "サモナー情報の取得に失敗しました";
 
-    if (err.data?.message) {
-      errorMessage = err.data.message;
-    } else if (err.statusMessage) {
-      errorMessage = err.statusMessage;
-    } else if (err.message) {
+    if (err.message) {
       errorMessage = err.message;
     } else if (typeof err === "string") {
       errorMessage = err;
-    }
-
-    // ステータスコードも表示
-    if (err.status || err.statusCode) {
-      const statusCode = err.status || err.statusCode;
-      errorMessage = `[${statusCode}] ${errorMessage}`;
     }
 
     error.value = errorMessage;
@@ -1169,224 +822,42 @@ const searchSummoner = async () => {
   }
 };
 
-// 進行中試合情報取得処理（内部用）
-const getLiveMatchInternal = async (puuid: string) => {
-  // 進行中試合情報APIにリクエスト
-  const response = await $fetch<LiveMatchDetail>("/api/match/live", {
-    method: "POST",
-    body: {
-      puuid: puuid,
-    },
-  });
-
-  liveMatchData.value = response;
-  matchData.value = null; // 進行中試合がある場合は過去試合データをクリア
-  console.log("進行中試合情報取得成功:", response);
-};
-
-// 最新試合情報取得処理（内部用）
-const getLatestMatchInternal = async (puuid: string) => {
-  // 最新試合情報APIにリクエスト
-  const response = await $fetch<MatchDetail>("/api/match/latest", {
-    method: "POST",
-    body: {
-      puuid: puuid,
-    },
-  });
-
-  matchData.value = response;
-  liveMatchData.value = null; // 過去試合がある場合は進行中試合データをクリア
-  console.log("最新試合情報取得成功:", response);
-};
-
 // テスト用：Featured Games から実行中ユーザーを取得し、入力欄へセット（実行はユーザー側）
 const onFetchFeaturedUser = async () => {
   try {
     error.value = "";
-    const res = await $fetch<{
-      puuid: string;
-      summonerName?: string | null;
-      gameName?: string | null;
-      tagLine?: string | null;
-      sampleGameId?: number | null;
-    }>("/api/test/live", { method: "GET" });
-    const gn = (res.gameName || res.summonerName || "").toString();
-    const tl = (res.tagLine || "").toString() || "JP1";
-    if (!gn) {
-      error.value = "実行中ユーザーのサモナー名を取得できませんでした";
-      return;
-    }
+    const { summonerName, tagLine } = await fetchFeaturedUser();
     // 入力欄にセット（実行はユーザーの操作）
-    searchForm.value.summonerName = gn;
-    searchForm.value.tagLine = tl;
+    searchForm.value.summonerName = summonerName;
+    searchForm.value.tagLine = tagLine;
   } catch (err: any) {
-    const msg = err?.data?.message || err?.message || String(err);
+    const msg = err?.message || String(err);
     error.value = `[FEATURED] ${msg}`;
   }
 };
 
-// 最新試合情報取得処理（ボタン用）
-const getLatestMatch = async () => {
-  if (!summonerData.value) {
-    error.value = "まずプレイヤー情報を取得してください";
-    return;
-  }
-
-  loadingMatch.value = true;
-  error.value = "";
-
-  try {
-    await getLatestMatchInternal(summonerData.value.account.puuid);
-  } catch (err: any) {
-    console.error("最新試合情報取得エラー:", err);
-
-    // エラー内容を詳しく表示
-    let errorMessage = "最新試合情報の取得に失敗しました";
-
-    if (err.data?.message) {
-      errorMessage = err.data.message;
-    } else if (err.statusMessage) {
-      errorMessage = err.statusMessage;
-    } else if (err.message) {
-      errorMessage = err.message;
-    } else if (typeof err === "string") {
-      errorMessage = err;
-    }
-
-    // ステータスコードも表示
-    if (err.status || err.statusCode) {
-      const statusCode = err.status || err.statusCode;
-      errorMessage = `[${statusCode}] ${errorMessage}`;
-    }
-
-    error.value = errorMessage;
-  } finally {
-    loadingMatch.value = false;
-  }
-};
-
-// ゲームモード表示用関数
-const formatGameMode = (queueId: number) => {
-  const queueMap: { [key: number]: string } = {
-    420: "ランクソロ/デュオ",
-    440: "ランクフレックス",
-    450: "ARAM",
-    480: "カジュアル",
-    830: "Co-op vs AI",
-    400: "ノーマルドラフト",
-    430: "ノーマルブラインド",
-  };
-  return queueMap[queueId] || `ゲームモード (${queueId})`;
-};
-
-// ゲーム時間表示用関数
-const formatGameTime = (seconds: number) => {
-  // 不正値や負の秒数を0に丸めてMM:SS表示
-  const safeSeconds = Number.isFinite(seconds)
-    ? Math.max(0, Math.floor(seconds))
-    : 0;
-  const minutes = Math.floor(safeSeconds / 60);
-  const remainingSeconds = safeSeconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};
-
-// 数値の3桁カンマ区切り
-const formatNumber = (val: number | null | undefined) => {
-  if (typeof val !== 'number' || !Number.isFinite(val)) return '0'
-  return Math.round(val).toLocaleString('ja-JP')
-}
-
-// チャンピオンデータ読み込み（SSR対応）
-import championData from "@/data/champion.json";
-
-// チャンピオンIDマップを初期化時に作成（SSR安全）
-const championIdMap: { [key: number]: string } = {};
-if (championData?.data && typeof championData.data === "object") {
-  Object.values(championData.data).forEach((champion: any) => {
-    if (champion?.key && champion?.name) {
-      championIdMap[parseInt(champion.key)] = champion.name;
-    }
-  });
-}
-
-// チャンピオン名取得関数
-const getChampionName = (championId: number) => {
-  return championIdMap[championId] || `Champion ${championId}`;
-};
-
-// チャンピオン名取得（ID→Name）をAI入力用に利用
-const getChampionNameById = (id: number) => getChampionName(id);
-
 // AI アドバイス生成（自動/再生成共通）
-const generateAdvice = async () => {
+const generateAdviceHandler = async () => {
   if (!liveMatchData.value) return;
   if (adviceController) adviceController.abort();
   adviceController = new AbortController();
   isAdviceGenerating.value = true;
   error.value = "";
   aiAdvice.value = null;
+
   try {
-    console.log(
-      "[DEBUG] liveMatchData.value.myParticipant:",
-      liveMatchData.value.myParticipant
-    );
-    console.log(
-      "[DEBUG] championId:",
-      liveMatchData.value.myParticipant?.championId
-    );
-    console.log(
-      "[DEBUG] championName:",
-      getChampionNameById(liveMatchData.value.myParticipant?.championId)
-    );
-
-    const lm = liveMatchData.value as LiveMatchDetail;
-    const myChampionData = {
-      championName: getChampionNameById(lm.myParticipant.championId),
-      puuid: lm.myParticipant.puuid,
-      rank: lm.myParticipant.rank,
-      summonerLevel: lm.myParticipant.summonerLevel,
-      teamId: lm.myParticipant.teamId,
-    };
-
-    console.log("[DEBUG] myChampionData:", myChampionData);
-
-    const body = {
-      gameId: String(lm.gameId),
-      gameInfo: {
-        gameMode: lm.gameInfo.gameMode,
-        queueId: lm.gameInfo.queueId,
-      },
-      // 自分のチャンピオン情報を明確に追加
-      myChampion: myChampionData,
-      myTeam: lm.myTeam.map((p: any) => ({
-        championName: getChampionNameById(p.championId),
-        rank: p.rank,
-        summonerLevel: p.summonerLevel,
-        role: undefined,
-        teamId: p.teamId,
-        isMyself: p.puuid === lm.myParticipant.puuid, // 自分かどうかのフラグ
-      })),
-      enemyTeam: lm.enemyTeam.map((p: any) => ({
-        championName: getChampionNameById(p.championId),
-        rank: p.rank,
-        summonerLevel: p.summonerLevel,
-        role: undefined,
-        teamId: p.teamId,
-      })),
-      model: selectedAiModel.value || undefined, // 選択されたAIモデルを送信
-    };
-
-    console.log("[DEBUG] Sending body to API:", body);
     const now =
       typeof performance !== "undefined" && (performance as any)?.now
         ? () => performance.now()
         : () => Date.now();
     const start = now();
-    const res: any = await $fetch("/api/advice/generate", {
-      method: "POST",
-      body,
-      signal: adviceController.signal,
-    });
+
+    const res = await generateAdvice(
+      liveMatchData.value,
+      selectedAiModel.value,
+      adviceController
+    );
+
     const end = now();
     aiDurationMs.value = Math.max(0, Math.round(end - start));
     aiAdvice.value = res;
@@ -1404,61 +875,14 @@ const generateAdvice = async () => {
 watch(
   () => liveMatchData.value?.gameId,
   async (id) => {
-    if (id && typeof window !== "undefined") await generateAdvice();
+    if (id && typeof window !== "undefined") await generateAdviceHandler();
   },
   { immediate: false }
 );
 
 // 再生成ボタン
 const onRegenerateAdvice = () => {
-  if (!isAdviceGenerating.value) generateAdvice();
-};
-
-// サモナースペル名取得関数
-const getSummonerSpellName = (spellId: number) => {
-  const spellMap: { [key: number]: string } = {
-    1: "Cleanse",
-    3: "Exhaust",
-    4: "Flash",
-    6: "Ghost",
-    7: "Heal",
-    11: "Smite",
-    12: "Teleport",
-    13: "Clarity",
-    14: "Ignite",
-    21: "Barrier",
-    32: "Mark/Dash",
-  };
-  return spellMap[spellId] || `Spell ${spellId}`;
-};
-
-// ティアスコアをランク名+数値形式でフォーマット
-const formatTierScore = (tierScore: number) => {
-  const tierNames = [
-    "",
-    "Iron",
-    "Bronze",
-    "Silver",
-    "Gold",
-    "Platinum",
-    "Emerald",
-    "Diamond",
-    "Master",
-    "Grandmaster",
-    "Challenger",
-  ];
-  const baseTier = Math.floor(tierScore);
-  const tierName = tierNames[baseTier] || "Unranked";
-
-  if (baseTier >= 8) {
-    // Master以上はランクなし、数値のみ
-    return `${tierName}${tierScore.toFixed(1)}`;
-  } else if (baseTier >= 1) {
-    // 通常ティアは名前+数値
-    return `${tierName}${tierScore.toFixed(1)}`;
-  } else {
-    return "Unranked";
-  }
+  if (!isAdviceGenerating.value) generateAdviceHandler();
 };
 
 // メタ情報

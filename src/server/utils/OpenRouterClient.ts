@@ -88,240 +88,49 @@ export class OpenRouterClient {
       response_format: {
         type: "json_schema",
         json_schema: {
-          name: "lol_advice",
+          name: "lol_advice_structured",
           strict: true,
           schema: {
             type: "object",
             properties: {
-              マッチアップ分析: {
-                type: "array",
-                description: "敵チーム5人全員に対するマッチアップ分析",
-                items: {
-                  type: "object",
-                  properties: {
-                    自分のチャンピオン: {
-                      type: "string",
-                      description: "INPUT内のmyChampion.championNameと同じ値"
-                    },
-                    対戦相手: {
-                      type: "string", 
-                      description: "敵チャンピオン名"
-                    },
-                    相手ロール: {
-                      type: "string",
-                      enum: ["Top", "Jungle", "Mid", "ADC", "Support"],
-                      description: "敵のロール"
-                    },
-                    強み: {
-                      type: "array",
-                      description: "相手の強い部分",
-                      items: { type: "string" },
-                      minItems: 2,
-                      maxItems: 3
-                    },
-                    弱み: {
-                      type: "array", 
-                      description: "相手の弱い部分",
-                      items: { type: "string" },
-                      minItems: 2,
-                      maxItems: 3
-                    },
-                    戦略: {
-                      type: "array",
-                      description: "自分がどう戦うべきか",
-                      items: { type: "string" },
-                      minItems: 3,
-                      maxItems: 4
-                    },
-                    注意点: {
-                      type: "array",
-                      description: "気をつけるべきポイント",
-                      items: { type: "string" },
-                      minItems: 2,
-                      maxItems: 3
-                    }
-                  },
-                  required: ["自分のチャンピオン", "対戦相手", "相手ロール", "強み", "弱み", "戦略", "注意点"],
-                  additionalProperties: false
-                }
-              },
-              推奨装備: {
+              対面チャンピオン分析: {
                 type: "object",
-                description: "装備戦略とアイテム推奨",
+                description: "自分のレーンの直接対面するチャンピオンのみに関する分析。BOT=ADC+SUP、MID/TOP/JG=各1人のみ。他のレーンのチャンピオンは含めない。",
                 properties: {
-                  序盤装備: {
-                    type: "array",
-                    description: "序盤のアイテム",
-                    items: { type: "string" }
+                  警戒ポイント: {
+                    type: "string",
+                    description: "対面チャンピオン（自分と同じレーン）の危険なタイミング、スキル、行動パターンを丁寧な長文で説明。具体的なレベル、時間帯、状況を含める。箇条書きは不可。他のレーンのチャンピオンは言及しない。"
                   },
-                  コアアイテム: {
-                    type: "array", 
-                    description: "コアアイテム3つ",
-                    items: { type: "string" },
-                    minItems: 3,
-                    maxItems: 3
-                  },
-                  状況対応装備: {
-                    type: "array",
-                    description: "状況に応じた装備選択",
-                    items: {
-                      type: "object",
-                      properties: {
-                        条件: {
-                          type: "string",
-                          description: "具体的で価値ある状況"
-                        },
-                        アイテム: {
-                          type: "string",
-                          description: "推奨アイテム名"
-                        },
-                        理由: {
-                          type: "string",
-                          description: "効果的な理由と使い方"
-                        }
-                      },
-                      required: ["条件", "アイテム", "理由"],
-                      additionalProperties: false
-                    }
-                  },
-                  装備優先度: {
-                    type: "array",
-                    description: "装備の優先順序",
-                    items: { type: "string" },
-                    minItems: 3,
-                    maxItems: 4
+                  対策方法: {
+                    type: "string",
+                    description: "対面チャンピオン（自分と同じレーン）に対する具体的な対策、ポジショニング、スキルの使い方を丁寧な長文で説明。実行可能なアクションを含める。箇条書きは不可。他のレーンのチャンピオンは言及しない。"
                   }
                 },
-                required: ["序盤装備", "コアアイテム", "状況対応装備", "装備優先度"],
+                required: ["警戒ポイント", "対策方法"],
                 additionalProperties: false
               },
-              相手チーム分析: {
+              自分の戦略: {
                 type: "object",
-                description: "相手チーム全体の戦略的特徴",
+                description: "自分のプレイに関する戦略",
                 properties: {
-                  チーム全体の強み: {
-                    type: "array",
-                    description: "相手チームの強い部分",
-                    items: { type: "string" },
-                    minItems: 3,
-                    maxItems: 4
+                  レーン戦: {
+                    type: "string",
+                    description: "レーン戦での具体的な立ち回り、ファーム方法、ハラスのタイミング、ガンク対応を丁寧な長文で説明。箇条書きは不可。"
                   },
-                  チーム全体の弱み: {
-                    type: "array",
-                    description: "相手チームの弱い部分", 
-                    items: { type: "string" },
-                    minItems: 3,
-                    maxItems: 4
+                  集団戦: {
+                    type: "string", 
+                    description: "集団戦での役割、ポジション、スキルの使用順序、狙うべきターゲットを丁寧な長文で説明。箇条書きは不可。"
                   },
-                  狙い目ターゲット: {
-                    type: "array",
-                    description: "優先的に狙うべき敵",
-                    items: {
-                      type: "object",
-                      properties: {
-                        チャンピオン: {
-                          type: "string",
-                          description: "狙いやすい敵"
-                        },
-                        理由: {
-                          type: "string", 
-                          description: "なぜ狙いやすいか"
-                        },
-                        攻略法: {
-                          type: "string",
-                          description: "どう倒すか"
-                        }
-                      },
-                      required: ["チャンピオン", "理由", "攻略法"],
-                      additionalProperties: false
-                    }
+                  装備戦略: {
+                    type: "string",
+                    description: "相手チーム構成に合わせた装備選択、アイテムの優先順位、状況別の装備変更を丁寧な長文で説明。具体的なアイテム名を含める。箇条書きは不可。"
                   }
                 },
-                required: ["チーム全体の強み", "チーム全体の弱み", "狙い目ターゲット"],
-                additionalProperties: false
-              },
-              自チャンピオン戦略: {
-                type: "object",
-                description: "自分のチャンピオン固有の戦略",
-                properties: {
-                  チーム内での役割: {
-                    type: "array",
-                    description: "自分のポジションと責任",
-                    items: { type: "string" },
-                    minItems: 2,
-                    maxItems: 3
-                  },
-                  時間帯別行動: {
-                    type: "object",
-                    description: "ゲーム進行に応じた行動",
-                    properties: {
-                      序盤: {
-                        type: "array",
-                        description: "序盤の行動指針",
-                        items: { type: "string" },
-                        minItems: 2,
-                        maxItems: 3
-                      },
-                      中盤: {
-                        type: "array", 
-                        description: "中盤の行動指針",
-                        items: { type: "string" },
-                        minItems: 2,
-                        maxItems: 3
-                      },
-                      終盤: {
-                        type: "array",
-                        description: "終盤の行動指針", 
-                        items: { type: "string" },
-                        minItems: 2,
-                        maxItems: 3
-                      }
-                    },
-                    required: ["序盤", "中盤", "終盤"],
-                    additionalProperties: false
-                  },
-                  チームファイト戦略: {
-                    type: "array",
-                    description: "集団戦での動き",
-                    items: { type: "string" },
-                    minItems: 2,
-                    maxItems: 3
-                  },
-                  ゲーム展開対応: {
-                    type: "object",
-                    description: "ゲーム状況別の対応",
-                    properties: {
-                      有利時: {
-                        type: "array",
-                        description: "リード時の行動",
-                        items: { type: "string" },
-                        minItems: 2,
-                        maxItems: 2
-                      },
-                      不利時: {
-                        type: "array",
-                        description: "劣勢時の立ち回り",
-                        items: { type: "string" },
-                        minItems: 2,
-                        maxItems: 2
-                      },
-                      接戦時: {
-                        type: "array",
-                        description: "均衡時の判断基準",
-                        items: { type: "string" },
-                        minItems: 2,
-                        maxItems: 2
-                      }
-                    },
-                    required: ["有利時", "不利時", "接戦時"],
-                    additionalProperties: false
-                  }
-                },
-                required: ["チーム内での役割", "時間帯別行動", "チームファイト戦略", "ゲーム展開対応"],
+                required: ["レーン戦", "集団戦", "装備戦略"],
                 additionalProperties: false
               }
             },
-            required: ["マッチアップ分析", "推奨装備", "相手チーム分析", "自チャンピオン戦略"],
+            required: ["対面チャンピオン分析", "自分の戦略"],
             additionalProperties: false
           }
         }
@@ -378,53 +187,15 @@ export class OpenRouterClient {
       // ChampionID ではなく ChampionName を含む入力を渡す
       ...payload,
       schema: {
-        マッチアップ分析: [
-          {
-            自分のチャンピオン: "string (必ず myChampionName と同じ値を使用)",
-            対戦相手: "string",
-            相手ロール: "string",
-            強み: ["string"],
-            弱み: ["string"],
-            戦略: ["string"],
-            注意点: ["string"],
-          },
-        ],
-        推奨装備: {
-          序盤装備: ["string"],
-          コアアイテム: ["string"],
-          状況対応装備: [
-            {
-              条件: "string",
-              アイテム: "string",
-            },
-          ],
-          装備優先度: ["string"],
+        対面チャンピオン分析: {
+          警戒ポイント: "string (対面チャンピオンの危険なタイミング、スキル、行動パターンを具体的に説明)",
+          対策方法: "string (対面チャンピオンに対する具体的な対策、ポジショニング、スキルの使い方を説明)"
         },
-        相手チーム分析: {
-          チーム全体の強み: ["string"],
-          チーム全体の弱み: ["string"],
-          狙い目ターゲット: [
-            {
-              チャンピオン: "string",
-              理由: "string",
-              攻略法: "string",
-            },
-          ],
-        },
-        自チャンピオン戦略: {
-          チーム内での役割: ["string"],
-          時間帯別行動: {
-            序盤: ["string"],
-            中盤: ["string"],
-            終盤: ["string"],
-          },
-          チームファイト戦略: ["string"],
-          ゲーム展開対応: {
-            有利時: ["string"],
-            不利時: ["string"],
-            接戦時: ["string"],
-          },
-        },
+        自分の戦略: {
+          レーン戦: "string (レーン戦での具体的な立ち回り、ファーム方法、ハラスのタイミング、ガンク対応を説明)",
+          集団戦: "string (集団戦での役割、ポジション、スキルの使用順序、狙うべきターゲットを説明)",
+          装備戦略: "string (相手チーム構成に合わせた装備選択、アイテムの優先順位、状況別の装備変更を説明)"
+        }
       },
     });
   }
