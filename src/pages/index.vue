@@ -56,12 +56,16 @@
               </button>
               <button
                 type="button"
-                :disabled="loading || isAdviceGenerating"
+                :disabled="loading || isAdviceGenerating || userFetchLoading"
                 @click="onFetchFeaturedUser"
-                class="h-10 px-4 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                class="h-10 px-4 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center gap-2"
                 title="/lol/spectator/v5/featured-games から試合中ユーザーを取得して入力欄にセット"
               >
-                試合中ユーザー取得
+                <span
+                  v-if="userFetchLoading"
+                  class="inline-block w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"
+                ></span>
+                {{ userFetchLoading ? "検索中..." : "試合中ユーザー取得" }}
               </button>
             </form>
           </div>
@@ -168,8 +172,8 @@
                     player.puuid === liveMatchData.myParticipant.puuid
                       ? 'bg-blue-50 border border-blue-200'
                       : 'bg-gray-50 hover:bg-gray-100',
-                    player.isHighestWinRate ? 'ring-1 ring-green-300' : '',
-                    player.isLowestWinRate ? 'ring-1 ring-red-300' : '',
+                    player.isHighestWinRate ? 'ring-2 ring-green-300' : '',
+                    player.isLowestWinRate ? 'ring-2 ring-red-300' : '',
                   ]"
                 >
                   <div>
@@ -254,8 +258,8 @@
                   class="flex items-center justify-between p-3 rounded-lg transition-colors"
                   :class="[
                     'bg-gray-50 hover:bg-gray-100',
-                    player.isHighestWinRate ? 'ring-1 ring-green-300' : '',
-                    player.isLowestWinRate ? 'ring-1 ring-red-300' : '',
+                    player.isHighestWinRate ? 'ring-2 ring-green-300' : '',
+                    player.isLowestWinRate ? 'ring-2 ring-red-300' : '',
                   ]"
                 >
                   <div>
@@ -700,7 +704,11 @@ import {
   formatNumber,
   formatTierScore,
 } from "@/utils/gameFormatters";
-import { createChampionIdMap, createGetChampionName, getSummonerSpellName } from "@/utils/championUtils";
+import {
+  createChampionIdMap,
+  createGetChampionName,
+  getSummonerSpellName,
+} from "@/utils/championUtils";
 import championData from "@/data/champion.json";
 import { useMatchApi } from "@/composables/useMatchApi";
 
@@ -725,6 +733,7 @@ const searchForm = ref({
 });
 
 const loading = ref(false);
+const userFetchLoading = ref(false);
 const summonerData = ref<SummonerSearchResult | null>(null);
 const matchData = ref<MatchDetail | null>(null);
 const liveMatchData = ref<LiveMatchDetail | null>(null);
@@ -825,14 +834,17 @@ const searchSummoner = async () => {
 // テスト用：Featured Games から実行中ユーザーを取得し、入力欄へセット（実行はユーザー側）
 const onFetchFeaturedUser = async () => {
   try {
+    userFetchLoading.value = true;
     error.value = "";
-    const { summonerName, tagLine } = await fetchFeaturedUser();
+    const response = await fetchFeaturedUser();
     // 入力欄にセット（実行はユーザーの操作）
-    searchForm.value.summonerName = summonerName;
-    searchForm.value.tagLine = tagLine;
+    searchForm.value.summonerName = response.summonerName;
+    searchForm.value.tagLine = response.tagLine;
   } catch (err: any) {
     const msg = err?.message || String(err);
     error.value = `[FEATURED] ${msg}`;
+  } finally {
+    userFetchLoading.value = false;
   }
 };
 
