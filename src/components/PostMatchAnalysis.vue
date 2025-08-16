@@ -104,6 +104,43 @@
         </div>
       </div>
 
+      <!-- アイテムビルド分析 -->
+      <div class="analysis-section">
+        <h4 class="section-title">
+          <span class="mr-2">⚔️</span>
+          アイテムビルド分析
+        </h4>
+        <div class="analysis-content">
+          <div class="analysis-item">
+            <h5 class="analysis-item-title text-blue-700">
+              <span class="mr-2">📋</span>
+              購入順序の評価
+            </h5>
+            <p class="analysis-text">
+              {{ advice["アイテムビルド分析"]["購入順序の評価"] }}
+            </p>
+          </div>
+          <div class="analysis-item">
+            <h5 class="analysis-item-title text-red-700">
+              <span class="mr-2">🛡️</span>
+              相手チーム対応度
+            </h5>
+            <p class="analysis-text">
+              {{ advice["アイテムビルド分析"]["相手チーム対応度"] }}
+            </p>
+          </div>
+          <div class="analysis-item">
+            <h5 class="analysis-item-title text-green-700">
+              <span class="mr-2">🔧</span>
+              ビルド最適化提案
+            </h5>
+            <p class="analysis-text">
+              {{ advice["アイテムビルド分析"]["ビルド最適化提案"] }}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- 具体的改善アドバイス -->
       <div class="analysis-section">
         <h4 class="section-title">

@@ -316,6 +316,25 @@ export class OpenRouterClient {
                 required: ["試合の転換点", "重要な判断", "もしもの選択"],
                 additionalProperties: false
               },
+              "アイテムビルド分析": {
+                type: "object",
+                properties: {
+                  "購入順序の評価": {
+                    type: "string",
+                    description: "分析対象プレイヤー（myParticipant）が実際に購入したアイテムのタイミングと選択の妥当性、各フェーズでの選択理由、より効率的だった代替ビルドの提案"
+                  },
+                  "相手チーム対応度": {
+                    type: "string",
+                    description: "分析対象プレイヤーのアイテム選択が敵チーム構成に対して適切だったか、対戦相手の脅威に対する防御アイテムの必要性、相手キャリーへの対策ができていたか"
+                  },
+                  "ビルド最適化提案": {
+                    type: "string",
+                    description: "同じ状況での理想的なアイテム構成、コストパフォーマンスの良いアイテム選択、試合状況に応じたビルド変更のタイミング"
+                  }
+                },
+                required: ["購入順序の評価", "相手チーム対応度", "ビルド最適化提案"],
+                additionalProperties: false
+              },
               "具体的改善アドバイス": {
                 type: "object",
                 properties: {
@@ -336,7 +355,7 @@ export class OpenRouterClient {
                 additionalProperties: false
               }
             },
-            required: ["ゲーム全体の総評", "良かった点・悪かった点", "ターニングポイント分析", "具体的改善アドバイス"],
+            required: ["ゲーム全体の総評", "良かった点・悪かった点", "ターニングポイント分析", "アイテムビルド分析", "具体的改善アドバイス"],
             additionalProperties: false
           }
         }

@@ -141,6 +141,9 @@ const showTimeline = ref(false);
 
 // モデル変更時の処理
 const onModelChange = (model: string) => {
+  selectedAiModel.value = model;
+  console.log("AIモデルが変更されました:", model);
+  
   // 既存のアドバイスがある場合は再生成を促す
   if (liveMatchData.value && aiAdvice.value) {
     // 自動再生成は行わず、ユーザーが再生成ボタンを押すまで待機
