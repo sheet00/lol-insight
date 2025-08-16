@@ -17,12 +17,12 @@
 
         <div class="flex items-center space-x-4">
           <button
-            @click="$emit('outputToConsole')"
+            @click="$emit('downloadJson')"
             class="btn-primary px-4 py-2 text-sm flex items-center gap-2"
-            title="完了試合の分析結果をJSON形式でConsole.logに出力"
+            title="完了試合の分析結果をJSON形式でダウンロード"
           >
-            <span>📊</span>
-            分析結果をConsoleに出力
+            <span>📥</span>
+            JSONダウンロード
           </button>
           <AIAnalysisButton
             :is-generating="!!isGeneratingAdvice"
@@ -268,7 +268,7 @@ const props = defineProps<Props>();
 
 // Emits
 defineEmits<{
-  outputToConsole: [];
+  downloadJson: [];
   toggleTimeline: [];
   generatePostMatchAdvice: [];
 }>();

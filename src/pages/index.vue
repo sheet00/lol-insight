@@ -54,7 +54,7 @@
           :show-timeline="showTimeline"
           :is-generating-advice="isPostMatchAdviceGenerating"
           :has-advice="!!postMatchAdvice"
-          @output-to-console="outputMatchAnalysisToConsole"
+          @download-json="downloadMatchAnalysisAsJson"
           @toggle-timeline="toggleTimeline"
           @generate-post-match-advice="generatePostMatchAdvice"
         />
@@ -305,172 +305,85 @@ const toggleTimeline = () => {
   showTimeline.value = !showTimeline.value;
 };
 
-// 完了試合分析結果をConsole.logに出力
-const outputMatchAnalysisToConsole = () => {
+// 分析結果をJSONファイルとしてダウンロード
+const downloadMatchAnalysisAsJson = () => {
   if (!matchData.value) {
     console.warn("⚠️ 試合データがありません");
     return;
   }
 
-  console.group("🎮 League of Legends 完了試合分析結果");
-
-  // analysisSummaryが存在する場合はそれを出力、なければ従来の構造を出力
-  if (matchData.value.analysisSummary) {
-    console.log(
-      "📊 詳細分析サマリー:",
-      JSON.stringify(matchData.value.analysisSummary, null, 2)
-    );
-  } else {
-    console.log("⚠️ 詳細分析サマリーが生成されていません");
-  }
-
-  // 基本試合情報
-  console.group("🏟️ 基本試合情報");
-  console.log("試合ID:", matchData.value.matchId);
-  console.log(
-    "ゲームモード:",
-    formatGameMode(matchData.value.gameInfo.queueId)
-  );
-  console.log(
-    "試合時間:",
-    Math.floor(matchData.value.gameInfo.gameDuration / 60) +
-      "分" +
-      (matchData.value.gameInfo.gameDuration % 60) +
-      "秒"
-  );
-  console.log(
-    "結果:",
-    matchData.value.myParticipant.win ? "勝利 🎉" : "敗北 😢"
-  );
-  console.groupEnd();
-
-  // プレイヤー情報
-  console.group("👤 自分のパフォーマンス");
-  const myPlayer = matchData.value.myParticipant;
-  console.log("チャンピオン:", getChampionName(myPlayer.championId));
-  console.log(
-    "KDA:",
-    `${myPlayer.kills}/${myPlayer.deaths}/${myPlayer.assists}`
-  );
-  console.log(
-    "ダメージ:",
-    myPlayer.totalDamageDealtToChampions.toLocaleString()
-  );
-  console.log("ゴールド:", myPlayer.goldEarned.toLocaleString());
-  console.log("CS:", myPlayer.totalMinionsKilled);
-  if (myPlayer.rank) {
-    console.log(
-      "ランク:",
-      `${myPlayer.rank.tier} ${myPlayer.rank.rank} (${myPlayer.rank.leaguePoints}LP)`
-    );
-  }
-  console.groupEnd();
-
-  // チーム成績
-  console.group("⚔️ チーム成績比較");
-  const teamStats = matchData.value.teamStats;
-  console.table({
-    自チーム: {
-      勝利: teamStats.myTeam.win ? "✅" : "❌",
-      キル: teamStats.myTeam.objectives.champion.kills,
-      タワー: teamStats.myTeam.objectives.tower.kills,
-      ドラゴン: teamStats.myTeam.objectives.dragon.kills,
-      バロン: teamStats.myTeam.objectives.baron.kills,
-      ゴールド: teamStats.myTeam.totalGold.toLocaleString(),
+  // ダウンロード用のデータオブジェクトを作成
+  const analysisData = {
+    exportInfo: {
+      exportDate: new Date().toISOString(),
+      exportType: "League of Legends 試合分析結果",
+      version: "1.0.0"
     },
-    敵チーム: {
-      勝利: teamStats.enemyTeam.win ? "✅" : "❌",
-      キル: teamStats.enemyTeam.objectives.champion.kills,
-      タワー: teamStats.enemyTeam.objectives.tower.kills,
-      ドラゴン: teamStats.enemyTeam.objectives.dragon.kills,
-      バロン: teamStats.enemyTeam.objectives.baron.kills,
-      ゴールド: teamStats.enemyTeam.totalGold.toLocaleString(),
-    },
-  });
-  console.groupEnd();
-
-  // 全プレイヤー統計
-  console.group("📈 全プレイヤー統計");
-  const allPlayers = [...matchData.value.myTeam, ...matchData.value.enemyTeam];
-  const playersTable = allPlayers.map((player) => ({
-    チャンピオン: getChampionName(player.championId),
-    チーム:
-      player.teamId === matchData.value!.myParticipant.teamId
-        ? "自チーム"
-        : "敵チーム",
-    KDA: `${player.kills}/${player.deaths}/${player.assists}`,
-    ダメージ: player.totalDamageDealtToChampions.toLocaleString(),
-    ゴールド: player.goldEarned.toLocaleString(),
-    CS: player.totalMinionsKilled,
-    ランク: player.rank
-      ? `${player.rank.tier} ${player.rank.rank}`
-      : "Unranked",
-  }));
-  console.table(playersTable);
-  console.groupEnd();
-
-  // タイムライン情報
-  if (
-    matchData.value.timelineEvents &&
-    matchData.value.timelineEvents.length > 0
-  ) {
-    console.group("⏰ 重要タイムラインイベント");
-    console.log(
-      "タイムラインイベント数:",
-      matchData.value.timelineEvents.length
-    );
-
-    // イベントタイプ別に分類
-    const eventsByType = matchData.value.timelineEvents.reduce(
-      (acc: any, event: any) => {
-        acc[event.type] = acc[event.type] || [];
-        acc[event.type].push(event);
-        return acc;
+    gameBasicInfo: {
+      matchId: matchData.value.matchId,
+      gameMode: formatGameMode(matchData.value.gameInfo.queueId),
+      gameDuration: {
+        seconds: matchData.value.gameInfo.gameDuration,
+        formatted: Math.floor(matchData.value.gameInfo.gameDuration / 60) + 
+                  "分" + 
+                  (matchData.value.gameInfo.gameDuration % 60) + 
+                  "秒"
       },
-      {}
-    );
+      result: matchData.value.myParticipant.win ? "勝利" : "敗北"
+    },
+    analysisSummary: matchData.value.analysisSummary || null,
+    myPerformance: {
+      champion: getChampionName(matchData.value.myParticipant.championId),
+      kda: {
+        kills: matchData.value.myParticipant.kills,
+        deaths: matchData.value.myParticipant.deaths,
+        assists: matchData.value.myParticipant.assists,
+        formatted: `${matchData.value.myParticipant.kills}/${matchData.value.myParticipant.deaths}/${matchData.value.myParticipant.assists}`
+      },
+      damage: matchData.value.myParticipant.totalDamageDealtToChampions,
+      gold: matchData.value.myParticipant.goldEarned,
+      cs: matchData.value.myParticipant.totalMinionsKilled,
+      rank: matchData.value.myParticipant.rank || null
+    },
+    teamStats: {
+      myTeam: {
+        win: matchData.value.teamStats.myTeam.win,
+        objectives: matchData.value.teamStats.myTeam.objectives,
+        totalGold: matchData.value.teamStats.myTeam.totalGold
+      },
+      enemyTeam: {
+        win: matchData.value.teamStats.enemyTeam.win,
+        objectives: matchData.value.teamStats.enemyTeam.objectives,
+        totalGold: matchData.value.teamStats.enemyTeam.totalGold
+      }
+    },
+    allPlayersStats: [...matchData.value.myTeam, ...matchData.value.enemyTeam].map((player) => ({
+      champion: getChampionName(player.championId),
+      team: player.teamId === matchData.value!.myParticipant.teamId ? "自チーム" : "敵チーム",
+      kda: `${player.kills}/${player.deaths}/${player.assists}`,
+      damage: player.totalDamageDealtToChampions,
+      gold: player.goldEarned,
+      cs: player.totalMinionsKilled,
+      rank: player.rank ? `${player.rank.tier} ${player.rank.rank}` : "Unranked"
+    })),
+    timelineEvents: matchData.value.timelineEvents || [],
+    fullMatchData: matchData.value
+  };
 
-    // タイプ別にテーブル表示
-    const typeIcons: { [key: string]: string } = {
-      KILL: "💀",
-      MONSTER: "🐉",
-      BUILDING: "🏗️",
-      ITEM: "🛒",
-      LEVEL: "⬆️",
-      PLATE: "🛡️",
-    };
+  // JSONファイルとしてダウンロード
+  const jsonString = JSON.stringify(analysisData, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `LoL_match_analysis_${matchData.value.matchId}_${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 
-    Object.keys(eventsByType).forEach((type) => {
-      const icon = typeIcons[type] || "📌";
-      console.group(`${icon} ${type}イベント (${eventsByType[type].length}件)`);
-      const eventsTable = eventsByType[type].map((event: any) => ({
-        時間: event.timeString,
-        説明: event.description,
-        優先度: event.priority,
-      }));
-      console.table(eventsTable);
-      console.groupEnd();
-    });
-
-    // 生JSONも出力
-    console.log(
-      "Timeline Events JSON:",
-      JSON.stringify(matchData.value.timelineEvents, null, 2)
-    );
-    console.groupEnd();
-  } else {
-    console.log("⚠️ タイムライン情報が含まれていません");
-  }
-
-  // 生データも出力
-  console.group("💾 完全な試合データ (JSON)");
-  console.log("Full Match Data:", JSON.stringify(matchData.value, null, 2));
-  console.groupEnd();
-
-  console.groupEnd(); // メイングループの終了
-
-  // 成功メッセージ
-  console.log("✅ 完了試合分析結果がConsoleに出力されました！");
+  console.log("✅ 分析結果をJSONファイルとしてダウンロードしました！");
 };
 
 // 試合後AI分析実行
