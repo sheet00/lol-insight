@@ -166,6 +166,7 @@ const searchSummoner = async () => {
   liveMatchData.value = null;
   aiAdvice.value = null;
   aiDurationMs.value = null;
+  postMatchAdvice.value = null;
 
   // 進行中のアドバイス生成があればキャンセル
   if (adviceController) {
