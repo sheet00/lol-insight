@@ -1,5 +1,6 @@
 import { RiotApiManager } from "~/server/utils/RiotApiManager";
 import championData from "~/data/champion.json";
+import itemData from "~/data/item.json";
 
 /**
  * 試合タイムライン取得API
@@ -166,18 +167,25 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
       };
 
     case "ITEM_PURCHASED":
-      // 重要アイテムのみ
-      if (isImportantItem(event.itemId)) {
+      // レジェンダリーアイテムのみ
+      if (isLegendaryItem(event.itemId)) {
+        const itemName = getItemName(event.itemId);
+        const purchaserName = getParticipantName(event.participantId, matchData);
+        const purchaserTeam = getTeamSide(event.participantId, matchData);
+        
         return {
           type: "ITEM",
           timestamp,
           timeString,
           frameIndex,
-          description: `重要アイテムを購入`,
+          description: `${purchaserTeam}の${purchaserName}が${itemName}を購入`,
           itemId: event.itemId,
+          itemName: itemName,
           participantId: event.participantId,
+          purchaserName: purchaserName,
+          purchaserTeam: purchaserTeam,
           icon: "🛒",
-          priority: 1,
+          priority: 3,
         };
       }
       return null;
@@ -313,15 +321,26 @@ function getTeamSide(participantId: number, matchData?: any): string {
 }
 
 /**
- * 重要アイテム判定
+ * レジェンダリーアイテム判定
  */
-function isImportantItem(itemId: number): boolean {
-  // 主要なアイテムIDを設定（例：ミシック、レジェンダリーアイテムなど）
-  const importantItems = [
-    // ミシックアイテム例
-    6632, 6633, 6691, 6692, 6693,
-    // レジェンダリーアイテム例
-    3031, 3153, 3142, 3075,
-  ];
-  return importantItems.includes(itemId);
+function isLegendaryItem(itemId: number): boolean {
+  const item = itemData.data[itemId.toString() as keyof typeof itemData.data];
+  if (!item) return false;
+  
+  // レジェンダリーアイテムの条件：
+  // 1. 価格が2500ゴールド以上
+  // 2. depth（クラフト段階）が3以上、または高価格（3000ゴールド以上）
+  // 3. 購入可能なアイテム
+  const itemWithDepth = item as any; // depthプロパティにアクセスするため
+  return item.gold?.total >= 2500 && 
+         item.gold?.purchasable && 
+         (itemWithDepth.depth >= 3 || item.gold?.total >= 3000);
+}
+
+/**
+ * アイテム名取得
+ */
+function getItemName(itemId: number): string {
+  const item = itemData.data[itemId.toString() as keyof typeof itemData.data];
+  return item?.name || `アイテム${itemId}`;
 }
