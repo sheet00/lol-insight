@@ -103,6 +103,7 @@ export interface MatchDetail {
   myTeam: ParticipantWithRank[]
   enemyTeam: ParticipantWithRank[]
   myParticipant: ParticipantWithRank
+  teamStats: TeamStats
 }
 
 export interface GameInfo {
@@ -139,6 +140,34 @@ export interface RankInfo {
   winRate: number
   queueType: string
 }
+
+// チーム成績・オブジェクト情報の型
+export interface TeamStats {
+  myTeam: TeamInfo
+  enemyTeam: TeamInfo
+}
+
+export interface TeamInfo {
+  teamId: number
+  win: boolean
+  objectives: TeamObjectives
+}
+
+export interface TeamObjectives {
+  baron: ObjectiveInfo
+  champion: ObjectiveInfo
+  dragon: ObjectiveInfo
+  horde: ObjectiveInfo
+  inhibitor: ObjectiveInfo
+  riftHerald: ObjectiveInfo
+  tower: ObjectiveInfo
+}
+
+export interface ObjectiveInfo {
+  first: boolean
+  kills: number
+}
+
 
 // 進行中試合詳細情報の型
 export interface LiveMatchDetail {

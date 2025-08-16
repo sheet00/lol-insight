@@ -1,4 +1,4 @@
-import type { MatchDetail, ParticipantWithRank } from '~/types'
+import type { MatchDetail, ParticipantWithRank, TeamStats } from '~/types'
 import { RiotApiManager } from '~/server/utils/RiotApiManager'
 
 export default defineEventHandler(async (event): Promise<MatchDetail> => {
@@ -133,6 +133,50 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
       enemyTeamSize: enemyTeam.length
     })
 
+    // 5. チーム成績・オブジェクト情報を取得
+    const teams = matchDetail.info?.teams || []
+    console.log('Debug - チーム情報取得:', teams.length + 'チーム')
+
+    const myTeamData = teams.find((team: any) => team.teamId === myTeamId)
+    const enemyTeamData = teams.find((team: any) => team.teamId !== myTeamId)
+
+    const teamStats: TeamStats = {
+      myTeam: {
+        teamId: myTeamData?.teamId || myTeamId,
+        win: myTeamData?.win || false,
+        objectives: {
+          baron: myTeamData?.objectives?.baron || { first: false, kills: 0 },
+          champion: myTeamData?.objectives?.champion || { first: false, kills: 0 },
+          dragon: myTeamData?.objectives?.dragon || { first: false, kills: 0 },
+          horde: myTeamData?.objectives?.horde || { first: false, kills: 0 },
+          inhibitor: myTeamData?.objectives?.inhibitor || { first: false, kills: 0 },
+          riftHerald: myTeamData?.objectives?.riftHerald || { first: false, kills: 0 },
+          tower: myTeamData?.objectives?.tower || { first: false, kills: 0 }
+        }
+      },
+      enemyTeam: {
+        teamId: enemyTeamData?.teamId || (myTeamId === 100 ? 200 : 100),
+        win: enemyTeamData?.win || false,
+        objectives: {
+          baron: enemyTeamData?.objectives?.baron || { first: false, kills: 0 },
+          champion: enemyTeamData?.objectives?.champion || { first: false, kills: 0 },
+          dragon: enemyTeamData?.objectives?.dragon || { first: false, kills: 0 },
+          horde: enemyTeamData?.objectives?.horde || { first: false, kills: 0 },
+          inhibitor: enemyTeamData?.objectives?.inhibitor || { first: false, kills: 0 },
+          riftHerald: enemyTeamData?.objectives?.riftHerald || { first: false, kills: 0 },
+          tower: enemyTeamData?.objectives?.tower || { first: false, kills: 0 }
+        }
+      }
+    }
+
+    console.log('Debug - チーム成績取得完了:', {
+      myTeamWin: teamStats.myTeam.win,
+      myTeamKills: teamStats.myTeam.objectives.champion.kills,
+      enemyTeamKills: teamStats.enemyTeam.objectives.champion.kills,
+      myTeamTowers: teamStats.myTeam.objectives.tower.kills,
+      enemyTeamTowers: teamStats.enemyTeam.objectives.tower.kills
+    })
+
     // レスポンスデータを整形
     const result: MatchDetail = {
       matchId: latestMatchId,
@@ -146,7 +190,8 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
       },
       myTeam: myTeam,
       enemyTeam: enemyTeam,
-      myParticipant: myParticipant
+      myParticipant: myParticipant,
+      teamStats: teamStats
     }
 
     return result

@@ -547,6 +547,13 @@
             </div>
           </div>
 
+          <!-- チーム成績・オブジェクト情報 -->
+          <TeamObjectiveStats 
+            v-if="matchData.teamStats"
+            :team-stats="matchData.teamStats"
+            :get-champion-name="getChampionName"
+          />
+
           <!-- マッチアップ詳細 -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- 味方チーム -->
@@ -697,6 +704,7 @@ import type {
   MatchDetail,
   LiveMatchDetail,
 } from "~/types";
+import TeamObjectiveStats from "~/components/TeamObjectiveStats.vue";
 import { formatTextWithBreaks } from "@/utils/textFormatter";
 import {
   formatGameMode,

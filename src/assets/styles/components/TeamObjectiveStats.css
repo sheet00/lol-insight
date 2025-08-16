@@ -1,0 +1,42 @@
+/* TeamObjectiveStats コンポーネント専用スタイル */
+
+.team-objective-stats {
+  /* チーム成績表示用のレイアウト調整 */
+}
+
+.objective-item {
+  /* オブジェクト項目のホバー効果 */
+  transition: background-color 0.2s ease;
+}
+
+.objective-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.first-badge {
+  /* ファーストキル等のバッジスタイル */
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.ban-champion {
+  /* BANチャンピオン表示用 */
+  transition: transform 0.2s ease;
+}
+
+.ban-champion:hover {
+  transform: scale(1.05);
+}
+
+.team-summary {
+  /* チーム比較サマリー用 */
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
