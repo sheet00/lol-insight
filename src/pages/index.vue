@@ -53,6 +53,7 @@
           :match-data="matchData"
           :show-timeline="showTimeline"
           :is-generating-advice="isPostMatchAdviceGenerating"
+          :has-advice="!!postMatchAdvice"
           @output-to-console="outputMatchAnalysisToConsole"
           @toggle-timeline="toggleTimeline"
           @generate-post-match-advice="generatePostMatchAdvice"
@@ -275,24 +276,24 @@ const generateAdviceHandler = async () => {
   }
 };
 
-// 自動生成: liveMatchData が更新されたら走らせる（SSR安全）
-watch(
-  () => liveMatchData.value?.gameId,
-  async (id) => {
-    if (id && typeof window !== "undefined") await generateAdviceHandler();
-  },
-  { immediate: false }
-);
+// 自動生成を無効化: ユーザーがボタンを押すまで実行しない
+// watch(
+//   () => liveMatchData.value?.gameId,
+//   async (id) => {
+//     if (id && typeof window !== "undefined") await generateAdviceHandler();
+//   },
+//   { immediate: false }
+// );
 
-// 自動生成: matchData が更新されたら走らせる（SSR安全）
-watch(
-  () => matchData.value?.matchId,
-  async (id) => {
-    if (id && typeof window !== "undefined" && !postMatchAdvice.value)
-      await generatePostMatchAdvice();
-  },
-  { immediate: false }
-);
+// 自動生成を無効化: ユーザーがボタンを押すまで実行しない
+// watch(
+//   () => matchData.value?.matchId,
+//   async (id) => {
+//     if (id && typeof window !== "undefined" && !postMatchAdvice.value)
+//       await generatePostMatchAdvice();
+//   },
+//   { immediate: false }
+// );
 
 // 再生成ボタン
 const onRegenerateAdvice = () => {

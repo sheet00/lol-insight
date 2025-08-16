@@ -24,20 +24,13 @@
             <span>📊</span>
             分析結果をConsoleに出力
           </button>
-          <button
-            @click="$emit('generatePostMatchAdvice')"
-            :disabled="isGeneratingAdvice"
-            class="btn-secondary px-4 py-2 text-sm flex items-center gap-2"
-            :class="{ 'opacity-50 cursor-not-allowed': isGeneratingAdvice }"
-            title="AI が試合後の詳細分析とアドバイスを生成します"
-          >
-            <span v-if="!isGeneratingAdvice">🤖</span>
-            <div
-              v-else
-              class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-            ></div>
-            {{ isGeneratingAdvice ? "アドバイス生成中…" : "アドバイス再生成" }}
-          </button>
+          <AIAnalysisButton
+            :is-generating="!!isGeneratingAdvice"
+            :has-analysis="!!hasAdvice"
+            button-type="secondary"
+            analysis-type="post-match"
+            @generate-analysis="$emit('generatePostMatchAdvice')"
+          />
           <div class="text-center">
             <div
               class="text-2xl font-bold"
@@ -260,6 +253,7 @@ import championData from "@/data/champion.json";
 import TeamObjectiveStats from "~/components/TeamObjectiveStats.vue";
 import PlayerDamageStats from "~/components/PlayerDamageStats.vue";
 import MatchTimeline from "~/components/MatchTimeline.vue";
+import AIAnalysisButton from "~/components/AIAnalysisButton.vue";
 import "@/assets/styles/components/CompletedMatch.css";
 
 // Props
@@ -267,6 +261,7 @@ interface Props {
   matchData: MatchDetail;
   showTimeline: boolean;
   isGeneratingAdvice?: boolean;
+  hasAdvice?: boolean;
 }
 
 const props = defineProps<Props>();

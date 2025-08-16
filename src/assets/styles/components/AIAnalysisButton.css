@@ -1,0 +1,24 @@
+/* AIAnalysisButton コンポーネント専用スタイル */
+
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm hover:shadow-md;
+}
+
+.btn-secondary {
+  @apply bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow-sm hover:shadow-md;
+}
+
+/* ホバー時のエフェクト */
+.btn-primary:hover:not(:disabled) {
+  @apply transform -translate-y-0.5;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  @apply transform -translate-y-0.5;
+}
+
+/* 無効化時のスタイル */
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  @apply transform-none shadow-none;
+}

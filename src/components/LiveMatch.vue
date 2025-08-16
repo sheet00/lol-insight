@@ -19,17 +19,12 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <button
-            class="btn-primary px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            :disabled="isAdviceGenerating"
-            @click="$emit('regenerateAdvice')"
-          >
-            {{
-              isAdviceGenerating
-                ? "アドバイス生成中…"
-                : "アドバイス再生成"
-            }}
-          </button>
+          <AIAnalysisButton
+            :is-generating="isAdviceGenerating"
+            :has-analysis="!!aiAdvice"
+            analysis-type="live"
+            @generate-analysis="$emit('regenerateAdvice')"
+          />
           <div class="text-center">
             <div class="text-2xl font-bold text-green-600">進行中</div>
             <div class="text-sm text-gray-500">ゲーム状況</div>
@@ -420,6 +415,7 @@ import {
   getSummonerSpellName,
 } from "@/utils/championUtils";
 import championData from "@/data/champion.json";
+import AIAnalysisButton from "~/components/AIAnalysisButton.vue";
 import "@/assets/styles/components/LiveMatch.css";
 
 // Props
