@@ -47,12 +47,12 @@ const buttonText = computed(() => {
 });
 
 const buttonClass = computed(() => {
-  const baseClass = "flex items-center gap-2 font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
-  const typeClass = props.buttonType === "primary" ? "btn-primary" : "btn-secondary";
+  const baseClass = "btn flex items-center spacing-sm";
+  const typeClass = props.buttonType === "primary" ? "btn-lol-gold" : "btn-secondary";
   const sizeClass = {
-    sm: "px-4 py-2 text-sm",
-    md: "px-6 py-3 text-base",
-    lg: "px-8 py-4 text-lg"
+    sm: "btn-sm",
+    md: "btn-md", 
+    lg: "btn-lg"
   }[props.size];
   
   return `${baseClass} ${typeClass} ${sizeClass}`;

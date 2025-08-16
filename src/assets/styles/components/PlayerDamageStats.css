@@ -1,7 +1,7 @@
 /* PlayerDamageStats コンポーネント用スタイル */
 
 .player-stats-container {
-  @apply mt-3 bg-gray-50 rounded-lg p-3 border border-gray-200;
+  @apply mt-3 mb-3 bg-gray-50 rounded-lg p-3 border border-gray-200;
 }
 
 .stats-details {
@@ -97,7 +97,7 @@
   .stats-items {
     @apply grid-cols-1 gap-1;
   }
-  
+
   .stats-item {
     @apply text-xs py-1 px-2;
   }

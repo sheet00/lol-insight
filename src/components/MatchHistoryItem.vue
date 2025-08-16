@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="match-history-item"
+    class="card card-md card-interactive"
     :class="{ selected: isSelected }"
   >
     <!-- ヘッダー: 日時と勝敗 -->
@@ -10,7 +10,7 @@
       </div>
       <div 
         class="match-history-item-result"
-        :class="match.result.toLowerCase()"
+        :class="match.result === 'WIN' ? 'text-win' : 'text-loss'"
       >
         {{ match.result === 'WIN' ? '勝利' : '敗北' }}
       </div>
@@ -33,7 +33,7 @@
 
       <div class="match-history-item-right">
         <button
-          class="match-history-item-button"
+          class="btn btn-primary btn-sm"
           :disabled="isLoading"
           @click="onDetailClick"
         >

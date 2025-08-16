@@ -4,17 +4,17 @@
     <div class="mx-auto main-content-width px-6">
       <div class="h-16 flex items-center justify-between gap-6">
         <div class="min-w-0">
-          <h1 class="text-lg font-bold text-gray-900 leading-none">
+          <h1 class="heading-lg leading-none">
             LoL Teacher
           </h1>
-          <p class="hidden sm:block text-xs text-gray-600 truncate">
+          <p class="hidden sm:block text-xs text-secondary truncate">
             最新試合のマッチアップを分析
           </p>
         </div>
 
         <!-- 検索フォーム・AIモデル選択（ヘッダ内・コンパクト） -->
         <div
-          class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto max-w-5xl"
+          class="flex flex-col sm:flex-row items-start sm:items-center spacing-md w-full sm:w-auto max-w-5xl"
         >
           <!-- AIモデル選択 -->
           <ModelSelector
@@ -26,7 +26,7 @@
           <!-- 検索フォーム -->
           <form
             @submit.prevent="$emit('search')"
-            class="flex items-center gap-3 w-full sm:w-auto"
+            class="flex items-center spacing-md w-full sm:w-auto"
           >
             <input
               :value="searchForm.summonerName"
@@ -57,7 +57,7 @@
             <button
               type="submit"
               :disabled="loading"
-              class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed h-10 px-4 text-sm flex items-center justify-center whitespace-nowrap"
+              class="btn btn-primary btn-sm h-10 flex items-center justify-center whitespace-nowrap"
             >
               <span
                 v-if="loading"
@@ -69,7 +69,7 @@
               type="button"
               :disabled="loading || isAdviceGenerating || userFetchLoading"
               @click="$emit('fetchFeaturedUser')"
-              class="h-10 px-4 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center gap-2"
+              class="btn btn-secondary btn-sm h-10 whitespace-nowrap flex items-center spacing-sm"
               title="/lol/spectator/v5/featured-games から試合中ユーザーを取得して入力欄にセット"
             >
               <span

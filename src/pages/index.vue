@@ -20,15 +20,15 @@
         <!-- 分析対象プレイヤー表示 -->
         <div
           v-if="summonerData && !matchData && !liveMatchData && loading"
-          class="card text-center"
+          class="card card-md text-center"
         >
           <div class="py-8">
-            <div class="text-2xl font-bold text-gray-900 mb-2">
+            <div class="heading-lg mb-2">
               {{ summonerData.account.gameName }}#{{
                 summonerData.account.tagLine
               }}
             </div>
-            <div class="text-gray-600 mb-4">
+            <div class="text-secondary mb-4">
               プレイヤーの試合情報を分析中...
             </div>
             <div
@@ -71,11 +71,11 @@
         </ClientOnly>
 
         <!-- エラー表示 -->
-        <div v-if="error" class="card bg-red-50 border-red-200">
-          <div class="flex items-center">
-            <div class="text-red-600 mr-3">⚠️</div>
+        <div v-if="error" class="card card-md bg-red-50 border-red-200">
+          <div class="flex items-center spacing-md">
+            <div class="text-red-600">⚠️</div>
             <div>
-              <h3 class="text-lg font-semibold text-red-800">
+              <h3 class="heading-sm text-red-800">
                 エラーが発生しました
               </h3>
               <p class="text-red-700">{{ error }}</p>

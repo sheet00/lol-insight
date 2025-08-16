@@ -6,10 +6,10 @@
         class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6"
       >
         <div>
-          <h2 class="text-xl font-bold text-gray-900">
+          <h2 class="heading-lg">
             {{ matchData.myParticipant.summonerName }}
           </h2>
-          <p class="text-gray-600">
+          <p class="text-secondary">
             {{ getChampionName(matchData.myParticipant.championId) }} -
             {{ formatGameMode(matchData.gameInfo.queueId) }}
           </p>
@@ -18,7 +18,7 @@
         <div class="flex items-center space-x-4">
           <button
             @click="$emit('downloadJson')"
-            class="btn-primary px-4 py-2 text-sm flex items-center gap-2"
+            class="btn btn-secondary btn-sm flex items-center spacing-sm"
             title="AI入力パラメータをJSON形式でダウンロード（デバッグ用）"
           >
             <span>📥</span>
@@ -34,21 +34,19 @@
           <div class="text-center">
             <div
               class="text-2xl font-bold"
-              :class="
-                matchData.myParticipant.win ? 'text-green-600' : 'text-red-600'
-              "
+              :class="matchData.myParticipant.win ? 'text-win' : 'text-loss'"
             >
               {{ matchData.myParticipant.win ? "勝利" : "敗北" }}
             </div>
-            <div class="text-sm text-gray-500">結果</div>
+            <div class="text-sm text-muted">結果</div>
           </div>
           <div class="text-center">
-            <div class="text-2xl font-bold text-gray-800">
+            <div class="text-2xl font-bold text-primary">
               {{ matchData.myParticipant.kills }}/{{
                 matchData.myParticipant.deaths
               }}/{{ matchData.myParticipant.assists }}
             </div>
-            <div class="text-sm text-gray-500">KDA</div>
+            <div class="text-sm text-muted">KDA</div>
           </div>
         </div>
       </div>
