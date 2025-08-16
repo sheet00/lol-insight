@@ -15,7 +15,7 @@
     />
 
     <!-- メインコンテンツ -->
-    <div class="w-full mx-auto px-4 py-10 mt-16">
+    <div class="w-full mx-auto px-4 py-10">
       <div class="main-content-width mx-auto">
         <!-- 分析対象プレイヤー表示 -->
         <div

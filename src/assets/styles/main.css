@@ -7,7 +7,6 @@
   body {
     @apply bg-gray-50 text-gray-900;
     font-size: 1.125rem; /* 18px - デフォルトより大きく */
-    padding-top: 64px; /* ヘッダーの高さh-16(64px)分 */
   }
 
   /* フォントサイズを全体的に大きくする */
