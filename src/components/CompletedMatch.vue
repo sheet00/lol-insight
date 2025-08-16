@@ -15,7 +15,7 @@
           </p>
         </div>
 
-        <div class="flex items-center space-x-6">
+        <div class="flex items-center space-x-4">
           <button
             @click="$emit('outputToConsole')"
             class="btn-primary px-4 py-2 text-sm flex items-center gap-2"
@@ -24,13 +24,25 @@
             <span>📊</span>
             分析結果をConsoleに出力
           </button>
+          <button
+            @click="$emit('generatePostMatchAdvice')"
+            :disabled="isGeneratingAdvice"
+            class="btn-secondary px-4 py-2 text-sm flex items-center gap-2"
+            :class="{ 'opacity-50 cursor-not-allowed': isGeneratingAdvice }"
+            title="AI が試合後の詳細分析とアドバイスを生成します"
+          >
+            <span v-if="!isGeneratingAdvice">🤖</span>
+            <div
+              v-else
+              class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+            ></div>
+            {{ isGeneratingAdvice ? "AI分析中..." : "AI試合分析を実行" }}
+          </button>
           <div class="text-center">
             <div
               class="text-2xl font-bold"
               :class="
-                matchData.myParticipant.win
-                  ? 'text-green-600'
-                  : 'text-red-600'
+                matchData.myParticipant.win ? 'text-green-600' : 'text-red-600'
               "
             >
               {{ matchData.myParticipant.win ? "勝利" : "敗北" }}
@@ -59,18 +71,20 @@
     <!-- 試合タイムライン（折りたたみ式） -->
     <div class="card">
       <div class="mb-4">
-        <button 
+        <button
           @click="$emit('toggleTimeline')"
           class="w-full flex items-center justify-between p-4 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <div class="flex items-center">
             <span class="mr-2">⏰</span>
-            <h3 class="text-xl font-semibold text-gray-900">試合タイムライン</h3>
+            <h3 class="text-xl font-semibold text-gray-900">
+              試合タイムライン
+            </h3>
             <span class="ml-2 text-sm text-gray-500">
-              (クリックで{{ showTimeline ? '折りたたみ' : '展開' }})
+              (クリックで{{ showTimeline ? "折りたたみ" : "展開" }})
             </span>
           </div>
-          <div 
+          <div
             class="transform transition-transform duration-200 text-gray-500"
             :class="{ 'rotate-180': showTimeline }"
           >
@@ -78,9 +92,9 @@
           </div>
         </button>
       </div>
-      
-      <div 
-        class="timeline-content overflow-hidden transition-all duration-300 ease-in-out"
+
+      <div
+        class="timeline-content overflow-hidden overflow-y-auto max-h-96 transition-all duration-300 ease-in-out"
         :class="showTimeline ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'"
       >
         <MatchTimeline
@@ -110,9 +124,7 @@
             <h4
               class="text-lg font-semibold"
               :class="
-                matchData.myParticipant.win
-                  ? 'text-blue-600'
-                  : 'text-gray-600'
+                matchData.myParticipant.win ? 'text-blue-600' : 'text-gray-600'
               "
             >
               自チーム
@@ -151,15 +163,11 @@
                 </div>
                 <div class="text-right">
                   <div class="text-sm font-medium text-gray-900">
-                    {{ player.kills }}/{{ player.deaths }}/{{
-                      player.assists
-                    }}
+                    {{ player.kills }}/{{ player.deaths }}/{{ player.assists }}
                   </div>
                   <div
                     class="text-xs"
-                    :class="
-                      player.rank ? 'text-blue-600' : 'text-gray-500'
-                    "
+                    :class="player.rank ? 'text-blue-600' : 'text-gray-500'"
                   >
                     {{
                       player.rank
@@ -182,9 +190,7 @@
             <h4
               class="text-lg font-semibold"
               :class="
-                !matchData.myParticipant.win
-                  ? 'text-red-600'
-                  : 'text-gray-600'
+                !matchData.myParticipant.win ? 'text-red-600' : 'text-gray-600'
               "
             >
               敵チーム
@@ -218,15 +224,11 @@
                 </div>
                 <div class="text-right">
                   <div class="text-sm font-medium text-gray-900">
-                    {{ player.kills }}/{{ player.deaths }}/{{
-                      player.assists
-                    }}
+                    {{ player.kills }}/{{ player.deaths }}/{{ player.assists }}
                   </div>
                   <div
                     class="text-xs"
-                    :class="
-                      player.rank ? 'text-red-600' : 'text-gray-500'
-                    "
+                    :class="player.rank ? 'text-red-600' : 'text-gray-500'"
                   >
                     {{
                       player.rank
@@ -249,9 +251,7 @@
 
 <script setup lang="ts">
 import type { MatchDetail } from "~/types";
-import {
-  formatGameMode,
-} from "@/utils/gameFormatters";
+import { formatGameMode } from "@/utils/gameFormatters";
 import {
   createChampionIdMap,
   createGetChampionName,
@@ -266,6 +266,7 @@ import "@/assets/styles/components/CompletedMatch.css";
 interface Props {
   matchData: MatchDetail;
   showTimeline: boolean;
+  isGeneratingAdvice?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -274,6 +275,7 @@ const props = defineProps<Props>();
 defineEmits<{
   outputToConsole: [];
   toggleTimeline: [];
+  generatePostMatchAdvice: [];
 }>();
 
 // チャンピオンデータ初期化（SSR対応）

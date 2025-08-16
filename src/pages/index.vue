@@ -15,7 +15,7 @@
     />
 
     <!-- メインコンテンツ -->
-    <div class="w-full mx-auto px-4 py-10">
+    <div class="w-full mx-auto px-4 py-10 mt-16">
       <div class="main-content-width mx-auto">
         <!-- 分析対象プレイヤー表示 -->
         <div
@@ -52,9 +52,14 @@
           v-if="matchData"
           :match-data="matchData"
           :show-timeline="showTimeline"
+          :is-generating-advice="isPostMatchAdviceGenerating"
           @output-to-console="outputMatchAnalysisToConsole"
           @toggle-timeline="toggleTimeline"
+          @generate-post-match-advice="generatePostMatchAdvice"
         />
+
+        <!-- AI試合後分析結果 -->
+        <PostMatchAnalysis v-if="postMatchAdvice" :advice="postMatchAdvice" />
 
         <!-- エラー表示 -->
         <div v-if="error" class="card bg-red-50 border-red-200">
@@ -82,10 +87,8 @@ import type {
 import SearchHeader from "~/components/SearchHeader.vue";
 import LiveMatch from "~/components/LiveMatch.vue";
 import CompletedMatch from "~/components/CompletedMatch.vue";
-import {
-  formatGameMode,
-  formatNumber,
-} from "@/utils/gameFormatters";
+import PostMatchAnalysis from "~/components/PostMatchAnalysis.vue";
+import { formatGameMode, formatNumber } from "@/utils/gameFormatters";
 import {
   createChampionIdMap,
   createGetChampionName,
@@ -123,6 +126,11 @@ const isAdviceGenerating = ref(false);
 let adviceController: AbortController | null = null;
 // 生成AI処理時間（ミリ秒）
 const aiDurationMs = ref<number | null>(null);
+
+// 試合後AI分析関連
+const isPostMatchAdviceGenerating = ref(false);
+const postMatchAdvice = ref<any | null>(null);
+let postMatchAdviceController: AbortController | null = null;
 
 // AIモデル選択
 const selectedAiModel = ref("");
@@ -293,10 +301,13 @@ const outputMatchAnalysisToConsole = () => {
   }
 
   console.group("🎮 League of Legends 完了試合分析結果");
-  
+
   // analysisSummaryが存在する場合はそれを出力、なければ従来の構造を出力
   if (matchData.value.analysisSummary) {
-    console.log("📊 詳細分析サマリー:", JSON.stringify(matchData.value.analysisSummary, null, 2));
+    console.log(
+      "📊 詳細分析サマリー:",
+      JSON.stringify(matchData.value.analysisSummary, null, 2)
+    );
   } else {
     console.log("⚠️ 詳細分析サマリーが生成されていません");
   }
@@ -304,21 +315,42 @@ const outputMatchAnalysisToConsole = () => {
   // 基本試合情報
   console.group("🏟️ 基本試合情報");
   console.log("試合ID:", matchData.value.matchId);
-  console.log("ゲームモード:", formatGameMode(matchData.value.gameInfo.queueId));
-  console.log("試合時間:", Math.floor(matchData.value.gameInfo.gameDuration / 60) + "分" + (matchData.value.gameInfo.gameDuration % 60) + "秒");
-  console.log("結果:", matchData.value.myParticipant.win ? "勝利 🎉" : "敗北 😢");
+  console.log(
+    "ゲームモード:",
+    formatGameMode(matchData.value.gameInfo.queueId)
+  );
+  console.log(
+    "試合時間:",
+    Math.floor(matchData.value.gameInfo.gameDuration / 60) +
+      "分" +
+      (matchData.value.gameInfo.gameDuration % 60) +
+      "秒"
+  );
+  console.log(
+    "結果:",
+    matchData.value.myParticipant.win ? "勝利 🎉" : "敗北 😢"
+  );
   console.groupEnd();
 
   // プレイヤー情報
   console.group("👤 自分のパフォーマンス");
   const myPlayer = matchData.value.myParticipant;
   console.log("チャンピオン:", getChampionName(myPlayer.championId));
-  console.log("KDA:", `${myPlayer.kills}/${myPlayer.deaths}/${myPlayer.assists}`);
-  console.log("ダメージ:", myPlayer.totalDamageDealtToChampions.toLocaleString());
+  console.log(
+    "KDA:",
+    `${myPlayer.kills}/${myPlayer.deaths}/${myPlayer.assists}`
+  );
+  console.log(
+    "ダメージ:",
+    myPlayer.totalDamageDealtToChampions.toLocaleString()
+  );
   console.log("ゴールド:", myPlayer.goldEarned.toLocaleString());
   console.log("CS:", myPlayer.totalMinionsKilled);
   if (myPlayer.rank) {
-    console.log("ランク:", `${myPlayer.rank.tier} ${myPlayer.rank.rank} (${myPlayer.rank.leaguePoints}LP)`);
+    console.log(
+      "ランク:",
+      `${myPlayer.rank.tier} ${myPlayer.rank.rank} (${myPlayer.rank.leaguePoints}LP)`
+    );
   }
   console.groupEnd();
 
@@ -326,76 +358,93 @@ const outputMatchAnalysisToConsole = () => {
   console.group("⚔️ チーム成績比較");
   const teamStats = matchData.value.teamStats;
   console.table({
-    "自チーム": {
+    自チーム: {
       勝利: teamStats.myTeam.win ? "✅" : "❌",
       キル: teamStats.myTeam.objectives.champion.kills,
       タワー: teamStats.myTeam.objectives.tower.kills,
       ドラゴン: teamStats.myTeam.objectives.dragon.kills,
       バロン: teamStats.myTeam.objectives.baron.kills,
-      ゴールド: teamStats.myTeam.totalGold.toLocaleString()
+      ゴールド: teamStats.myTeam.totalGold.toLocaleString(),
     },
-    "敵チーム": {
+    敵チーム: {
       勝利: teamStats.enemyTeam.win ? "✅" : "❌",
       キル: teamStats.enemyTeam.objectives.champion.kills,
       タワー: teamStats.enemyTeam.objectives.tower.kills,
       ドラゴン: teamStats.enemyTeam.objectives.dragon.kills,
       バロン: teamStats.enemyTeam.objectives.baron.kills,
-      ゴールド: teamStats.enemyTeam.totalGold.toLocaleString()
-    }
+      ゴールド: teamStats.enemyTeam.totalGold.toLocaleString(),
+    },
   });
   console.groupEnd();
 
   // 全プレイヤー統計
   console.group("📈 全プレイヤー統計");
   const allPlayers = [...matchData.value.myTeam, ...matchData.value.enemyTeam];
-  const playersTable = allPlayers.map(player => ({
+  const playersTable = allPlayers.map((player) => ({
     チャンピオン: getChampionName(player.championId),
-    チーム: player.teamId === matchData.value!.myParticipant.teamId ? "自チーム" : "敵チーム",
+    チーム:
+      player.teamId === matchData.value!.myParticipant.teamId
+        ? "自チーム"
+        : "敵チーム",
     KDA: `${player.kills}/${player.deaths}/${player.assists}`,
     ダメージ: player.totalDamageDealtToChampions.toLocaleString(),
     ゴールド: player.goldEarned.toLocaleString(),
     CS: player.totalMinionsKilled,
-    ランク: player.rank ? `${player.rank.tier} ${player.rank.rank}` : "Unranked"
+    ランク: player.rank
+      ? `${player.rank.tier} ${player.rank.rank}`
+      : "Unranked",
   }));
   console.table(playersTable);
   console.groupEnd();
 
   // タイムライン情報
-  if (matchData.value.timelineEvents && matchData.value.timelineEvents.length > 0) {
+  if (
+    matchData.value.timelineEvents &&
+    matchData.value.timelineEvents.length > 0
+  ) {
     console.group("⏰ 重要タイムラインイベント");
-    console.log("タイムラインイベント数:", matchData.value.timelineEvents.length);
-    
+    console.log(
+      "タイムラインイベント数:",
+      matchData.value.timelineEvents.length
+    );
+
     // イベントタイプ別に分類
-    const eventsByType = matchData.value.timelineEvents.reduce((acc: any, event: any) => {
-      acc[event.type] = acc[event.type] || [];
-      acc[event.type].push(event);
-      return acc;
-    }, {});
+    const eventsByType = matchData.value.timelineEvents.reduce(
+      (acc: any, event: any) => {
+        acc[event.type] = acc[event.type] || [];
+        acc[event.type].push(event);
+        return acc;
+      },
+      {}
+    );
 
     // タイプ別にテーブル表示
     const typeIcons: { [key: string]: string } = {
       KILL: "💀",
-      MONSTER: "🐉", 
+      MONSTER: "🐉",
       BUILDING: "🏗️",
       ITEM: "🛒",
       LEVEL: "⬆️",
-      PLATE: "🛡️"
+      PLATE: "🛡️",
     };
 
-    Object.keys(eventsByType).forEach(type => {
+    Object.keys(eventsByType).forEach((type) => {
       const icon = typeIcons[type] || "📌";
       console.group(`${icon} ${type}イベント (${eventsByType[type].length}件)`);
       const eventsTable = eventsByType[type].map((event: any) => ({
         時間: event.timeString,
         説明: event.description,
-        優先度: event.priority
+        優先度: event.priority,
       }));
       console.table(eventsTable);
       console.groupEnd();
     });
 
     // 生JSONも出力
-    console.log("Timeline Events JSON:", JSON.stringify(matchData.value.timelineEvents, null, 2));
+    console.log(
+      "Timeline Events JSON:",
+      JSON.stringify(matchData.value.timelineEvents, null, 2)
+    );
     console.groupEnd();
   } else {
     console.log("⚠️ タイムライン情報が含まれていません");
@@ -410,6 +459,110 @@ const outputMatchAnalysisToConsole = () => {
 
   // 成功メッセージ
   console.log("✅ 完了試合分析結果がConsoleに出力されました！");
+};
+
+// 試合後AI分析実行
+const generatePostMatchAdvice = async () => {
+  if (!matchData.value) {
+    console.warn("⚠️ 試合データがありません");
+    error.value = "試合データがないため、AI分析を実行できません";
+    return;
+  }
+
+  // 既に実行中の場合は中止
+  if (isPostMatchAdviceGenerating.value) {
+    console.warn("⚠️ 既にAI分析実行中です");
+    return;
+  }
+
+  isPostMatchAdviceGenerating.value = true;
+  error.value = "";
+  postMatchAdvice.value = null;
+
+  // AbortControllerを設定
+  postMatchAdviceController = new AbortController();
+
+  const startTime = Date.now();
+
+  try {
+    console.log("🤖 試合後AI分析を開始します...");
+    console.log("📊 分析対象試合:", {
+      matchId: matchData.value.matchId,
+      champion: matchData.value.myParticipant.championName,
+      result: matchData.value.myParticipant.win ? "WIN" : "LOSE",
+      kda: `${matchData.value.myParticipant.kills}/${matchData.value.myParticipant.deaths}/${matchData.value.myParticipant.assists}`,
+    });
+
+    const response = (await $fetch("/api/advice/post-match", {
+      method: "POST",
+      body: {
+        matchId: matchData.value.matchId,
+        matchData: {
+          gameInfo: matchData.value.gameInfo,
+          myTeam: matchData.value.myTeam,
+          enemyTeam: matchData.value.enemyTeam,
+          myParticipant: matchData.value.myParticipant,
+          teamStats: matchData.value.teamStats,
+          analysisSummary: matchData.value.analysisSummary,
+          timelineEvents: matchData.value.timelineEvents || [],
+        },
+        model: selectedAiModel.value || undefined,
+      },
+      signal: postMatchAdviceController.signal,
+    })) as any;
+
+    const endTime = Date.now();
+    const durationMs = endTime - startTime;
+
+    console.log("✅ 試合後AI分析完了!", {
+      duration: `${durationMs}ms`,
+      success: response.success,
+    });
+
+    if (response.success && response.analysis) {
+      postMatchAdvice.value = response.analysis;
+
+      // コンソールに分析結果を出力
+      console.group("🤖 AI試合後分析結果");
+      console.log(
+        "📝 ゲーム全体の総評:",
+        response.analysis["ゲーム全体の総評"]
+      );
+      console.log(
+        "⚖️ 良かった点・悪かった点:",
+        response.analysis["良かった点・悪かった点"]
+      );
+      console.log(
+        "🔄 ターニングポイント分析:",
+        response.analysis["ターニングポイント分析"]
+      );
+      console.log(
+        "💡 具体的改善アドバイス:",
+        response.analysis["具体的改善アドバイス"]
+      );
+      console.groupEnd();
+
+      console.log("✅ AI試合後分析がConsoleに出力されました！");
+    } else {
+      throw new Error(
+        "AI分析に失敗しました: " + (response.message || "不明なエラー")
+      );
+    }
+  } catch (err: any) {
+    console.error("❌ 試合後AI分析エラー:", err);
+
+    if (err.name === "AbortError") {
+      console.log("🛑 AI分析がキャンセルされました");
+      error.value = "AI分析がキャンセルされました";
+    } else {
+      const errorMessage =
+        err.message || err.data?.message || "AI分析でエラーが発生しました";
+      error.value = `AI分析エラー: ${errorMessage}`;
+    }
+  } finally {
+    isPostMatchAdviceGenerating.value = false;
+    postMatchAdviceController = null;
+  }
 };
 
 // メタ情報

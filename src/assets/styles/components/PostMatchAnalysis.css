@@ -1,0 +1,35 @@
+.analysis-section {
+  @apply bg-gray-50 rounded-lg p-4;
+}
+
+.section-title {
+  @apply text-lg font-semibold text-gray-900 mb-4 flex items-center;
+}
+
+.analysis-content {
+  @apply space-y-4;
+}
+
+.analysis-item {
+  @apply bg-white rounded-lg p-4 border border-gray-200;
+}
+
+.analysis-item-title {
+  @apply font-semibold text-gray-800 mb-2 flex items-center;
+}
+
+.analysis-text {
+  @apply text-gray-700 leading-relaxed;
+}
+
+.good-point {
+  @apply border-green-200 bg-green-50;
+}
+
+.bad-point {
+  @apply border-red-200 bg-red-50;
+}
+
+.improvement {
+  @apply border-green-200 bg-green-50;
+}
