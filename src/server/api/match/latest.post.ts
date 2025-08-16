@@ -392,7 +392,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
         method: 'POST',
         body: {
           matchId: latestMatchId,
-          matchData: { myTeam, enemyTeam }
+          matchData: { myTeam, enemyTeam, myParticipant }
         }
       })
       

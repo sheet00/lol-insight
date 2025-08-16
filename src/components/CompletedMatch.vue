@@ -19,10 +19,10 @@
           <button
             @click="$emit('downloadJson')"
             class="btn-primary px-4 py-2 text-sm flex items-center gap-2"
-            title="完了試合の分析結果をJSON形式でダウンロード"
+            title="AI入力パラメータをJSON形式でダウンロード（デバッグ用）"
           >
             <span>📥</span>
-            JSONダウンロード
+            AI入力データ
           </button>
           <AIAnalysisButton
             :is-generating="!!isGeneratingAdvice"

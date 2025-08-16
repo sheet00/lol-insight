@@ -312,78 +312,53 @@ const downloadMatchAnalysisAsJson = () => {
     return;
   }
 
-  // ダウンロード用のデータオブジェクトを作成
-  const analysisData = {
-    exportInfo: {
+  // 自分のアイテム購入履歴を抽出（AIと同じロジック）
+  const myItemPurchases = matchData.value.timelineEvents?.filter((event: any) => 
+    event.type === 'ITEM' && event.isMyself === true
+  ) || [];
+
+  // AI入力パラメータと完全同一のデータを作成
+  const aiInputData = {
+    _metadata: {
       exportDate: new Date().toISOString(),
-      exportType: "League of Legends 試合分析結果",
+      exportType: "League of Legends AI入力パラメータ（デバッグ用）",
+      purpose: "生成AIに送信されるデータと完全同一",
       version: "1.0.0"
     },
-    gameBasicInfo: {
-      matchId: matchData.value.matchId,
-      gameMode: formatGameMode(matchData.value.gameInfo.queueId),
-      gameDuration: {
-        seconds: matchData.value.gameInfo.gameDuration,
-        formatted: Math.floor(matchData.value.gameInfo.gameDuration / 60) + 
-                  "分" + 
-                  (matchData.value.gameInfo.gameDuration % 60) + 
-                  "秒"
-      },
-      result: matchData.value.myParticipant.win ? "勝利" : "敗北"
-    },
-    analysisSummary: matchData.value.analysisSummary || null,
-    myPerformance: {
-      champion: getChampionName(matchData.value.myParticipant.championId),
-      kda: {
-        kills: matchData.value.myParticipant.kills,
-        deaths: matchData.value.myParticipant.deaths,
-        assists: matchData.value.myParticipant.assists,
-        formatted: `${matchData.value.myParticipant.kills}/${matchData.value.myParticipant.deaths}/${matchData.value.myParticipant.assists}`
-      },
-      damage: matchData.value.myParticipant.totalDamageDealtToChampions,
-      gold: matchData.value.myParticipant.goldEarned,
-      cs: matchData.value.myParticipant.totalMinionsKilled,
-      rank: matchData.value.myParticipant.rank || null
-    },
-    teamStats: {
-      myTeam: {
-        win: matchData.value.teamStats.myTeam.win,
-        objectives: matchData.value.teamStats.myTeam.objectives,
-        totalGold: matchData.value.teamStats.myTeam.totalGold
-      },
-      enemyTeam: {
-        win: matchData.value.teamStats.enemyTeam.win,
-        objectives: matchData.value.teamStats.enemyTeam.objectives,
-        totalGold: matchData.value.teamStats.enemyTeam.totalGold
-      }
-    },
-    allPlayersStats: [...matchData.value.myTeam, ...matchData.value.enemyTeam].map((player) => ({
-      champion: getChampionName(player.championId),
-      team: player.teamId === matchData.value!.myParticipant.teamId ? "自チーム" : "敵チーム",
-      kda: `${player.kills}/${player.deaths}/${player.assists}`,
-      damage: player.totalDamageDealtToChampions,
-      gold: player.goldEarned,
-      cs: player.totalMinionsKilled,
-      rank: player.rank ? `${player.rank.tier} ${player.rank.rank}` : "Unranked"
+    matchId: matchData.value.matchId,
+    myChampionName: matchData.value.myParticipant?.championName,
+    gameResult: matchData.value.myParticipant?.win ? 'WIN' : 'LOSE',
+    myItemPurchases: myItemPurchases.map((item: any) => ({
+      timeString: item.timeString,
+      timestamp: item.timestamp,
+      itemName: item.itemName,
+      itemId: item.itemId,
+      description: item.description
     })),
-    timelineEvents: matchData.value.timelineEvents || [],
-    fullMatchData: matchData.value
+    // 以下、matchDataの全内容をそのまま展開（AIに送信される生データ）
+    gameInfo: matchData.value.gameInfo,
+    myTeam: matchData.value.myTeam,
+    enemyTeam: matchData.value.enemyTeam,
+    myParticipant: matchData.value.myParticipant,
+    teamStats: matchData.value.teamStats,
+    analysisSummary: matchData.value.analysisSummary,
+    timelineEvents: matchData.value.timelineEvents || []
   };
 
   // JSONファイルとしてダウンロード
-  const jsonString = JSON.stringify(analysisData, null, 2);
+  const jsonString = JSON.stringify(aiInputData, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   
   const link = document.createElement('a');
   link.href = url;
-  link.download = `LoL_match_analysis_${matchData.value.matchId}_${new Date().toISOString().split('T')[0]}.json`;
+  link.download = `LoL_AI_input_debug_${matchData.value.matchId}_${new Date().toISOString().split('T')[0]}.json`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 
-  console.log("✅ 分析結果をJSONファイルとしてダウンロードしました！");
+  console.log("✅ AI入力パラメータをJSONファイルとしてダウンロードしました！");
 };
 
 // 試合後AI分析実行

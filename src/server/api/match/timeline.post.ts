@@ -169,7 +169,7 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
       const isMyself = isMyParticipant(event.participantId, matchData);
       
       // 自分のアイテム購入は全て記録、他の人はレジェンダリーのみ
-      if (isMyself || isLegendaryItem(event.itemId)) {
+      if (isMyself) {
         return {
           type: "ITEM",
           timestamp,
@@ -182,7 +182,22 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
           purchaserName: purchaserName,
           purchaserTeam: purchaserTeam,
           isMyself: isMyself,
-          priority: isMyself ? 4 : 3, // 自分のアイテムは優先度高め
+          priority: 4, // 自分のアイテムは優先度高め
+        };
+      } else if (isLegendaryItem(event.itemId)) {
+        return {
+          type: "ITEM",
+          timestamp,
+          timeString,
+          frameIndex,
+          description: `${purchaserName}が${itemName}を購入`,
+          itemId: event.itemId,
+          itemName: itemName,
+          participantId: event.participantId,
+          purchaserName: purchaserName,
+          purchaserTeam: purchaserTeam,
+          isMyself: false, // 他人のアイテム
+          priority: 3,
         };
       }
       return null;
