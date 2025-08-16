@@ -1,5 +1,5 @@
 <template>
-  <div v-if="advice" class="card mt-6">
+  <div v-if="advice" class="post-match-analysis-container card">
     <div class="mb-6">
       <h3 class="text-xl font-semibold text-gray-900 flex items-center">
         <span class="mr-2">🤖</span>
