@@ -138,13 +138,11 @@
 
           <!-- ライブマッチアップ詳細 -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- 味方チーム -->
+            <!-- 自チーム -->
             <div class="card">
               <div class="flex items-center justify-between mb-4">
                 <div>
-                  <h3 class="text-lg font-semibold text-blue-600">
-                    味方チーム
-                  </h3>
+                  <h3 class="text-lg font-semibold text-blue-600">自チーム</h3>
                   <div
                     v-if="liveMatchData.teamAverages"
                     class="text-sm text-gray-600"
@@ -548,139 +546,167 @@
           </div>
 
           <!-- チーム成績・オブジェクト情報 -->
-          <TeamObjectiveStats 
+          <TeamObjectiveStats
             v-if="matchData.teamStats"
             :team-stats="matchData.teamStats"
             :get-champion-name="getChampionName"
           />
 
           <!-- 試合タイムライン -->
-          <MatchTimeline 
+          <MatchTimeline
             v-if="matchData.matchId"
             :match-id="matchData.matchId"
             :match-data="matchData"
           />
 
-          <!-- マッチアップ詳細 -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- 味方チーム -->
-            <div class="card">
-              <div class="flex items-center justify-between mb-4">
-                <h3
-                  class="text-lg font-semibold"
-                  :class="
-                    matchData.myParticipant.win
-                      ? 'text-blue-600'
-                      : 'text-gray-600'
-                  "
-                >
-                  味方チーム
-                </h3>
-                <div
-                  class="text-sm font-medium px-3 py-1 rounded-full"
-                  :class="
-                    matchData.myParticipant.win
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  "
-                >
-                  {{ matchData.myParticipant.win ? "勝利" : "敗北" }}
-                </div>
-              </div>
-              <div class="space-y-3">
-                <div
-                  v-for="player in matchData.myTeam"
-                  :key="player.puuid"
-                  class="flex items-center justify-between p-3 rounded-lg transition-colors"
-                  :class="
-                    player.puuid === matchData.myParticipant.puuid
-                      ? 'bg-blue-50 border border-blue-200'
-                      : 'bg-gray-50 hover:bg-gray-100'
-                  "
-                >
-                  <div>
-                    <div class="font-medium text-gray-900">
-                      {{ player.summonerName }}
-                    </div>
-                    <div class="text-sm text-gray-600">
-                      {{ getChampionName(player.championId) }}
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <div class="text-sm font-medium text-gray-900">
-                      {{ player.kills }}/{{ player.deaths }}/{{
-                        player.assists
-                      }}
-                    </div>
-                    <div
-                      class="text-xs"
-                      :class="player.rank ? 'text-blue-600' : 'text-gray-500'"
-                    >
-                      {{
-                        player.rank
-                          ? `${player.rank.tier} ${player.rank.rank}`
-                          : `Lv.${player.summonerLevel}`
-                      }}
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <!-- プレイヤー詳細統計 -->
+          <div class="card">
+            <div class="mb-6">
+              <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                <span class="mr-2">📈</span>
+                プレイヤー詳細統計
+              </h3>
+              <p class="text-gray-600 text-sm mt-1">
+                各プレイヤーのKDA、ダメージ、CS、ゴールド詳細
+              </p>
             </div>
 
-            <!-- 敵チーム -->
-            <div class="card">
-              <div class="flex items-center justify-between mb-4">
-                <h3
-                  class="text-lg font-semibold"
-                  :class="
-                    !matchData.myParticipant.win
-                      ? 'text-red-600'
-                      : 'text-gray-600'
-                  "
-                >
-                  敵チーム
-                </h3>
-                <div
-                  class="text-sm font-medium px-3 py-1 rounded-full"
-                  :class="
-                    !matchData.myParticipant.win
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  "
-                >
-                  {{ !matchData.myParticipant.win ? "勝利" : "敗北" }}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- 自チーム -->
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <h4
+                    class="text-lg font-semibold"
+                    :class="
+                      matchData.myParticipant.win
+                        ? 'text-blue-600'
+                        : 'text-gray-600'
+                    "
+                  >
+                    自チーム
+                  </h4>
+                  <div
+                    class="text-sm font-medium px-3 py-1 rounded-full"
+                    :class="
+                      matchData.myParticipant.win
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    "
+                  >
+                    {{ matchData.myParticipant.win ? "勝利" : "敗北" }}
+                  </div>
+                </div>
+                <div class="space-y-3">
+                  <div
+                    v-for="player in matchData.myTeam"
+                    :key="player.puuid"
+                    class="p-3 rounded-lg transition-colors"
+                    :class="
+                      player.puuid === matchData.myParticipant.puuid
+                        ? 'bg-blue-50 border border-blue-200'
+                        : 'bg-gray-50 hover:bg-gray-100'
+                    "
+                  >
+                    <!-- プレイヤー基本情報 -->
+                    <div class="flex items-center justify-between mb-2">
+                      <div>
+                        <div class="font-medium text-gray-900">
+                          {{ player.summonerName }}
+                        </div>
+                        <div class="text-sm text-gray-600">
+                          {{ getChampionName(player.championId) }}
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <div class="text-sm font-medium text-gray-900">
+                          {{ player.kills }}/{{ player.deaths }}/{{
+                            player.assists
+                          }}
+                        </div>
+                        <div
+                          class="text-xs"
+                          :class="
+                            player.rank ? 'text-blue-600' : 'text-gray-500'
+                          "
+                        >
+                          {{
+                            player.rank
+                              ? `${player.rank.tier} ${player.rank.rank}`
+                              : `Lv.${player.summonerLevel}`
+                          }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- ダメージ統計 -->
+                    <PlayerDamageStats :player="player" />
+                  </div>
                 </div>
               </div>
-              <div class="space-y-3">
-                <div
-                  v-for="player in matchData.enemyTeam"
-                  :key="player.puuid"
-                  class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div>
-                    <div class="font-medium text-gray-900">
-                      {{ player.summonerName }}
-                    </div>
-                    <div class="text-sm text-gray-600">
-                      {{ getChampionName(player.championId) }}
-                    </div>
+
+              <!-- 敵チーム -->
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <h4
+                    class="text-lg font-semibold"
+                    :class="
+                      !matchData.myParticipant.win
+                        ? 'text-red-600'
+                        : 'text-gray-600'
+                    "
+                  >
+                    敵チーム
+                  </h4>
+                  <div
+                    class="text-sm font-medium px-3 py-1 rounded-full"
+                    :class="
+                      !matchData.myParticipant.win
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    "
+                  >
+                    {{ !matchData.myParticipant.win ? "勝利" : "敗北" }}
                   </div>
-                  <div class="text-right">
-                    <div class="text-sm font-medium text-gray-900">
-                      {{ player.kills }}/{{ player.deaths }}/{{
-                        player.assists
-                      }}
+                </div>
+                <div class="space-y-3">
+                  <div
+                    v-for="player in matchData.enemyTeam"
+                    :key="player.puuid"
+                    class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <!-- プレイヤー基本情報 -->
+                    <div class="flex items-center justify-between mb-2">
+                      <div>
+                        <div class="font-medium text-gray-900">
+                          {{ player.summonerName }}
+                        </div>
+                        <div class="text-sm text-gray-600">
+                          {{ getChampionName(player.championId) }}
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <div class="text-sm font-medium text-gray-900">
+                          {{ player.kills }}/{{ player.deaths }}/{{
+                            player.assists
+                          }}
+                        </div>
+                        <div
+                          class="text-xs"
+                          :class="
+                            player.rank ? 'text-red-600' : 'text-gray-500'
+                          "
+                        >
+                          {{
+                            player.rank
+                              ? `${player.rank.tier} ${player.rank.rank}`
+                              : `レベル${player.summonerLevel || 0}`
+                          }}
+                        </div>
+                      </div>
                     </div>
-                    <div
-                      class="text-xs"
-                      :class="player.rank ? 'text-red-600' : 'text-gray-500'"
-                    >
-                      {{
-                        player.rank
-                          ? `${player.rank.tier} ${player.rank.rank}`
-                          : `レベル${player.summonerLevel || 0}`
-                      }}
-                    </div>
+
+                    <!-- ダメージ統計 -->
+                    <PlayerDamageStats :player="player" />
                   </div>
                 </div>
               </div>
@@ -712,6 +738,7 @@ import type {
   LiveMatchDetail,
 } from "~/types";
 import TeamObjectiveStats from "~/components/TeamObjectiveStats.vue";
+import PlayerDamageStats from "~/components/PlayerDamageStats.vue";
 import { formatTextWithBreaks } from "@/utils/textFormatter";
 import {
   formatGameMode,

@@ -126,6 +126,18 @@ export interface ParticipantWithRank {
   assists: number
   win: boolean
   totalDamageDealt: number
+  totalDamageDealtToChampions: number
+  physicalDamageDealt: number
+  physicalDamageDealtToChampions: number
+  magicDamageDealt: number
+  magicDamageDealtToChampions: number
+  trueDamageDealt: number
+  trueDamageDealtToChampions: number
+  totalDamageTaken: number
+  physicalDamageTaken: number
+  magicDamageTaken: number
+  trueDamageTaken: number
+  totalMinionsKilled: number
   goldEarned: number
   rank: RankInfo | null
   summonerLevel: number

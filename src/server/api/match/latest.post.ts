@@ -87,6 +87,20 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
         
         return {
           ...participant,
+          // ダメージ関連データを明示的に追加
+          totalDamageDealt: participant.totalDamageDealt || 0,
+          totalDamageDealtToChampions: participant.totalDamageDealtToChampions || 0,
+          physicalDamageDealt: participant.physicalDamageDealt || 0,
+          physicalDamageDealtToChampions: participant.physicalDamageDealtToChampions || 0,
+          magicDamageDealt: participant.magicDamageDealt || 0,
+          magicDamageDealtToChampions: participant.magicDamageDealtToChampions || 0,
+          trueDamageDealt: participant.trueDamageDealt || 0,
+          trueDamageDealtToChampions: participant.trueDamageDealtToChampions || 0,
+          totalDamageTaken: participant.totalDamageTaken || 0,
+          physicalDamageTaken: participant.physicalDamageTaken || 0,
+          magicDamageTaken: participant.magicDamageTaken || 0,
+          trueDamageTaken: participant.trueDamageTaken || 0,
+          totalMinionsKilled: participant.totalMinionsKilled || 0,
           rank: soloRank ? {
             tier: soloRank.tier,
             rank: soloRank.rank,
@@ -105,6 +119,20 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
         })
         return {
           ...participant,
+          // ダメージ関連データを明示的に追加（エラー時も）
+          totalDamageDealt: participant.totalDamageDealt || 0,
+          totalDamageDealtToChampions: participant.totalDamageDealtToChampions || 0,
+          physicalDamageDealt: participant.physicalDamageDealt || 0,
+          physicalDamageDealtToChampions: participant.physicalDamageDealtToChampions || 0,
+          magicDamageDealt: participant.magicDamageDealt || 0,
+          magicDamageDealtToChampions: participant.magicDamageDealtToChampions || 0,
+          trueDamageDealt: participant.trueDamageDealt || 0,
+          trueDamageDealtToChampions: participant.trueDamageDealtToChampions || 0,
+          totalDamageTaken: participant.totalDamageTaken || 0,
+          physicalDamageTaken: participant.physicalDamageTaken || 0,
+          magicDamageTaken: participant.magicDamageTaken || 0,
+          trueDamageTaken: participant.trueDamageTaken || 0,
+          totalMinionsKilled: participant.totalMinionsKilled || 0,
           rank: null,
           summonerLevel: participant.summonerLevel || 0 // レベル情報を追加（エラー時も）
         }

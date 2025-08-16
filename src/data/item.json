@@ -3211,7 +3211,7 @@
         },
         "2056": {
             "name": "ステルス ワード",
-            "description": "<mainText><stats></stats><br><br><active>発動効果 - 消費:</active> 60秒間持続する「ステルス ワード」を設置する。このワードは敵からは<keywordStealth>インビジブル</keywordStealth>状態となるが、味方チームに周囲の視界を与える。 </mainText>",
+            "description": "<mainText><stats></stats><br><br><active>発動効果 - 消費:</active> 60秒間持続する「ステルス ワード」を設置する。このワードは敵からは<keywordStealth>インビジブル</keywordStealth>状態となるが、自チームに周囲の視界を与える。 </mainText>",
             "colloq": ";Pilfered;Stealth Ward;green;グリーン;みどり;ミドリ;わーど;とりんけっと;トリンケット;trinket;うばった;すてるすわーど;奪った;ステルス ワード;ubatta;suterusuwa-do;ubatta;suterusuwado",
             "plaintext": "使用すると一時的に範囲内の視界を確保する",
             "stacks": 2,
@@ -20429,7 +20429,7 @@
         },
         "443080": {
             "name": "ツインマスク",
-            "description": "<mainText><stats></stats><br><br><passive>満場一致</passive><br>味方チームメイトの体力、物理防御、魔法防御、攻撃力、魔力、攻撃速度、スキルヘイストの一定割合を獲得する。 そのチームメイトも<keywordMajor>「ツインマスク」</keywordMajor>を所有し、生存している場合、このパーセンテージは大幅に増加する。</mainText>",
+            "description": "<mainText><stats></stats><br><br><passive>満場一致</passive><br>自チームメイトの体力、物理防御、魔法防御、攻撃力、魔力、攻撃速度、スキルヘイストの一定割合を獲得する。 そのチームメイトも<keywordMajor>「ツインマスク」</keywordMajor>を所有し、生存している場合、このパーセンテージは大幅に増加する。</mainText>",
             "colloq": "",
             "plaintext": "",
             "specialRecipe": 220007,
@@ -20470,7 +20470,7 @@
         },
         "443081": {
             "name": "ヘクスボルト・コンパニオン",
-            "description": "<mainText><stats>攻撃速度<attention>75%</attention><br>体力<attention>500</attention></stats><br><br><passive>援護射撃</passive><br>味方チャンピオンの近くにいる間、<OnHit>通常攻撃時効果</OnHit>時に「布告」のスタックが1増加する。1スタック溜まると、次に<OnHit>通常攻撃時効果</OnHit>を適用するとき、味方チームメイトも対象に矢を放ち、<physicalDamage>0の物理ダメージ</physicalDamage>を与え、<OnHit>通常攻撃時効果</OnHit>を適用する。<br><br>なお、<keywordMajor>援護射撃</keywordMajor>の攻撃では<keywordMajor>援護射撃</keywordMajor>を発動できない。</mainText>",
+            "description": "<mainText><stats>攻撃速度<attention>75%</attention><br>体力<attention>500</attention></stats><br><br><passive>援護射撃</passive><br>味方チャンピオンの近くにいる間、<OnHit>通常攻撃時効果</OnHit>時に「布告」のスタックが1増加する。1スタック溜まると、次に<OnHit>通常攻撃時効果</OnHit>を適用するとき、自チームメイトも対象に矢を放ち、<physicalDamage>0の物理ダメージ</physicalDamage>を与え、<OnHit>通常攻撃時効果</OnHit>を適用する。<br><br>なお、<keywordMajor>援護射撃</keywordMajor>の攻撃では<keywordMajor>援護射撃</keywordMajor>を発動できない。</mainText>",
             "colloq": "",
             "plaintext": "",
             "specialRecipe": 220007,

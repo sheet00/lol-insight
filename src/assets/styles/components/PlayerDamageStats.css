@@ -1,0 +1,104 @@
+/* PlayerDamageStats コンポーネント用スタイル */
+
+.player-stats-container {
+  @apply mt-3 bg-gray-50 rounded-lg p-3 border border-gray-200;
+}
+
+.stats-details {
+  @apply space-y-3;
+}
+
+.stats-section {
+  @apply space-y-2;
+}
+
+.stats-section-title {
+  @apply text-xs font-medium text-gray-600 uppercase tracking-wide;
+}
+
+.stats-items {
+  @apply grid grid-cols-2 gap-2;
+}
+
+.stats-item {
+  @apply flex justify-between items-center py-1 px-2 rounded text-xs bg-white border border-gray-100;
+}
+
+.stats-item.physical {
+  @apply border-orange-200 bg-orange-50;
+}
+
+.stats-item.physical .stats-label {
+  @apply text-orange-700;
+}
+
+.stats-item.physical .stats-value {
+  @apply text-orange-800 font-medium;
+}
+
+.stats-item.magical {
+  @apply border-blue-200 bg-blue-50;
+}
+
+.stats-item.magical .stats-label {
+  @apply text-blue-700;
+}
+
+.stats-item.magical .stats-value {
+  @apply text-blue-800 font-medium;
+}
+
+.stats-item.true-damage {
+  @apply border-purple-200 bg-purple-50;
+}
+
+.stats-item.true-damage .stats-label {
+  @apply text-purple-700;
+}
+
+.stats-item.true-damage .stats-value {
+  @apply text-purple-800 font-medium;
+}
+
+.stats-item.cs {
+  @apply border-green-200 bg-green-50;
+}
+
+.stats-item.cs .stats-label {
+  @apply text-green-700;
+}
+
+.stats-item.cs .stats-value {
+  @apply text-green-800 font-medium;
+}
+
+.stats-item.gold {
+  @apply border-yellow-200 bg-yellow-50;
+}
+
+.stats-item.gold .stats-label {
+  @apply text-yellow-700;
+}
+
+.stats-item.gold .stats-value {
+  @apply text-yellow-800 font-medium;
+}
+
+.stats-label {
+  @apply text-gray-600 font-medium;
+}
+
+.stats-value {
+  @apply text-gray-800 font-semibold;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 640px) {
+  .stats-items {
+    @apply grid-cols-1 gap-1;
+  }
+  
+  .stats-item {
+    @apply text-xs py-1 px-2;
+  }
+}
