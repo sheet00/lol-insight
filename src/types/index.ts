@@ -151,6 +151,7 @@ export interface TeamInfo {
   teamId: number
   win: boolean
   objectives: TeamObjectives
+  totalGold: number
 }
 
 export interface TeamObjectives {

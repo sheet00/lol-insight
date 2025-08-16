@@ -83,6 +83,14 @@
                 {{ teamStats.myTeam.objectives.inhibitor.kills }}
               </span>
             </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-700 flex items-center">
+                <span class="mr-2">💰</span>トータルゴールド
+              </span>
+              <span class="font-semibold text-blue-600">
+                {{ formatGold(teamStats.myTeam.totalGold) }}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -160,6 +168,14 @@
                 {{ teamStats.enemyTeam.objectives.inhibitor.kills }}
               </span>
             </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-700 flex items-center">
+                <span class="mr-2">💰</span>トータルゴールド
+              </span>
+              <span class="font-semibold text-red-600">
+                {{ formatGold(teamStats.enemyTeam.totalGold) }}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -168,7 +184,7 @@
 
     <!-- 試合サマリー -->
     <div class="mt-6 pt-6 border-t border-gray-200">
-      <div class="grid grid-cols-3 gap-4 text-center">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
         <div>
           <div class="text-lg font-bold text-gray-900">
             {{ teamStats.myTeam.objectives.champion.kills }} vs {{ teamStats.enemyTeam.objectives.champion.kills }}
@@ -187,6 +203,12 @@
           </div>
           <div class="text-sm text-gray-600">ドラゴン</div>
         </div>
+        <div>
+          <div class="text-lg font-bold text-gray-900">
+            {{ formatGold(teamStats.myTeam.totalGold) }} vs {{ formatGold(teamStats.enemyTeam.totalGold) }}
+          </div>
+          <div class="text-sm text-gray-600">トータルゴールド</div>
+        </div>
       </div>
     </div>
   </div>
@@ -202,4 +224,9 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+// ゴールドを3桁区切りでフォーマット（例：45,200）
+const formatGold = (gold: number): string => {
+  return gold.toLocaleString()
+}
 </script>

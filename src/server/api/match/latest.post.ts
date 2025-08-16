@@ -140,6 +140,10 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
     const myTeamData = teams.find((team: any) => team.teamId === myTeamId)
     const enemyTeamData = teams.find((team: any) => team.teamId !== myTeamId)
 
+    // チームのトータルゴールドを計算
+    const myTeamTotalGold = myTeam.reduce((total: number, player: any) => total + (player.goldEarned || 0), 0)
+    const enemyTeamTotalGold = enemyTeam.reduce((total: number, player: any) => total + (player.goldEarned || 0), 0)
+
     const teamStats: TeamStats = {
       myTeam: {
         teamId: myTeamData?.teamId || myTeamId,
@@ -152,7 +156,8 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
           inhibitor: myTeamData?.objectives?.inhibitor || { first: false, kills: 0 },
           riftHerald: myTeamData?.objectives?.riftHerald || { first: false, kills: 0 },
           tower: myTeamData?.objectives?.tower || { first: false, kills: 0 }
-        }
+        },
+        totalGold: myTeamTotalGold
       },
       enemyTeam: {
         teamId: enemyTeamData?.teamId || (myTeamId === 100 ? 200 : 100),
@@ -165,7 +170,8 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
           inhibitor: enemyTeamData?.objectives?.inhibitor || { first: false, kills: 0 },
           riftHerald: enemyTeamData?.objectives?.riftHerald || { first: false, kills: 0 },
           tower: enemyTeamData?.objectives?.tower || { first: false, kills: 0 }
-        }
+        },
+        totalGold: enemyTeamTotalGold
       }
     }
 
@@ -174,7 +180,9 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
       myTeamKills: teamStats.myTeam.objectives.champion.kills,
       enemyTeamKills: teamStats.enemyTeam.objectives.champion.kills,
       myTeamTowers: teamStats.myTeam.objectives.tower.kills,
-      enemyTeamTowers: teamStats.enemyTeam.objectives.tower.kills
+      enemyTeamTowers: teamStats.enemyTeam.objectives.tower.kills,
+      myTeamGold: teamStats.myTeam.totalGold,
+      enemyTeamGold: teamStats.enemyTeam.totalGold
     })
 
     // レスポンスデータを整形
