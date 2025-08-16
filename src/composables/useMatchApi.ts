@@ -37,14 +37,19 @@ export const useMatchApi = () => {
    * 進行中試合情報取得処理（内部用）
    */
   const getLiveMatchInternal = async (puuid: string): Promise<LiveMatchDetail> => {
-    const response = await $fetch<LiveMatchDetail>("/api/match/live", {
+    const response = await $fetch<any>("/api/match/live", {
       method: "POST",
       body: {
         puuid: puuid,
       },
     });
 
-    return response;
+    // 試合中でない場合のレスポンスチェック
+    if (response.isInGame === false) {
+      throw new Error(response.message || '現在試合中ではありません');
+    }
+
+    return response as LiveMatchDetail;
   };
 
   /**

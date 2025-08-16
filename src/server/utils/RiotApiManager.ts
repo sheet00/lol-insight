@@ -204,4 +204,16 @@ export class RiotApiManager {
       },
     });
   }
+
+  /**
+   * Match API - 試合タイムライン取得
+   */
+  async getMatchTimeline(matchId: string): Promise<any> {
+    const url = `https://asia.api.riotgames.com/lol/match/v5/matches/${matchId}/timeline`;
+    return $fetch<any>(url, {
+      headers: {
+        "X-Riot-Token": this.apiKey,
+      },
+    });
+  }
 }

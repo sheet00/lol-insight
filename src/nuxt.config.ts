@@ -2,10 +2,20 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       wasm: true
+    },
+    // ルートルール警告を抑制
+    routeRules: {
+      '/api/**': { 
+        headers: { 'cache-control': 'no-cache' },
+        cors: true 
+      }
     }
   },
   devtools: { enabled: true },
   compatibilityDate: '2025-08-11',
+  
+  // SSR設定を明示的に指定
+  ssr: true,
   
   // CSS フレームワーク
   css: ['~/assets/styles/main.css'],
@@ -20,6 +30,11 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: true
+  },
+
+  // 開発時の警告を抑制
+  experimental: {
+    payloadExtraction: false
   },
 
   // アプリケーション設定

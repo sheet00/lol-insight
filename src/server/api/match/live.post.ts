@@ -65,7 +65,7 @@ function calculateAverageRank(participants: any[]): { tierScore: number, display
   return { tierScore: averageScore, displayRank }
 }
 
-export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
+export default defineEventHandler(async (event): Promise<LiveMatchDetail | { isInGame: false; message: string }> => {
   try {
     // リクエストボディを取得
     const body = await readBody(event)
@@ -110,10 +110,12 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
       })
     } catch (spectatorError: any) {
       if (spectatorError.status === 404) {
-        throw createError({
-          statusCode: 404,
-          message: '現在試合中ではありません。ゲーム中に再度お試しください。'
-        })
+        console.log('Info - プレイヤーは現在試合中ではありません')
+        // 404の場合はエラーではなく、null情報として正常レスポンス
+        return { 
+          isInGame: false, 
+          message: '現在試合中ではありません。ゲーム中に再度お試しください。' 
+        } as any
       }
       throw spectatorError
     }
@@ -289,7 +291,12 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
     return result
 
   } catch (error: any) {
-    console.error('進行中試合情報取得エラー:', error)
+    // 404は正常な状況なのでINFOレベルでログ、その他は本当のエラー
+    if (error.status === 404) {
+      console.log('Info - プレイヤーは現在試合中ではありません')
+    } else {
+      console.error('進行中試合情報取得エラー:', error)
+    }
     
     // Riot APIのエラーレスポンスを詳しく処理
     if (error.status === 401) {
@@ -303,10 +310,11 @@ export default defineEventHandler(async (event): Promise<LiveMatchDetail> => {
         message: `APIアクセスが拒否されました。 (${error.statusText})`
       })
     } else if (error.status === 404) {
-      throw createError({
-        statusCode: 404,
-        message: '現在試合中ではありません。ゲーム中に再度お試しください。'
-      })
+      // 404の場合は正常レスポンスとして返す
+      return { 
+        isInGame: false, 
+        message: '現在試合中ではありません。ゲーム中に再度お試しください。' 
+      } as any
     } else if (error.status === 429) {
       throw createError({
         statusCode: 429,

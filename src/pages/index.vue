@@ -554,6 +554,12 @@
             :get-champion-name="getChampionName"
           />
 
+          <!-- 試合タイムライン -->
+          <MatchTimeline 
+            v-if="matchData.matchId"
+            :match-id="matchData.matchId"
+          />
+
           <!-- マッチアップ詳細 -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- 味方チーム -->

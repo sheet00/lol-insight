@@ -1,0 +1,186 @@
+/* MatchTimeline.vue のスタイル */
+.match-timeline {
+  @apply bg-gray-900 rounded-xl p-6 border border-gray-700;
+}
+
+.timeline-header {
+  @apply flex items-center justify-between mb-6;
+}
+
+.timeline-header h3 {
+  @apply text-xl font-bold text-white;
+}
+
+.timeline-controls {
+  @apply flex gap-2;
+}
+
+.filter-btn {
+  @apply px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200;
+  @apply border border-gray-600 bg-gray-800 text-gray-300;
+  @apply hover:bg-gray-700 hover:border-gray-500;
+}
+
+.filter-btn.active {
+  @apply bg-blue-600 border-blue-500 text-white;
+}
+
+.filter-btn.kill.active {
+  @apply bg-red-600 border-red-500;
+}
+
+.filter-btn.monster.active {
+  @apply bg-purple-600 border-purple-500;
+}
+
+.filter-btn.building.active {
+  @apply bg-orange-600 border-orange-500;
+}
+
+/* タイムラインコンテナ */
+.timeline-container {
+  @apply space-y-3 max-h-96 overflow-y-auto;
+}
+
+/* カスタムスクロールバー */
+.timeline-container::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.timeline-container::-webkit-scrollbar-track {
+  @apply bg-gray-800 rounded;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded hover:bg-gray-500;
+}
+
+/* タイムラインイベント */
+.timeline-event {
+  @apply flex items-center gap-4 p-3 rounded-lg transition-all duration-200;
+  @apply border-l-4 bg-gray-800 hover:bg-gray-700;
+}
+
+/* イベントタイプ別の色分け */
+.timeline-event.event-kill {
+  @apply border-l-red-500 bg-red-900/20;
+}
+
+.timeline-event.event-monster {
+  @apply border-l-purple-500 bg-purple-900/20;
+}
+
+.timeline-event.event-building {
+  @apply border-l-orange-500 bg-orange-900/20;
+}
+
+.timeline-event.event-plate {
+  @apply border-l-yellow-500 bg-yellow-900/20;
+}
+
+.timeline-event.event-item {
+  @apply border-l-green-500 bg-green-900/20;
+}
+
+.timeline-event.event-level {
+  @apply border-l-blue-500 bg-blue-900/20;
+}
+
+/* 優先度によるアニメーション */
+.timeline-event.priority-5 {
+  animation: pulse-high 2s infinite;
+}
+
+.timeline-event.priority-4 {
+  animation: pulse-medium 3s infinite;
+}
+
+@keyframes pulse-high {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+}
+
+@keyframes pulse-medium {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0); }
+}
+
+/* イベント時刻 */
+.event-time {
+  @apply text-sm font-mono font-bold text-gray-300 min-w-12 text-right;
+  font-feature-settings: 'tnum';
+}
+
+/* イベントアイコン */
+.event-icon {
+  @apply text-2xl min-w-8 text-center;
+}
+
+/* イベント内容 */
+.event-content {
+  @apply flex-1;
+}
+
+.event-description {
+  @apply text-white font-medium;
+}
+
+.event-details {
+  @apply text-sm text-gray-400 mt-1;
+}
+
+.assists {
+  @apply text-blue-400;
+}
+
+/* ローディング状態 */
+.timeline-loading {
+  @apply flex flex-col items-center justify-center py-12 text-gray-400;
+}
+
+.loading-spinner {
+  @apply w-8 h-8 border-2 border-gray-600 border-t-blue-500 rounded-full animate-spin mb-4;
+}
+
+/* 空状態 */
+.timeline-empty {
+  @apply text-center py-12 text-gray-400;
+}
+
+.timeline-empty p {
+  @apply text-lg;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .timeline-header {
+    @apply flex-col gap-4 items-start;
+  }
+  
+  .timeline-controls {
+    @apply flex-wrap;
+  }
+  
+  .filter-btn {
+    @apply text-xs px-2 py-1;
+  }
+  
+  .timeline-event {
+    @apply p-2 gap-2;
+  }
+  
+  .event-icon {
+    @apply text-lg min-w-6;
+  }
+  
+  .event-time {
+    @apply min-w-10 text-xs;
+  }
+}
+
+/* ダークモード対応の追加調整 */
+@media (prefers-color-scheme: dark) {
+  .match-timeline {
+    @apply bg-gray-900;
+  }
+}
