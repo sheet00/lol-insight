@@ -520,6 +520,14 @@
               </div>
 
               <div class="flex items-center space-x-6">
+                <button
+                  @click="outputMatchAnalysisToConsole"
+                  class="btn-primary px-4 py-2 text-sm flex items-center gap-2"
+                  title="完了試合の分析結果をJSON形式でConsole.logに出力"
+                >
+                  <span>📊</span>
+                  分析結果をConsoleに出力
+                </button>
                 <div class="text-center">
                   <div
                     class="text-2xl font-bold"
@@ -552,12 +560,40 @@
             :get-champion-name="getChampionName"
           />
 
-          <!-- 試合タイムライン -->
-          <MatchTimeline
-            v-if="matchData.matchId"
-            :match-id="matchData.matchId"
-            :match-data="matchData"
-          />
+          <!-- 試合タイムライン（折りたたみ式） -->
+          <div class="card">
+            <div class="mb-4">
+              <button 
+                @click="toggleTimeline"
+                class="w-full flex items-center justify-between p-4 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <div class="flex items-center">
+                  <span class="mr-2">⏰</span>
+                  <h3 class="text-xl font-semibold text-gray-900">試合タイムライン</h3>
+                  <span class="ml-2 text-sm text-gray-500">
+                    (クリックで{{ showTimeline ? '折りたたみ' : '展開' }})
+                  </span>
+                </div>
+                <div 
+                  class="transform transition-transform duration-200 text-gray-500"
+                  :class="{ 'rotate-180': showTimeline }"
+                >
+                  ⬇️
+                </div>
+              </button>
+            </div>
+            
+            <div 
+              class="timeline-content overflow-hidden transition-all duration-300 ease-in-out"
+              :class="showTimeline ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'"
+            >
+              <MatchTimeline
+                v-if="matchData.matchId && showTimeline"
+                :match-id="matchData.matchId"
+                :match-data="matchData"
+              />
+            </div>
+          </div>
 
           <!-- プレイヤー詳細統計 -->
           <div class="card">
@@ -789,6 +825,9 @@ const aiDurationMs = ref<number | null>(null);
 // AIモデル選択
 const selectedAiModel = ref("");
 
+// タイムライン表示状態（デフォルト非表示）
+const showTimeline = ref(false);
+
 // モデル変更時の処理
 const onModelChange = (model: string) => {
   // 既存のアドバイスがある場合は再生成を促す
@@ -937,6 +976,97 @@ watch(
 // 再生成ボタン
 const onRegenerateAdvice = () => {
   if (!isAdviceGenerating.value) generateAdviceHandler();
+};
+
+// タイムライン折りたたみトグル
+const toggleTimeline = () => {
+  showTimeline.value = !showTimeline.value;
+};
+
+// 完了試合分析結果をConsole.logに出力
+const outputMatchAnalysisToConsole = () => {
+  if (!matchData.value) {
+    console.warn("⚠️ 試合データがありません");
+    return;
+  }
+
+  console.group("🎮 League of Legends 完了試合分析結果");
+  
+  // analysisSummaryが存在する場合はそれを出力、なければ従来の構造を出力
+  if (matchData.value.analysisSummary) {
+    console.log("📊 詳細分析サマリー:", JSON.stringify(matchData.value.analysisSummary, null, 2));
+  } else {
+    console.log("⚠️ 詳細分析サマリーが生成されていません");
+  }
+
+  // 基本試合情報
+  console.group("🏟️ 基本試合情報");
+  console.log("試合ID:", matchData.value.matchId);
+  console.log("ゲームモード:", formatGameMode(matchData.value.gameInfo.queueId));
+  console.log("試合時間:", Math.floor(matchData.value.gameInfo.gameDuration / 60) + "分" + (matchData.value.gameInfo.gameDuration % 60) + "秒");
+  console.log("結果:", matchData.value.myParticipant.win ? "勝利 🎉" : "敗北 😢");
+  console.groupEnd();
+
+  // プレイヤー情報
+  console.group("👤 自分のパフォーマンス");
+  const myPlayer = matchData.value.myParticipant;
+  console.log("チャンピオン:", getChampionName(myPlayer.championId));
+  console.log("KDA:", `${myPlayer.kills}/${myPlayer.deaths}/${myPlayer.assists}`);
+  console.log("ダメージ:", myPlayer.totalDamageDealtToChampions.toLocaleString());
+  console.log("ゴールド:", myPlayer.goldEarned.toLocaleString());
+  console.log("CS:", myPlayer.totalMinionsKilled);
+  if (myPlayer.rank) {
+    console.log("ランク:", `${myPlayer.rank.tier} ${myPlayer.rank.rank} (${myPlayer.rank.leaguePoints}LP)`);
+  }
+  console.groupEnd();
+
+  // チーム成績
+  console.group("⚔️ チーム成績比較");
+  const teamStats = matchData.value.teamStats;
+  console.table({
+    "自チーム": {
+      勝利: teamStats.myTeam.win ? "✅" : "❌",
+      キル: teamStats.myTeam.objectives.champion.kills,
+      タワー: teamStats.myTeam.objectives.tower.kills,
+      ドラゴン: teamStats.myTeam.objectives.dragon.kills,
+      バロン: teamStats.myTeam.objectives.baron.kills,
+      ゴールド: teamStats.myTeam.totalGold.toLocaleString()
+    },
+    "敵チーム": {
+      勝利: teamStats.enemyTeam.win ? "✅" : "❌",
+      キル: teamStats.enemyTeam.objectives.champion.kills,
+      タワー: teamStats.enemyTeam.objectives.tower.kills,
+      ドラゴン: teamStats.enemyTeam.objectives.dragon.kills,
+      バロン: teamStats.enemyTeam.objectives.baron.kills,
+      ゴールド: teamStats.enemyTeam.totalGold.toLocaleString()
+    }
+  });
+  console.groupEnd();
+
+  // 全プレイヤー統計
+  console.group("📈 全プレイヤー統計");
+  const allPlayers = [...matchData.value.myTeam, ...matchData.value.enemyTeam];
+  const playersTable = allPlayers.map(player => ({
+    チャンピオン: getChampionName(player.championId),
+    チーム: player.teamId === matchData.value!.myParticipant.teamId ? "自チーム" : "敵チーム",
+    KDA: `${player.kills}/${player.deaths}/${player.assists}`,
+    ダメージ: player.totalDamageDealtToChampions.toLocaleString(),
+    ゴールド: player.goldEarned.toLocaleString(),
+    CS: player.totalMinionsKilled,
+    ランク: player.rank ? `${player.rank.tier} ${player.rank.rank}` : "Unranked"
+  }));
+  console.table(playersTable);
+  console.groupEnd();
+
+  // 生データも出力
+  console.group("💾 完全な試合データ (JSON)");
+  console.log("Full Match Data:", JSON.stringify(matchData.value, null, 2));
+  console.groupEnd();
+
+  console.groupEnd(); // メイングループの終了
+
+  // 成功メッセージ
+  console.log("✅ 完了試合分析結果がConsoleに出力されました！");
 };
 
 // メタ情報

@@ -1,5 +1,174 @@
-import type { MatchDetail, ParticipantWithRank, TeamStats } from '~/types'
+import type { MatchDetail, ParticipantWithRank, TeamStats, MatchAnalysisSummary, TeamSummary, PlayerDetailedStats, TopPlayerStats, PlayerSummaryStats } from '~/types'
 import { RiotApiManager } from '~/server/utils/RiotApiManager'
+
+// まとめ情報を生成する関数
+function generateMatchAnalysisSummary(
+  matchId: string,
+  gameInfo: any,
+  myTeam: ParticipantWithRank[],
+  enemyTeam: ParticipantWithRank[],
+  myParticipant: ParticipantWithRank,
+  teamStats: TeamStats
+): MatchAnalysisSummary {
+  
+  // 基本ゲーム情報
+  const gameBasicInfo = {
+    gameMode: gameInfo.gameMode,
+    queueId: gameInfo.queueId,
+    gameDuration: gameInfo.gameDuration,
+    gameEndTimestamp: gameInfo.gameEndTimestamp,
+    gameVersion: gameInfo.gameVersion,
+    matchResult: myParticipant.win ? 'WIN' as const : 'LOSE' as const
+  }
+
+  // チーム成績サマリー
+  const createTeamSummary = (team: ParticipantWithRank[], teamId: number): TeamSummary => {
+    const totalKills = team.reduce((sum, p) => sum + p.kills, 0)
+    const totalDeaths = team.reduce((sum, p) => sum + p.deaths, 0)
+    const totalAssists = team.reduce((sum, p) => sum + p.assists, 0)
+    const totalGold = team.reduce((sum, p) => sum + p.goldEarned, 0)
+    const totalDamageToChampions = team.reduce((sum, p) => sum + p.totalDamageDealtToChampions, 0)
+    const averageLevel = team.reduce((sum, p) => sum + (p.summonerLevel || 1), 0) / team.length
+
+    const teamData = teamId === teamStats.myTeam.teamId ? teamStats.myTeam : teamStats.enemyTeam
+    
+    return {
+      teamId,
+      win: teamData.win,
+      totalKills,
+      totalDeaths,
+      totalAssists,
+      totalGold,
+      totalDamageToChampions,
+      averageLevel: Math.round(averageLevel),
+      objectives: {
+        towers: teamData.objectives.tower.kills,
+        dragons: teamData.objectives.dragon.kills,
+        barons: teamData.objectives.baron.kills,
+        heralds: teamData.objectives.riftHerald.kills,
+        inhibitors: teamData.objectives.inhibitor.kills
+      }
+    }
+  }
+
+  const teamPerformance = {
+    myTeam: createTeamSummary(myTeam, teamStats.myTeam.teamId),
+    enemyTeam: createTeamSummary(enemyTeam, teamStats.enemyTeam.teamId)
+  }
+
+  // ゲームタイムライン（基本版）
+  const gameTimeline = {
+    objectives: {
+      firstBlood: {
+        team: 'my' as const,
+        time: 0,
+        player: 'Unknown'
+      },
+      objectives: []
+    },
+    teamFightSummary: {
+      totalTeamFights: 0,
+      myTeamWins: 0,
+      enemyTeamWins: 0,
+      majorFights: []
+    }
+  }
+
+  // 全プレイヤーの詳細統計
+  const allPlayers = [...myTeam, ...enemyTeam]
+  const gameDurationMinutes = gameInfo.gameDuration / 60
+
+  const createPlayerDetailedStats = (player: ParticipantWithRank): PlayerDetailedStats => {
+    const kda = player.deaths === 0 ? player.kills + player.assists : (player.kills + player.assists) / player.deaths
+    const teamKills = player.teamId === teamStats.myTeam.teamId ? teamPerformance.myTeam.totalKills : teamPerformance.enemyTeam.totalKills
+    const killParticipation = teamKills > 0 ? ((player.kills + player.assists) / teamKills) * 100 : 0
+    const totalTeamDamage = player.teamId === teamStats.myTeam.teamId ? teamPerformance.myTeam.totalDamageToChampions : teamPerformance.enemyTeam.totalDamageToChampions
+    const damageShare = totalTeamDamage > 0 ? (player.totalDamageDealtToChampions / totalTeamDamage) * 100 : 0
+
+    return {
+      championName: player.championName,
+      championId: player.championId,
+      teamId: player.teamId,
+      performance: {
+        kills: player.kills,
+        deaths: player.deaths,
+        assists: player.assists,
+        kda: Math.round(kda * 100) / 100,
+        killParticipation: Math.round(killParticipation)
+      },
+      damage: {
+        totalDamageToChampions: player.totalDamageDealtToChampions,
+        physicalDamage: player.physicalDamageDealtToChampions,
+        magicDamage: player.magicDamageDealtToChampions,
+        trueDamage: player.trueDamageDealtToChampions,
+        damageTaken: player.totalDamageTaken,
+        damageShare: Math.round(damageShare)
+      },
+      economy: {
+        goldEarned: player.goldEarned,
+        totalMinionsKilled: player.totalMinionsKilled,
+        goldPerMinute: Math.round(player.goldEarned / gameDurationMinutes),
+        csPerMinute: Math.round((player.totalMinionsKilled / gameDurationMinutes) * 10) / 10
+      },
+      vision: {
+        wardsPlaced: 0,
+        wardsKilled: 0,
+        visionScore: 0
+      },
+      rank: player.rank ? {
+        tier: player.rank.tier,
+        rank: player.rank.rank,
+        leaguePoints: player.rank.leaguePoints,
+        winRate: player.rank.wins > 0 ? Math.round((player.rank.wins / (player.rank.wins + player.rank.losses)) * 100) : 0
+      } : null
+    }
+  }
+
+  const allPlayersStats = allPlayers.map(createPlayerDetailedStats)
+
+  // トッププレイヤー統計
+  const createPlayerSummaryStats = (player: PlayerDetailedStats): PlayerSummaryStats => ({
+    championName: player.championName,
+    teamId: player.teamId,
+    kda: `${player.performance.kills}/${player.performance.deaths}/${player.performance.assists}`,
+    damage: player.damage.totalDamageToChampions,
+    gold: player.economy.goldEarned,
+    rank: player.rank ? `${player.rank.tier} ${player.rank.rank}` : 'Unranked'
+  })
+
+  // 配列が空でないことを保証
+  if (allPlayersStats.length === 0) {
+    throw new Error('プレイヤー統計データが生成できませんでした')
+  }
+
+  const sortedByKDA = [...allPlayersStats].sort((a, b) => b.performance.kda - a.performance.kda)
+  const sortedByDamage = [...allPlayersStats].sort((a, b) => b.damage.totalDamageToChampions - a.damage.totalDamageToChampions)
+  const sortedByKills = [...allPlayersStats].sort((a, b) => b.performance.kills - a.performance.kills)
+  const sortedByWorstKDA = [...allPlayersStats].sort((a, b) => a.performance.kda - b.performance.kda)
+
+  const topPlayers: TopPlayerStats = {
+    mvp: createPlayerSummaryStats(sortedByKDA[0]!),
+    mostDamage: createPlayerSummaryStats(sortedByDamage[0]!),
+    mostKills: createPlayerSummaryStats(sortedByKills[0]!),
+    highestKDA: createPlayerSummaryStats(sortedByKDA[0]!),
+    worstPerformer: createPlayerSummaryStats(sortedByWorstKDA[0]!)
+  }
+
+  // 既に特定済みのmyParticipantを使用
+  const myPlayerStats = createPlayerDetailedStats(myParticipant)
+
+  return {
+    matchId,
+    gameBasicInfo,
+    teamPerformance,
+    gameTimeline,
+    playerDetailedStats: {
+      topPlayers,
+      myPlayerStats,
+      allPlayersStats
+    }
+  }
+}
 
 export default defineEventHandler(async (event): Promise<MatchDetail> => {
   try {
@@ -213,6 +382,24 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
       enemyTeamGold: teamStats.enemyTeam.totalGold
     })
 
+    // まとめ情報を生成
+    const analysisSummary = generateMatchAnalysisSummary(
+      latestMatchId,
+      matchDetail.info,
+      myTeam,
+      enemyTeam,
+      myParticipant,
+      teamStats
+    )
+
+    console.log('Debug - 試合分析サマリー生成完了:', {
+      matchResult: analysisSummary.gameBasicInfo.matchResult,
+      myTeamKills: analysisSummary.teamPerformance.myTeam.totalKills,
+      enemyTeamKills: analysisSummary.teamPerformance.enemyTeam.totalKills,
+      mvpPlayer: analysisSummary.playerDetailedStats.topPlayers.mvp.championName,
+      myPlayerKDA: `${analysisSummary.playerDetailedStats.myPlayerStats.performance.kills}/${analysisSummary.playerDetailedStats.myPlayerStats.performance.deaths}/${analysisSummary.playerDetailedStats.myPlayerStats.performance.assists}`
+    })
+
     // レスポンスデータを整形
     const result: MatchDetail = {
       matchId: latestMatchId,
@@ -227,7 +414,8 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
       myTeam: myTeam,
       enemyTeam: enemyTeam,
       myParticipant: myParticipant,
-      teamStats: teamStats
+      teamStats: teamStats,
+      analysisSummary: analysisSummary
     }
 
     return result

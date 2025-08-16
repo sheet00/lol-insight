@@ -104,6 +104,7 @@ export interface MatchDetail {
   enemyTeam: ParticipantWithRank[]
   myParticipant: ParticipantWithRank
   teamStats: TeamStats
+  analysisSummary?: MatchAnalysisSummary
 }
 
 export interface GameInfo {
@@ -295,4 +296,129 @@ export interface AdviceCategory {
   category: 'champion' | 'itemization' | 'positioning' | 'macro' | 'micro'
   priority: 'high' | 'medium' | 'low'
   description: string
+}
+
+// 完了試合分析まとめ情報の型
+export interface MatchAnalysisSummary {
+  matchId: string
+  gameBasicInfo: {
+    gameMode: string
+    queueId: number
+    gameDuration: number
+    gameEndTimestamp: number
+    gameVersion: string
+    matchResult: 'WIN' | 'LOSE'
+  }
+  teamPerformance: {
+    myTeam: TeamSummary
+    enemyTeam: TeamSummary
+  }
+  gameTimeline: {
+    objectives: ObjectiveTimeline
+    teamFightSummary: TeamFightSummary
+  }
+  playerDetailedStats: {
+    topPlayers: TopPlayerStats
+    myPlayerStats: PlayerDetailedStats
+    allPlayersStats: PlayerDetailedStats[]
+  }
+}
+
+export interface TeamSummary {
+  teamId: number
+  win: boolean
+  totalKills: number
+  totalDeaths: number
+  totalAssists: number
+  totalGold: number
+  totalDamageToChampions: number
+  averageLevel: number
+  objectives: {
+    towers: number
+    dragons: number
+    barons: number
+    heralds: number
+    inhibitors: number
+  }
+}
+
+export interface ObjectiveTimeline {
+  firstBlood: {
+    team: 'my' | 'enemy'
+    time: number
+    player?: string
+  }
+  objectives: Array<{
+    type: 'tower' | 'dragon' | 'baron' | 'herald' | 'inhibitor'
+    team: 'my' | 'enemy'
+    time: number
+    location?: string
+  }>
+}
+
+export interface TeamFightSummary {
+  totalTeamFights: number
+  myTeamWins: number
+  enemyTeamWins: number
+  majorFights: Array<{
+    time: number
+    winner: 'my' | 'enemy'
+    kills: { my: number, enemy: number }
+    location: string
+  }>
+}
+
+export interface TopPlayerStats {
+  mvp: PlayerSummaryStats
+  mostDamage: PlayerSummaryStats
+  mostKills: PlayerSummaryStats
+  highestKDA: PlayerSummaryStats
+  worstPerformer: PlayerSummaryStats
+}
+
+export interface PlayerSummaryStats {
+  championName: string
+  teamId: number
+  kda: string
+  damage: number
+  gold: number
+  rank?: string
+}
+
+export interface PlayerDetailedStats {
+  championName: string
+  championId: number
+  teamId: number
+  performance: {
+    kills: number
+    deaths: number
+    assists: number
+    kda: number
+    killParticipation: number
+  }
+  damage: {
+    totalDamageToChampions: number
+    physicalDamage: number
+    magicDamage: number
+    trueDamage: number
+    damageTaken: number
+    damageShare: number
+  }
+  economy: {
+    goldEarned: number
+    totalMinionsKilled: number
+    goldPerMinute: number
+    csPerMinute: number
+  }
+  vision: {
+    wardsPlaced?: number
+    wardsKilled?: number
+    visionScore?: number
+  }
+  rank: {
+    tier?: string
+    rank?: string
+    leaguePoints?: number
+    winRate?: number
+  } | null
 }
