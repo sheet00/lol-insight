@@ -116,7 +116,6 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
         victimTeam: victimTeam,
         assistingParticipantIds: event.assistingParticipantIds || [],
         position: event.position,
-        icon: "💀",
         priority: 5,
       };
 
@@ -133,7 +132,6 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
         teamId: event.teamId,
         killerId: event.killerId,
         attackerTeam: attackerTeam,
-        icon: "🏗️",
         priority: 4,
       };
 
@@ -149,7 +147,6 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
         monsterType: event.monsterType,
         killerId: event.killerId,
         teamSide: teamSide,
-        icon: getMonsterIcon(event.monsterType),
         priority: 5,
       };
 
@@ -162,7 +159,6 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
         description: "タワープレートが破壊された",
         killerId: event.killerId,
         laneType: event.laneType,
-        icon: "🛡️",
         priority: 2,
       };
 
@@ -184,7 +180,6 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
           participantId: event.participantId,
           purchaserName: purchaserName,
           purchaserTeam: purchaserTeam,
-          icon: "🛒",
           priority: 3,
         };
       }
@@ -204,7 +199,6 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
           )}がレベル${event.level}に到達`,
           level: event.level,
           participantId: event.participantId,
-          icon: "⬆️",
           priority: 3,
         };
       }

@@ -105,6 +105,7 @@ export interface MatchDetail {
   myParticipant: ParticipantWithRank
   teamStats: TeamStats
   analysisSummary?: MatchAnalysisSummary
+  timelineEvents?: TimelineEvent[]
 }
 
 export interface GameInfo {
@@ -421,4 +422,32 @@ export interface PlayerDetailedStats {
     leaguePoints?: number
     winRate?: number
   } | null
+}
+
+// タイムラインイベントの型
+export interface TimelineEvent {
+  type: string
+  timestamp: number
+  timeString: string
+  frameIndex: number
+  description: string
+  priority: number
+  killerId?: number
+  victimId?: number
+  assistingParticipantIds?: number[]
+  position?: any
+  buildingType?: string
+  teamId?: number
+  monsterType?: string
+  itemId?: number
+  participantId?: number
+  level?: number
+  laneType?: string
+  killerTeam?: string
+  victimTeam?: string
+  attackerTeam?: string
+  teamSide?: string
+  itemName?: string
+  purchaserName?: string
+  purchaserTeam?: string
 }

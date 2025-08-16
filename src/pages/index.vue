@@ -1058,6 +1058,47 @@ const outputMatchAnalysisToConsole = () => {
   console.table(playersTable);
   console.groupEnd();
 
+  // タイムライン情報
+  if (matchData.value.timelineEvents && matchData.value.timelineEvents.length > 0) {
+    console.group("⏰ 重要タイムラインイベント");
+    console.log("タイムラインイベント数:", matchData.value.timelineEvents.length);
+    
+    // イベントタイプ別に分類
+    const eventsByType = matchData.value.timelineEvents.reduce((acc: any, event: any) => {
+      acc[event.type] = acc[event.type] || [];
+      acc[event.type].push(event);
+      return acc;
+    }, {});
+
+    // タイプ別にテーブル表示
+    const typeIcons: { [key: string]: string } = {
+      KILL: "💀",
+      MONSTER: "🐉", 
+      BUILDING: "🏗️",
+      ITEM: "🛒",
+      LEVEL: "⬆️",
+      PLATE: "🛡️"
+    };
+
+    Object.keys(eventsByType).forEach(type => {
+      const icon = typeIcons[type] || "📌";
+      console.group(`${icon} ${type}イベント (${eventsByType[type].length}件)`);
+      const eventsTable = eventsByType[type].map((event: any) => ({
+        時間: event.timeString,
+        説明: event.description,
+        優先度: event.priority
+      }));
+      console.table(eventsTable);
+      console.groupEnd();
+    });
+
+    // 生JSONも出力
+    console.log("Timeline Events JSON:", JSON.stringify(matchData.value.timelineEvents, null, 2));
+    console.groupEnd();
+  } else {
+    console.log("⚠️ タイムライン情報が含まれていません");
+  }
+
   // 生データも出力
   console.group("💾 完全な試合データ (JSON)");
   console.log("Full Match Data:", JSON.stringify(matchData.value, null, 2));

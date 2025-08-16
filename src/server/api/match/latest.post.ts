@@ -1,5 +1,7 @@
-import type { MatchDetail, ParticipantWithRank, TeamStats, MatchAnalysisSummary, TeamSummary, PlayerDetailedStats, TopPlayerStats, PlayerSummaryStats } from '~/types'
+import type { MatchDetail, ParticipantWithRank, TeamStats, MatchAnalysisSummary, TeamSummary, PlayerDetailedStats, TopPlayerStats, PlayerSummaryStats, TimelineEvent } from '~/types'
 import { RiotApiManager } from '~/server/utils/RiotApiManager'
+import championData from "~/data/champion.json"
+import itemData from "~/data/item.json"
 
 // まとめ情報を生成する関数
 function generateMatchAnalysisSummary(
@@ -382,6 +384,27 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
       enemyTeamGold: teamStats.enemyTeam.totalGold
     })
 
+    // タイムライン情報を取得（内部API呼び出し）
+    let timelineEvents: TimelineEvent[] = []
+    try {
+      console.log('Debug - タイムライン情報取得開始')
+      const timelineResponse = await $fetch('/api/match/timeline', {
+        method: 'POST',
+        body: {
+          matchId: latestMatchId,
+          matchData: { myTeam, enemyTeam }
+        }
+      })
+      
+      if (timelineResponse.success && timelineResponse.data.events) {
+        timelineEvents = timelineResponse.data.events
+        console.log('Debug - タイムライン情報取得完了:', timelineEvents.length + '件のイベント')
+      }
+    } catch (timelineError: any) {
+      console.warn('Debug - タイムライン情報取得失敗:', timelineError.message)
+      // タイムライン取得失敗は非致命的エラーとして続行
+    }
+
     // まとめ情報を生成
     const analysisSummary = generateMatchAnalysisSummary(
       latestMatchId,
@@ -415,7 +438,8 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
       enemyTeam: enemyTeam,
       myParticipant: myParticipant,
       teamStats: teamStats,
-      analysisSummary: analysisSummary
+      analysisSummary: analysisSummary,
+      timelineEvents: timelineEvents
     }
 
     return result
