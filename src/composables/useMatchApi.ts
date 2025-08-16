@@ -1,7 +1,7 @@
 /**
  * マッチAPI関連のcomposable
  */
-import type { SummonerSearchResult, MatchDetail, LiveMatchDetail } from "~/types";
+import type { SummonerSearchResult, MatchDetail, LiveMatchDetail, MatchHistoryResponse } from "~/types";
 import { createGetChampionName } from "@/utils/championUtils";
 import championData from "@/data/champion.json";
 
@@ -56,10 +56,45 @@ export const useMatchApi = () => {
    * 最新試合情報取得処理（内部用）
    */
   const getLatestMatchInternal = async (puuid: string): Promise<MatchDetail> => {
-    const response = await $fetch<MatchDetail>("/api/match/latest", {
+    const response = await $fetch<MatchDetail>("/api/match/detail", {
       method: "POST",
       body: {
         puuid: puuid,
+      },
+    });
+
+    return response;
+  };
+
+  /**
+   * 試合履歴リスト取得処理
+   */
+  const getMatchHistory = async (
+    puuid: string, 
+    startIndex: number = 0, 
+    count: number = 5
+  ): Promise<MatchHistoryResponse> => {
+    const response = await $fetch<MatchHistoryResponse>("/api/match/history", {
+      method: "POST",
+      body: {
+        puuid,
+        startIndex,
+        count,
+      },
+    });
+
+    return response;
+  };
+
+  /**
+   * 特定試合の詳細情報取得処理
+   */
+  const getMatchDetail = async (puuid: string, matchId: string): Promise<MatchDetail> => {
+    const response = await $fetch<MatchDetail>("/api/match/detail", {
+      method: "POST",
+      body: {
+        puuid,
+        matchId,
       },
     });
 
@@ -143,6 +178,8 @@ export const useMatchApi = () => {
     searchSummoner,
     getLiveMatchInternal,
     getLatestMatchInternal,
+    getMatchHistory,
+    getMatchDetail,
     fetchFeaturedUser,
     generateAdvice,
   };

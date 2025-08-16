@@ -299,6 +299,27 @@ export interface AdviceCategory {
   description: string
 }
 
+// 試合履歴リスト用の型
+export interface MatchHistoryItem {
+  matchId: string
+  gameMode: string
+  queueId: number
+  gameCreation: number
+  gameDuration: number
+  myChampion: string
+  result: 'WIN' | 'LOSE'
+  kda: string
+  gameEndTimestamp: number
+}
+
+// 試合履歴レスポンス型
+export interface MatchHistoryResponse {
+  matches: MatchHistoryItem[]
+  hasMore: boolean
+  currentPage: number
+  totalMatches?: number
+}
+
 // 完了試合分析まとめ情報の型
 export interface MatchAnalysisSummary {
   matchId: string

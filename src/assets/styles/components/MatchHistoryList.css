@@ -1,0 +1,52 @@
+/* 試合履歴リストのスタイル */
+.match-history-container {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6;
+}
+
+.match-history-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.match-history-title {
+  @apply text-xl font-bold text-gray-900;
+}
+
+.match-history-count {
+  @apply text-sm text-gray-500;
+}
+
+.match-history-list {
+  @apply space-y-3;
+}
+
+.match-history-loading {
+  @apply flex items-center justify-center py-8;
+}
+
+.match-history-loading-spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500;
+}
+
+.match-history-error {
+  @apply bg-red-50 border border-red-200 rounded-lg p-4 text-red-700;
+}
+
+.match-history-empty {
+  @apply text-center py-8 text-gray-500;
+}
+
+.match-history-pagination {
+  @apply flex items-center justify-between mt-6 pt-4 border-t border-gray-200;
+}
+
+.match-history-nav-button {
+  @apply px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200;
+}
+
+.match-history-nav-button:disabled {
+  @apply bg-gray-100 text-gray-400 cursor-not-allowed;
+}
+
+.match-history-page-info {
+  @apply text-sm text-gray-600;
+}

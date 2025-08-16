@@ -176,7 +176,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
   try {
     // リクエストボディを取得
     const body = await readBody(event)
-    const { puuid } = body
+    const { puuid, matchId } = body
 
     // バリデーション
     if (!puuid) {
@@ -197,37 +197,46 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
       })
     }
     
-    console.log('Debug - 最新試合情報を取得します, PUUID:', puuid.substring(0, 20) + '...')
+    console.log('Debug - 試合詳細情報を取得します, PUUID:', puuid.substring(0, 20) + '...', matchId ? `matchId: ${matchId}` : '最新試合')
 
     // Riot API マネージャーを初期化
     const riotApi = new RiotApiManager(apiKey)
 
-    // 1. Match List API で最新の試合IDを取得
-    console.log('Debug - Getting match IDs')
-    const matchIds = await riotApi.getMatchIds(puuid, 0, 1)
-    
-    if (!matchIds || matchIds.length === 0) {
-      throw createError({
-        statusCode: 404,
-        message: '試合履歴が見つかりません'
-      })
-    }
+    let targetMatchId: string
 
-    const latestMatchId = matchIds[0]
-    if (!latestMatchId) {
-      throw createError({
-        statusCode: 404,
-        message: '最新試合IDが取得できませんでした'
-      })
+    // matchIdが指定されている場合はそれを使用、なければ最新試合を取得
+    if (matchId) {
+      targetMatchId = matchId
+      console.log('Debug - 指定された試合ID:', targetMatchId)
+    } else {
+      // 1. Match List API で最新の試合IDを取得
+      console.log('Debug - Getting latest match ID')
+      const matchIds = await riotApi.getMatchIds(puuid, 0, 1)
+      
+      if (!matchIds || matchIds.length === 0) {
+        throw createError({
+          statusCode: 404,
+          message: '試合履歴が見つかりません'
+        })
+      }
+
+      const latestMatchId = matchIds[0]
+      if (!latestMatchId) {
+        throw createError({
+          statusCode: 404,
+          message: '最新試合IDが取得できませんでした'
+        })
+      }
+      targetMatchId = latestMatchId
+      console.log('Debug - 最新試合ID:', targetMatchId)
     }
-    console.log('Debug - 最新試合ID:', latestMatchId)
 
     // 2. Match Detail API で試合詳細を取得
-    console.log('Debug - Getting match detail for:', latestMatchId)
-    const matchDetail = await riotApi.getMatchDetail(latestMatchId)
+    console.log('Debug - Getting match detail for:', targetMatchId)
+    const matchDetail = await riotApi.getMatchDetail(targetMatchId)
 
     console.log('Debug - 試合詳細取得完了:', {
-      matchId: latestMatchId,
+      matchId: targetMatchId,
       gameMode: matchDetail.info?.gameMode,
       queueId: matchDetail.info?.queueId,
       gameDuration: matchDetail.info?.gameDuration,
@@ -391,7 +400,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
       const timelineResponse = await $fetch('/api/match/timeline', {
         method: 'POST',
         body: {
-          matchId: latestMatchId,
+          matchId: targetMatchId,
           matchData: { myTeam, enemyTeam, myParticipant }
         }
       })
@@ -407,7 +416,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
 
     // まとめ情報を生成
     const analysisSummary = generateMatchAnalysisSummary(
-      latestMatchId,
+      targetMatchId,
       matchDetail.info,
       myTeam,
       enemyTeam,
@@ -425,7 +434,7 @@ export default defineEventHandler(async (event): Promise<MatchDetail> => {
 
     // レスポンスデータを整形
     const result: MatchDetail = {
-      matchId: latestMatchId,
+      matchId: targetMatchId,
       gameInfo: {
         gameMode: matchDetail.info.gameMode,
         queueId: matchDetail.info.queueId,

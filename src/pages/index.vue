@@ -19,7 +19,7 @@
       <div class="main-content-width mx-auto">
         <!-- 分析対象プレイヤー表示 -->
         <div
-          v-if="summonerData && !matchData && !liveMatchData"
+          v-if="summonerData && !matchData && !liveMatchData && loading"
           class="card text-center"
         >
           <div class="py-8">
@@ -62,6 +62,14 @@
         <!-- AI試合後分析結果 -->
         <PostMatchAnalysis v-if="postMatchAdvice" :advice="postMatchAdvice" />
 
+        <!-- 試合履歴リスト（進行中試合がない場合に表示） -->
+        <ClientOnly v-if="summonerData && !liveMatchData && !loading">
+          <MatchHistoryList
+            :puuid="summonerData.account.puuid"
+            @match-selected="onMatchSelected"
+          />
+        </ClientOnly>
+
         <!-- エラー表示 -->
         <div v-if="error" class="card bg-red-50 border-red-200">
           <div class="flex items-center">
@@ -89,6 +97,7 @@ import SearchHeader from "~/components/SearchHeader.vue";
 import LiveMatch from "~/components/LiveMatch.vue";
 import CompletedMatch from "~/components/CompletedMatch.vue";
 import PostMatchAnalysis from "~/components/PostMatchAnalysis.vue";
+import MatchHistoryList from "~/components/MatchHistoryList.vue";
 import { formatGameMode, formatNumber } from "@/utils/gameFormatters";
 import {
   createChampionIdMap,
@@ -143,7 +152,7 @@ const showTimeline = ref(false);
 const onModelChange = (model: string) => {
   selectedAiModel.value = model;
   console.log("AIモデルが変更されました:", model);
-  
+
   // 既存のアドバイスがある場合は再生成を促す
   if (liveMatchData.value && aiAdvice.value) {
     // 自動再生成は行わず、ユーザーが再生成ボタンを押すまで待機
@@ -195,19 +204,10 @@ const searchSummoner = async () => {
       liveMatchData.value = liveData;
       matchData.value = null;
     } catch (liveError) {
-      console.log("進行中試合なし、過去試合を取得中...");
-      // 進行中試合がない場合、過去の試合を取得
-      try {
-        const latestMatchData = await getLatestMatchInternal(
-          response.account.puuid
-        );
-        matchData.value = latestMatchData;
-        liveMatchData.value = null;
-      } catch (matchError) {
-        console.warn("過去試合情報の取得にも失敗:", matchError);
-        matchData.value = null;
-        liveMatchData.value = null;
-      }
+      console.log("進行中試合なし、試合履歴リストを表示します");
+      // 進行中試合がない場合は試合履歴リストを表示する
+      liveMatchData.value = null;
+      matchData.value = null;
     }
   } catch (err: any) {
     console.error("サモナー検索エラー:", err);
@@ -316,9 +316,10 @@ const downloadMatchAnalysisAsJson = () => {
   }
 
   // 自分のアイテム購入履歴を抽出（AIと同じロジック）
-  const myItemPurchases = matchData.value.timelineEvents?.filter((event: any) => 
-    event.type === 'ITEM' && event.isMyself === true
-  ) || [];
+  const myItemPurchases =
+    matchData.value.timelineEvents?.filter(
+      (event: any) => event.type === "ITEM" && event.isMyself === true
+    ) || [];
 
   // AI入力パラメータと完全同一のデータを作成
   const aiInputData = {
@@ -326,17 +327,17 @@ const downloadMatchAnalysisAsJson = () => {
       exportDate: new Date().toISOString(),
       exportType: "League of Legends AI入力パラメータ（デバッグ用）",
       purpose: "生成AIに送信されるデータと完全同一",
-      version: "1.0.0"
+      version: "1.0.0",
     },
     matchId: matchData.value.matchId,
     myChampionName: matchData.value.myParticipant?.championName,
-    gameResult: matchData.value.myParticipant?.win ? 'WIN' : 'LOSE',
+    gameResult: matchData.value.myParticipant?.win ? "WIN" : "LOSE",
     myItemPurchases: myItemPurchases.map((item: any) => ({
       timeString: item.timeString,
       timestamp: item.timestamp,
       itemName: item.itemName,
       itemId: item.itemId,
-      description: item.description
+      description: item.description,
     })),
     // 以下、matchDataの全内容をそのまま展開（AIに送信される生データ）
     gameInfo: matchData.value.gameInfo,
@@ -345,17 +346,19 @@ const downloadMatchAnalysisAsJson = () => {
     myParticipant: matchData.value.myParticipant,
     teamStats: matchData.value.teamStats,
     analysisSummary: matchData.value.analysisSummary,
-    timelineEvents: matchData.value.timelineEvents || []
+    timelineEvents: matchData.value.timelineEvents || [],
   };
 
   // JSONファイルとしてダウンロード
   const jsonString = JSON.stringify(aiInputData, null, 2);
-  const blob = new Blob([jsonString], { type: 'application/json' });
+  const blob = new Blob([jsonString], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  
-  const link = document.createElement('a');
+
+  const link = document.createElement("a");
   link.href = url;
-  link.download = `LoL_AI_input_debug_${matchData.value.matchId}_${new Date().toISOString().split('T')[0]}.json`;
+  link.download = `LoL_AI_input_debug_${matchData.value.matchId}_${
+    new Date().toISOString().split("T")[0]
+  }.json`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -466,6 +469,26 @@ const generatePostMatchAdvice = async () => {
     isPostMatchAdviceGenerating.value = false;
     postMatchAdviceController = null;
   }
+};
+
+// 試合履歴から選択された試合の処理
+const onMatchSelected = (matchId: string, selectedMatchData: MatchDetail) => {
+  console.log("選択された試合:", matchId);
+
+  // 試合詳細データをセット
+  matchData.value = selectedMatchData;
+
+  // 既存のライブマッチデータと分析結果をクリア
+  liveMatchData.value = null;
+  aiAdvice.value = null;
+  aiDurationMs.value = null;
+  postMatchAdvice.value = null;
+
+  console.log("試合詳細が設定されました:", {
+    matchId: selectedMatchData.matchId,
+    champion: selectedMatchData.myParticipant?.championName,
+    result: selectedMatchData.myParticipant?.win ? "WIN" : "LOSE",
+  });
 };
 
 // メタ情報

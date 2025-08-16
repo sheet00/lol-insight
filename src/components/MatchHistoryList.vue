@@ -1,0 +1,150 @@
+<template>
+  <div class="match-history-container">
+    <!-- ヘッダー -->
+    <div class="match-history-header">
+      <h2 class="match-history-title">過去の試合履歴</h2>
+      <div class="match-history-count" v-if="matchHistory.length > 0">
+        {{ matchHistory.length }}件の試合
+      </div>
+    </div>
+
+    <!-- エラー表示 -->
+    <div v-if="historyError" class="match-history-error">
+      {{ historyError }}
+    </div>
+
+    <!-- ローディング表示 -->
+    <div
+      v-else-if="isHistoryLoading && matchHistory.length === 0"
+      class="match-history-loading"
+    >
+      <div class="match-history-loading-spinner"></div>
+    </div>
+
+    <!-- 試合履歴が空の場合 -->
+    <div v-else-if="matchHistory.length === 0" class="match-history-empty">
+      試合履歴がありません
+    </div>
+
+    <!-- 試合履歴リスト -->
+    <div v-else>
+      <div class="match-history-list">
+        <MatchHistoryItemComponent
+          v-for="match in matchHistory"
+          :key="match.matchId"
+          :match="match"
+          :is-selected="isMatchSelected(match.matchId)"
+          :is-loading="
+            isMatchDetailLoading && selectedMatchId === match.matchId
+          "
+          @detail-click="onDetailClick"
+        />
+      </div>
+
+      <!-- ページネーション -->
+      <div class="match-history-pagination">
+        <div class="match-history-page-info">
+          <span v-if="isHistoryLoading">読み込み中...</span>
+          <span v-else>{{ matchHistory.length }}件の試合を表示中</span>
+        </div>
+
+        <button
+          class="match-history-nav-button"
+          :disabled="!hasMoreMatches || isHistoryLoading"
+          @click="onNextPage"
+        >
+          <span v-if="isHistoryLoading">読み込み中...</span>
+          <span v-else>さらに古い試合を読み込む</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { MatchHistoryItem } from "~/types";
+import MatchHistoryItemComponent from "./MatchHistoryItem.vue";
+import { useMatchHistory } from "~/composables/useMatchHistory";
+import "@/assets/styles/components/MatchHistoryList.css";
+
+// Props
+interface Props {
+  puuid: string;
+}
+
+const props = defineProps<Props>();
+
+// Emits
+interface Emits {
+  (e: "match-selected", matchId: string, matchData: any): void;
+}
+
+const emit = defineEmits<Emits>();
+
+// Composable
+const {
+  matchHistory,
+  currentPage,
+  isHistoryLoading,
+  selectedMatchId,
+  selectedMatchData,
+  isMatchDetailLoading,
+  hasMoreMatches,
+  historyError,
+  loadMatchHistory,
+  loadNextPage,
+  loadMatchDetail,
+  isMatchSelected,
+} = useMatchHistory();
+
+// 初期化
+onMounted(async () => {
+  if (props.puuid) {
+    await loadMatchHistory(props.puuid);
+  }
+});
+
+// puuidが変更された時の処理
+watch(
+  () => props.puuid,
+  async (newPuuid, oldPuuid) => {
+    if (newPuuid && newPuuid !== oldPuuid) {
+      await loadMatchHistory(newPuuid);
+    }
+  }
+);
+
+// 選択した試合データが変更された時の処理
+watch(selectedMatchData, (newData) => {
+  if (newData && selectedMatchId.value) {
+    emit("match-selected", selectedMatchId.value, newData);
+  }
+});
+
+// 詳細ボタンクリック処理
+const onDetailClick = async (matchId: string) => {
+  try {
+    await loadMatchDetail(props.puuid, matchId);
+  } catch (error: any) {
+    console.error("試合詳細取得エラー:", error);
+  }
+};
+
+// 古い試合ボタンクリック処理
+const onNextPage = async () => {
+  if (hasMoreMatches.value && !isHistoryLoading.value) {
+    await loadNextPage(props.puuid);
+  }
+};
+
+// 外部からの再読み込み用メソッドを公開
+const reloadHistory = () => {
+  if (props.puuid) {
+    loadMatchHistory(props.puuid);
+  }
+};
+
+defineExpose({
+  reloadHistory,
+});
+</script>
