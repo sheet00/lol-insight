@@ -27,10 +27,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const riotApi = new RiotApiManager(apiKey);
-    
+
     // タイムラインデータを取得
     const timelineData = await riotApi.getMatchTimeline(matchId);
-    
+
     // イベントを整理・分析
     const events = analyzeTimelineEvents(timelineData, matchData);
 
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     };
   } catch (error: any) {
     console.error("タイムライン取得エラー:", error);
-    
+
     if (error?.statusCode === 404) {
       throw createError({
         statusCode: 404,
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
  */
 function analyzeTimelineEvents(timelineData: any, matchData?: any) {
   const events: any[] = [];
-  
+
   if (!timelineData?.info?.frames) {
     return events;
   }
@@ -93,97 +93,111 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
   const timestamp = event.timestamp;
   const minutes = Math.floor(timestamp / 60000);
   const seconds = Math.floor((timestamp % 60000) / 1000);
-  const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
 
   // 重要なイベントのみ抽出
   switch (event.type) {
-    case 'CHAMPION_KILL':
+    case "CHAMPION_KILL":
+      const killerTeam = getTeamSide(event.killerId, matchData);
+      const victimTeam = getTeamSide(event.victimId, matchData);
       return {
-        type: 'KILL',
+        type: "KILL",
         timestamp,
         timeString,
         frameIndex,
-        description: `${getParticipantName(event.killerId, matchData)} が ${getParticipantName(event.victimId, matchData)} をキル`,
+        description: `${killerTeam}の${getParticipantName(
+          event.killerId,
+          matchData
+        )}が${victimTeam}の${getParticipantName(event.victimId, matchData)}をキル`,
         killerId: event.killerId,
         victimId: event.victimId,
+        killerTeam: killerTeam,
+        victimTeam: victimTeam,
         assistingParticipantIds: event.assistingParticipantIds || [],
         position: event.position,
-        icon: '💀',
-        priority: 5
+        icon: "💀",
+        priority: 5,
       };
 
-    case 'BUILDING_KILL':
+    case "BUILDING_KILL":
       const buildingType = getBuildingType(event.buildingType);
+      const attackerTeam = getTeamSide(event.killerId, matchData);
       return {
-        type: 'BUILDING',
+        type: "BUILDING",
         timestamp,
         timeString,
         frameIndex,
-        description: `${buildingType}が破壊された`,
+        description: `${attackerTeam}が${buildingType}を破壊`,
         buildingType: event.buildingType,
         teamId: event.teamId,
         killerId: event.killerId,
-        icon: '🏗️',
-        priority: 4
+        attackerTeam: attackerTeam,
+        icon: "🏗️",
+        priority: 4,
       };
 
-    case 'ELITE_MONSTER_KILL':
+    case "ELITE_MONSTER_KILL":
       const monsterType = getMonsterType(event.monsterType);
+      const teamSide = getTeamSide(event.killerId, matchData);
       return {
-        type: 'MONSTER',
+        type: "MONSTER",
         timestamp,
         timeString,
         frameIndex,
-        description: `${monsterType}が討伐された`,
+        description: `${teamSide}が${monsterType}を討伐`,
         monsterType: event.monsterType,
         killerId: event.killerId,
+        teamSide: teamSide,
         icon: getMonsterIcon(event.monsterType),
-        priority: 5
+        priority: 5,
       };
 
-    case 'TURRET_PLATE_DESTROYED':
+    case "TURRET_PLATE_DESTROYED":
       return {
-        type: 'PLATE',
+        type: "PLATE",
         timestamp,
         timeString,
         frameIndex,
-        description: 'タワープレートが破壊された',
+        description: "タワープレートが破壊された",
         killerId: event.killerId,
         laneType: event.laneType,
-        icon: '🛡️',
-        priority: 2
+        icon: "🛡️",
+        priority: 2,
       };
 
-    case 'ITEM_PURCHASED':
+    case "ITEM_PURCHASED":
       // 重要アイテムのみ
       if (isImportantItem(event.itemId)) {
         return {
-          type: 'ITEM',
+          type: "ITEM",
           timestamp,
           timeString,
           frameIndex,
           description: `重要アイテムを購入`,
           itemId: event.itemId,
           participantId: event.participantId,
-          icon: '🛒',
-          priority: 1
+          icon: "🛒",
+          priority: 1,
         };
       }
       return null;
 
-    case 'LEVEL_UP':
+    case "LEVEL_UP":
       // レベル6、11、16のみ
       if ([6, 11, 16].includes(event.level)) {
         return {
-          type: 'LEVEL',
+          type: "LEVEL",
           timestamp,
           timeString,
           frameIndex,
-          description: `${getParticipantName(event.participantId, matchData)}がレベル${event.level}に到達`,
+          description: `${getParticipantName(
+            event.participantId,
+            matchData
+          )}がレベル${event.level}に到達`,
           level: event.level,
           participantId: event.participantId,
-          icon: '⬆️',
-          priority: 3
+          icon: "⬆️",
+          priority: 3,
         };
       }
       return null;
@@ -197,7 +211,8 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
  * 英語チャンピオン名を日本語に変換
  */
 function getJapaneseChampionName(englishName: string): string {
-  const champion = championData.data[englishName as keyof typeof championData.data];
+  const champion =
+    championData.data[englishName as keyof typeof championData.data];
   return champion?.name || englishName;
 }
 
@@ -211,19 +226,23 @@ function getParticipantName(participantId: number, matchData?: any): string {
 
   // myTeamとenemyTeamから参加者を結合
   const allParticipants = [];
-  
+
   if (matchData.myTeam && Array.isArray(matchData.myTeam)) {
     allParticipants.push(...matchData.myTeam);
   }
-  
+
   if (matchData.enemyTeam && Array.isArray(matchData.enemyTeam)) {
     allParticipants.push(...matchData.enemyTeam);
   }
-  
+
   if (allParticipants.length > 0) {
-    const participant = allParticipants.find((p: any) => p.participantId === participantId);
+    const participant = allParticipants.find(
+      (p: any) => p.participantId === participantId
+    );
     if (participant && participant.championName) {
-      const japaneseChampionName = getJapaneseChampionName(participant.championName);
+      const japaneseChampionName = getJapaneseChampionName(
+        participant.championName
+      );
       return japaneseChampionName;
     }
   }
@@ -231,15 +250,14 @@ function getParticipantName(participantId: number, matchData?: any): string {
   return `Player${participantId}`;
 }
 
-
 /**
  * 建物タイプ取得
  */
 function getBuildingType(buildingType: string): string {
   const types: { [key: string]: string } = {
-    'TOWER_BUILDING': 'タワー',
-    'INHIBITOR_BUILDING': 'インヒビター',
-    'NEXUS_BUILDING': 'ネクサス'
+    TOWER_BUILDING: "タワー",
+    INHIBITOR_BUILDING: "インヒビター",
+    NEXUS_BUILDING: "ネクサス",
   };
   return types[buildingType] || buildingType;
 }
@@ -249,9 +267,11 @@ function getBuildingType(buildingType: string): string {
  */
 function getMonsterType(monsterType: string): string {
   const types: { [key: string]: string } = {
-    'DRAGON': 'ドラゴン',
-    'BARON_NASHOR': 'バロン',
-    'RIFTHERALD': 'リフトヘラルド'
+    DRAGON: "ドラゴン",
+    BARON_NASHOR: "バロン",
+    RIFTHERALD: "リフトヘラルド",
+    HORDE: "ヴォイドグラブ",
+    ATAKHAN: "アタカン",
   };
   return types[monsterType] || monsterType;
 }
@@ -261,11 +281,35 @@ function getMonsterType(monsterType: string): string {
  */
 function getMonsterIcon(monsterType: string): string {
   const icons: { [key: string]: string } = {
-    'DRAGON': '🐉',
-    'BARON_NASHOR': '👑',
-    'RIFTHERALD': '👁️'
+    DRAGON: "🐉",
+    BARON_NASHOR: "👑",
+    RIFTHERALD: "👁️",
   };
-  return icons[monsterType] || '👹';
+  return icons[monsterType] || "👹";
+}
+
+/**
+ * 参加者のチーム判定（自チーム: 1-5, 敵チーム: 6-10）
+ */
+function getTeamSide(participantId: number, matchData?: any): string {
+  if (!matchData) {
+    return participantId <= 5 ? "自チーム" : "敵チーム";
+  }
+
+  // myTeamから参加者を検索
+  if (matchData.myTeam && Array.isArray(matchData.myTeam)) {
+    const isMyTeam = matchData.myTeam.some((p: any) => p.participantId === participantId);
+    if (isMyTeam) return "自チーム";
+  }
+
+  // enemyTeamから参加者を検索
+  if (matchData.enemyTeam && Array.isArray(matchData.enemyTeam)) {
+    const isEnemyTeam = matchData.enemyTeam.some((p: any) => p.participantId === participantId);
+    if (isEnemyTeam) return "敵チーム";
+  }
+
+  // フォールバック: 一般的なLoLの参加者ID範囲で判定
+  return participantId <= 5 ? "自チーム" : "敵チーム";
 }
 
 /**
@@ -276,8 +320,8 @@ function isImportantItem(itemId: number): boolean {
   const importantItems = [
     // ミシックアイテム例
     6632, 6633, 6691, 6692, 6693,
-    // レジェンダリーアイテム例  
-    3031, 3153, 3142, 3075
+    // レジェンダリーアイテム例
+    3031, 3153, 3142, 3075,
   ];
   return importantItems.includes(itemId);
 }
