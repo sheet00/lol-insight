@@ -3,10 +3,10 @@
     <div class="mb-6">
       <h3 class="text-xl font-semibold text-gray-900 flex items-center">
         <span class="mr-2">🤖</span>
-        AI試合後分析結果
+        AIアドバイス
       </h3>
       <p class="text-gray-600 text-sm mt-1">
-        生成AIによる詳細な試合振り返りとアドバイス
+        試合後の詳細な分析と改善アドバイス
       </p>
     </div>
 

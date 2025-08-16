@@ -36,7 +36,7 @@
               v-else
               class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
             ></div>
-            {{ isGeneratingAdvice ? "AI分析中..." : "AI試合分析を実行" }}
+            {{ isGeneratingAdvice ? "アドバイス生成中…" : "アドバイス再生成" }}
           </button>
           <div class="text-center">
             <div

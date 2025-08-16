@@ -284,6 +284,16 @@ watch(
   { immediate: false }
 );
 
+// 自動生成: matchData が更新されたら走らせる（SSR安全）
+watch(
+  () => matchData.value?.matchId,
+  async (id) => {
+    if (id && typeof window !== "undefined" && !postMatchAdvice.value)
+      await generatePostMatchAdvice();
+  },
+  { immediate: false }
+);
+
 // 再生成ボタン
 const onRegenerateAdvice = () => {
   if (!isAdviceGenerating.value) generateAdviceHandler();
