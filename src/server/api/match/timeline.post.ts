@@ -106,10 +106,10 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
         timestamp,
         timeString,
         frameIndex,
-        description: `${killerTeam}の${getParticipantName(
+        description: `${getParticipantName(
           event.killerId,
           matchData
-        )}が${victimTeam}の${getParticipantName(event.victimId, matchData)}をキル`,
+        )}が${getParticipantName(event.victimId, matchData)}をキル`,
         killerId: event.killerId,
         victimId: event.victimId,
         killerTeam: killerTeam,
@@ -127,7 +127,7 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
         timestamp,
         timeString,
         frameIndex,
-        description: `${attackerTeam}が${buildingType}を破壊`,
+        description: `${buildingType}を破壊`,
         buildingType: event.buildingType,
         teamId: event.teamId,
         killerId: event.killerId,
@@ -143,7 +143,7 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
         timestamp,
         timeString,
         frameIndex,
-        description: `${teamSide}が${monsterType}を討伐`,
+        description: `${monsterType}を討伐`,
         monsterType: event.monsterType,
         killerId: event.killerId,
         teamSide: teamSide,
@@ -175,7 +175,7 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
           timestamp,
           timeString,
           frameIndex,
-          description: `${purchaserTeam}の${purchaserName}が${itemName}を購入`,
+          description: `${purchaserName}が${itemName}を購入`,
           itemId: event.itemId,
           itemName: itemName,
           participantId: event.participantId,
@@ -301,27 +301,28 @@ function isMyParticipant(participantId: number, matchData?: any): boolean {
 }
 
 /**
- * 参加者のチーム判定（自チーム: 1-5, 敵チーム: 6-10）
+ * 参加者のチーム判定
+ * @returns {string} "my" | "enemy" - チームタイプを返す
  */
 function getTeamSide(participantId: number, matchData?: any): string {
   if (!matchData) {
-    return participantId <= 5 ? "自チーム" : "敵チーム";
+    return participantId <= 5 ? "my" : "enemy";
   }
 
   // myTeamから参加者を検索
   if (matchData.myTeam && Array.isArray(matchData.myTeam)) {
     const isMyTeam = matchData.myTeam.some((p: any) => p.participantId === participantId);
-    if (isMyTeam) return "自チーム";
+    if (isMyTeam) return "my";
   }
 
   // enemyTeamから参加者を検索
   if (matchData.enemyTeam && Array.isArray(matchData.enemyTeam)) {
     const isEnemyTeam = matchData.enemyTeam.some((p: any) => p.participantId === participantId);
-    if (isEnemyTeam) return "敵チーム";
+    if (isEnemyTeam) return "enemy";
   }
 
   // フォールバック: 一般的なLoLの参加者ID範囲で判定
-  return participantId <= 5 ? "自チーム" : "敵チーム";
+  return participantId <= 5 ? "my" : "enemy";
 }
 
 /**

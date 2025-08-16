@@ -1,6 +1,6 @@
 /* MatchTimeline.vue のスタイル */
 .match-timeline {
-  @apply bg-gray-900 rounded-xl p-6 border border-gray-700;
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
 }
 
 .timeline-header {
@@ -8,7 +8,7 @@
 }
 
 .timeline-header h3 {
-  @apply text-xl font-bold text-white;
+  @apply text-xl font-bold text-gray-900;
 }
 
 .timeline-controls {
@@ -16,9 +16,9 @@
 }
 
 .filter-btn {
-  @apply px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200;
-  @apply border border-gray-600 bg-gray-800 text-gray-300;
-  @apply hover:bg-gray-700 hover:border-gray-500;
+  @apply px-3 py-1 rounded-lg text-sm font-medium;
+  @apply border border-gray-300 bg-gray-100 text-gray-700;
+  @apply hover:bg-gray-200 hover:border-gray-400;
 }
 
 .filter-btn.active {
@@ -45,36 +45,56 @@
 
 /* タイムラインイベント */
 .timeline-event {
-  @apply flex items-center gap-4 p-3 rounded-lg transition-all duration-200;
-  @apply border-l-4 bg-gray-800 hover:bg-gray-700;
+  @apply flex items-center gap-4 p-3 border-l-4 transition-all duration-200;
 }
 
-/* イベントタイプ別の色分け */
-.timeline-event.event-kill {
-  @apply border-l-red-500 bg-red-900/20;
+.timeline-event:hover {
+  @apply shadow-md transform scale-[1.02];
 }
 
-.timeline-event.event-monster {
-  @apply border-l-purple-500 bg-purple-900/20;
+/* 自チーム（優先度を上げるため !important 使用） */
+.timeline-event.team-my {
+  @apply border-l-blue-500;
+  background-color: rgb(30 58 138 / 0.05) !important;
 }
 
-.timeline-event.event-building {
-  @apply border-l-orange-500 bg-orange-900/20;
+/* 敵チーム（優先度を上げるため !important 使用） */
+.timeline-event.team-enemy {
+  @apply border-l-red-500;
+  background-color: rgb(127 29 29 / 0.05) !important;
 }
 
-.timeline-event.event-plate {
-  @apply border-l-yellow-500 bg-yellow-900/20;
+/* 中立・デフォルト */
+.timeline-event.team-neutral {
+  @apply bg-gray-50;
 }
 
-.timeline-event.event-item {
-  @apply border-l-green-500 bg-green-900/20;
+.timeline-event.team-neutral.event-kill {
+  @apply border-l-red-500;
 }
 
-.timeline-event.event-level {
-  @apply border-l-blue-500 bg-blue-900/20;
+.timeline-event.team-neutral.event-monster {
+  @apply border-l-purple-500;
 }
 
-/* 優先度によるアニメーション */
+.timeline-event.team-neutral.event-building {
+  @apply border-l-orange-500;
+}
+
+.timeline-event.team-neutral.event-plate {
+  @apply border-l-yellow-500;
+}
+
+.timeline-event.team-neutral.event-item {
+  @apply border-l-green-500;
+}
+
+.timeline-event.team-neutral.event-level {
+  @apply border-l-blue-500;
+}
+
+/* 優先度によるアニメーション - 無効化 */
+/* 
 .timeline-event.priority-5 {
   animation: pulse-high 2s infinite;
 }
@@ -92,10 +112,11 @@
   0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
   50% { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0); }
 }
+*/
 
 /* イベント時刻 */
 .event-time {
-  @apply text-sm font-mono font-bold text-gray-300 min-w-12 text-right;
+  @apply text-sm font-mono font-bold text-gray-600 min-w-12 text-right;
   font-feature-settings: 'tnum';
 }
 
@@ -110,20 +131,20 @@
 }
 
 .event-description {
-  @apply text-white font-medium;
+  @apply text-gray-900 font-medium;
 }
 
 .event-details {
-  @apply text-sm text-gray-400 mt-1;
+  @apply text-sm text-gray-600 mt-1;
 }
 
 .assists {
-  @apply text-blue-400;
+  @apply text-blue-600;
 }
 
 /* ローディング状態 */
 .timeline-loading {
-  @apply flex flex-col items-center justify-center py-12 text-gray-400;
+  @apply flex flex-col items-center justify-center py-12 text-gray-600;
 }
 
 .loading-spinner {
@@ -132,7 +153,7 @@
 
 /* 空状態 */
 .timeline-empty {
-  @apply text-center py-12 text-gray-400;
+  @apply text-center py-12 text-gray-600;
 }
 
 .timeline-empty p {

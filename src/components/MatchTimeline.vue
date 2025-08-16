@@ -46,7 +46,7 @@
         v-for="event in filteredEvents" 
         :key="`${event.timestamp}-${event.type}`"
         class="timeline-event"
-        :class="[`event-${event.type.toLowerCase()}`, `priority-${event.priority}`]"
+        :class="[`event-${event.type.toLowerCase()}`, `priority-${event.priority}`, `team-${getEventTeam(event)}`]"
       >
         <div class="event-time">
           {{ event.timeString }}
@@ -104,6 +104,10 @@ interface TimelineEvent {
   itemName?: string;
   purchaserName?: string;
   purchaserTeam?: string;
+  killerTeam?: string;
+  victimTeam?: string;
+  attackerTeam?: string;
+  teamSide?: string;
 }
 
 interface Props {
@@ -130,6 +134,18 @@ const filteredEvents = computed(() => {
 // メソッド
 const toggleFilter = (filter: string) => {
   activeFilter.value = filter;
+};
+
+// イベントのチーム判定
+const getEventTeam = (event: TimelineEvent) => {
+  // チーム情報を持つプロパティをチェック
+  if (event.killerTeam) return event.killerTeam;
+  if (event.attackerTeam) return event.attackerTeam;
+  if (event.teamSide) return event.teamSide;
+  if (event.purchaserTeam) return event.purchaserTeam;
+  
+  // フォールバック
+  return 'neutral';
 };
 
 const fetchTimeline = async () => {
