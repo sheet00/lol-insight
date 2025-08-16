@@ -31,6 +31,13 @@
         >
           🏗️ 建物
         </button>
+        <button 
+          @click="toggleFilter('ITEM')"
+          :class="{ active: activeFilter === 'ITEM' }"
+          class="filter-btn item"
+        >
+          🛒 アイテム
+        </button>
       </div>
     </div>
 
@@ -93,6 +100,10 @@ interface TimelineEvent {
   participantId?: number;
   level?: number;
   laneType?: string;
+  isMyself?: boolean;
+  itemName?: string;
+  purchaserName?: string;
+  purchaserTeam?: string;
 }
 
 interface Props {

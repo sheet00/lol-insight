@@ -163,12 +163,13 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
       };
 
     case "ITEM_PURCHASED":
-      // レジェンダリーアイテムのみ
-      if (isLegendaryItem(event.itemId)) {
-        const itemName = getItemName(event.itemId);
-        const purchaserName = getParticipantName(event.participantId, matchData);
-        const purchaserTeam = getTeamSide(event.participantId, matchData);
-        
+      const itemName = getItemName(event.itemId);
+      const purchaserName = getParticipantName(event.participantId, matchData);
+      const purchaserTeam = getTeamSide(event.participantId, matchData);
+      const isMyself = isMyParticipant(event.participantId, matchData);
+      
+      // 自分のアイテム購入は全て記録、他の人はレジェンダリーのみ
+      if (isMyself || isLegendaryItem(event.itemId)) {
         return {
           type: "ITEM",
           timestamp,
@@ -180,7 +181,8 @@ function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
           participantId: event.participantId,
           purchaserName: purchaserName,
           purchaserTeam: purchaserTeam,
-          priority: 3,
+          isMyself: isMyself,
+          priority: isMyself ? 4 : 3, // 自分のアイテムは優先度高め
         };
       }
       return null;
@@ -288,6 +290,14 @@ function getMonsterIcon(monsterType: string): string {
     RIFTHERALD: "👁️",
   };
   return icons[monsterType] || "👹";
+}
+
+/**
+ * 自分の参加者IDかどうかを判定
+ */
+function isMyParticipant(participantId: number, matchData?: any): boolean {
+  if (!matchData?.myParticipant) return false;
+  return matchData.myParticipant.participantId === participantId;
 }
 
 /**

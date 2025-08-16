@@ -1,6 +1,7 @@
 .env
 CLAUDE.md
 AGENTS.md
+.clinerules
 work/
 
 tmp/
