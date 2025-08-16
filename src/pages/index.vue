@@ -579,11 +579,11 @@ const generatePostMatchAdvice = async () => {
 
 // メタ情報
 useHead({
-  title: "LoL Insight - サモナー検索",
+  title: "LoL Teacher",
   meta: [
     {
       name: "description",
-      content: "League of Legends プレイヤー情報を検索・分析するツール",
+      content: "League of Legends プレイヤー情報を検索・分析・学習するツール",
     },
   ],
 });

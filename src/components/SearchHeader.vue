@@ -5,7 +5,7 @@
       <div class="h-16 flex items-center justify-between gap-6">
         <div class="min-w-0">
           <h1 class="text-lg font-bold text-gray-900 leading-none">
-            LoL Insight
+            LoL Teacher
           </h1>
           <p class="hidden sm:block text-xs text-gray-600 truncate">
             最新試合のマッチアップを分析
@@ -30,7 +30,12 @@
           >
             <input
               :value="searchForm.summonerName"
-              @input="$emit('update:summonerName', ($event.target as HTMLInputElement)?.value || '')"
+              @input="
+                $emit(
+                  'update:summonerName',
+                  ($event.target as HTMLInputElement)?.value || ''
+                )
+              "
               type="text"
               required
               class="flex-1 min-w-52 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
@@ -38,7 +43,12 @@
             />
             <input
               :value="searchForm.tagLine"
-              @input="$emit('update:tagLine', ($event.target as HTMLInputElement)?.value || '')"
+              @input="
+                $emit(
+                  'update:tagLine',
+                  ($event.target as HTMLInputElement)?.value || ''
+                )
+              "
               type="text"
               required
               class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
@@ -97,8 +107,8 @@ const props = defineProps<Props>();
 defineEmits<{
   search: [];
   modelChange: [model: string];
-  'update:summonerName': [value: string];
-  'update:tagLine': [value: string];
+  "update:summonerName": [value: string];
+  "update:tagLine": [value: string];
   fetchFeaturedUser: [];
 }>();
 </script>

@@ -1,4 +1,4 @@
-# lol-insight
+# lol-teacher
 
 League of Legends プレイヤー情報・試合分析アプリケーション
 

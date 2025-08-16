@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Docker Compose 再起動スクリプト
-# LoL Insight アプリケーションを完全に再起動する
+# LoL Teacher アプリケーションを完全に再起動する
 
 echo "🐳 Docker Compose を停止中..."
 docker compose down --timeout 1

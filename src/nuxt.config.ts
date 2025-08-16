@@ -1,61 +1,59 @@
 export default defineNuxtConfig({
   nitro: {
     experimental: {
-      wasm: true
+      wasm: true,
     },
     // ルートルール警告を抑制
     routeRules: {
-      '/api/**': { 
-        headers: { 'cache-control': 'no-cache' },
-        cors: true 
-      }
-    }
+      "/api/**": {
+        headers: { "cache-control": "no-cache" },
+        cors: true,
+      },
+    },
   },
   devtools: { enabled: true },
-  compatibilityDate: '2025-08-11',
-  
+  compatibilityDate: "2025-08-11",
+
   // SSR設定を明示的に指定
   ssr: true,
-  
+
   // CSS フレームワーク
-  css: ['~/assets/styles/main.css'],
-  
+  css: ["~/assets/styles/main.css"],
+
   // モジュール
-  modules: [
-    '@nuxtjs/tailwindcss',
-    '@pinia/nuxt'
-  ],
+  modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt"],
 
   // TypeScript 設定
   typescript: {
     strict: true,
-    typeCheck: true
+    typeCheck: true,
   },
 
   // 開発時の警告を抑制
   experimental: {
-    payloadExtraction: false
+    payloadExtraction: false,
   },
 
   // アプリケーション設定
   app: {
     head: {
-      title: 'LoL Insight - League of Legends 分析ツール',
+      title: "LoL Teacher - League of Legends 分析ツール",
       meta: [
-        { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { 
-          name: 'description', 
-          content: 'League of Legends の試合データを分析し、AIによるアドバイスを提供するツール'
-        }
-      ]
-    }
+        { charset: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        {
+          name: "description",
+          content:
+            "League of Legends の試合データを分析し、AIによるアドバイスを提供するツール",
+        },
+      ],
+    },
   },
 
   // サーバー設定（Docker用）
   devServer: {
-    host: '0.0.0.0',
-    port: 3000
+    host: "0.0.0.0",
+    port: 3000,
   },
 
   // 環境変数
@@ -65,22 +63,28 @@ export default defineNuxtConfig({
     openRouter: {
       apiKey: process.env.OPENROUTER_API_KEY,
       model: process.env.OPENROUTER_MODEL,
-      baseURL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+      baseURL:
+        process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1",
       httpReferer: process.env.OPENROUTER_HTTP_REFERER,
       xTitle: process.env.OPENROUTER_X_TITLE,
     },
-    
+
     // パブリック（クライアントサイドでも利用可能）
     public: {
-      apiBase: '/api',
+      apiBase: "/api",
       availableAiModels: (() => {
         try {
-          return JSON.parse(process.env.AVAILABLE_AI_MODELS || '["google/gemini-2.5-flash"]')
+          return JSON.parse(
+            process.env.AVAILABLE_AI_MODELS || '["google/gemini-2.5-flash"]'
+          );
         } catch (e) {
-          console.warn('AVAILABLE_AI_MODELS の解析に失敗、デフォルト値を使用:', e)
-          return ["google/gemini-2.5-flash"]
+          console.warn(
+            "AVAILABLE_AI_MODELS の解析に失敗、デフォルト値を使用:",
+            e
+          );
+          return ["google/gemini-2.5-flash"];
         }
-      })()
-    }
-  }
-})
+      })(),
+    },
+  },
+});

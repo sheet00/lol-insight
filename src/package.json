@@ -1,7 +1,7 @@
 {
-  "name": "lol-insight",
+  "name": "lol-teacher",
   "version": "1.0.0",
-  "description": "League of Legends Insight Application",
+  "description": "League of Legends Teacher Application",
   "private": true,
   "scripts": {
     "build": "nuxt build",
