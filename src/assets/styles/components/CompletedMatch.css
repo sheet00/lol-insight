@@ -1,0 +1,186 @@
+/* CompletedMatch.vue 専用スタイル */
+
+/* カードスタイル */
+.card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+}
+
+/* ボタンスタイル */
+.btn-primary {
+  @apply bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+}
+
+/* タイムライン折りたたみスタイル */
+.timeline-content {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+.timeline-toggle {
+  @apply w-full flex items-center justify-between p-4 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+/* プレイヤー統計カード */
+.player-stats-card {
+  @apply p-3 rounded-lg transition-colors;
+}
+
+.player-stats-card.highlighted {
+  @apply bg-blue-50 border border-blue-200;
+}
+
+.player-stats-card.normal {
+  @apply bg-gray-50 hover:bg-gray-100;
+}
+
+/* 勝敗表示 */
+.win-indicator {
+  @apply text-2xl font-bold text-green-600;
+}
+
+.loss-indicator {
+  @apply text-2xl font-bold text-red-600;
+}
+
+/* チーム統計グリッド */
+.team-stats-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+}
+
+/* KDA表示 */
+.kda-display {
+  @apply text-2xl font-bold text-gray-800;
+}
+
+/* ランク表示 */
+.rank-display {
+  @apply text-xs;
+}
+
+.rank-display.blue {
+  @apply text-blue-600;
+}
+
+.rank-display.red {
+  @apply text-red-600;
+}
+
+.rank-display.gray {
+  @apply text-gray-500;
+}
+
+/* 統計ヘッダー */
+.stats-header {
+  @apply text-xl font-semibold text-gray-900 flex items-center;
+}
+
+/* チーム見出し */
+.team-header {
+  @apply text-lg font-semibold;
+}
+
+.team-header.my-team-win {
+  @apply text-blue-600;
+}
+
+.team-header.my-team-lose {
+  @apply text-gray-600;
+}
+
+.team-header.enemy-team-win {
+  @apply text-red-600;
+}
+
+.team-header.enemy-team-lose {
+  @apply text-gray-600;
+}
+
+/* チーム結果バッジ */
+.team-result-badge {
+  @apply text-sm font-medium px-3 py-1 rounded-full;
+}
+
+.team-result-badge.win {
+  @apply bg-green-100 text-green-800;
+}
+
+.team-result-badge.loss {
+  @apply bg-red-100 text-red-800;
+}
+
+/* アニメーション */
+.fade-in {
+  @apply animate-pulse;
+}
+
+.slide-down {
+  @apply transform transition-transform duration-200;
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 768px) {
+  .card {
+    @apply p-4;
+  }
+  
+  .team-stats-grid {
+    @apply grid-cols-1 gap-4;
+  }
+  
+  .stats-header {
+    @apply text-lg;
+  }
+  
+  .kda-display {
+    @apply text-xl;
+  }
+}
+
+/* プレイヤー情報レイアウト */
+.player-info {
+  @apply flex items-center justify-between mb-2;
+}
+
+.player-name {
+  @apply font-medium text-gray-900;
+}
+
+.champion-name {
+  @apply text-sm text-gray-600;
+}
+
+.player-stats {
+  @apply text-right;
+}
+
+.player-kda {
+  @apply text-sm font-medium text-gray-900;
+}
+
+/* Console出力ボタン */
+.console-output-btn {
+  @apply flex items-center gap-2;
+}
+
+/* アイコンスタイル */
+.stats-icon {
+  @apply mr-2;
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .card {
+    @apply bg-gray-800 border-gray-700;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-500 hover:bg-blue-600;
+  }
+  
+  .timeline-toggle {
+    @apply bg-gray-700 hover:bg-gray-600 text-white;
+  }
+  
+  .player-stats-card.normal {
+    @apply bg-gray-700 hover:bg-gray-600;
+  }
+}

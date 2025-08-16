@@ -204,7 +204,7 @@ export class OpenRouterClient {
     // 常にMDを読み込む（ホットリロード用途）
     const cwd = process.cwd();
     const systemPath = resolve(cwd, "server/prompts/system.md");
-    const instructionPath = resolve(cwd, "server/prompts/instruction.md");
+    const instructionPath = resolve(cwd, "server/prompts/pre-match-instruction.md");
     const [sysBuf, insBuf] = await Promise.all([
       readFile(systemPath, "utf-8"),
       readFile(instructionPath, "utf-8"),
