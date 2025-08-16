@@ -39,21 +39,9 @@
 
 /* タイムラインコンテナ */
 .timeline-container {
-  @apply space-y-3 max-h-96 overflow-y-auto;
+  @apply space-y-3;
 }
 
-/* カスタムスクロールバー */
-.timeline-container::-webkit-scrollbar {
-  @apply w-2;
-}
-
-.timeline-container::-webkit-scrollbar-track {
-  @apply bg-gray-800 rounded;
-}
-
-.timeline-container::-webkit-scrollbar-thumb {
-  @apply bg-gray-600 rounded hover:bg-gray-500;
-}
 
 /* タイムラインイベント */
 .timeline-event {

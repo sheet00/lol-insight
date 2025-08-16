@@ -1,4 +1,5 @@
 import { RiotApiManager } from "~/server/utils/RiotApiManager";
+import championData from "~/data/champion.json";
 
 /**
  * 試合タイムライン取得API
@@ -6,7 +7,7 @@ import { RiotApiManager } from "~/server/utils/RiotApiManager";
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
-    const { matchId } = body;
+    const { matchId, matchData } = body;
 
     if (!matchId) {
       throw createError({
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
     const timelineData = await riotApi.getMatchTimeline(matchId);
     
     // イベントを整理・分析
-    const events = analyzeTimelineEvents(timelineData);
+    const events = analyzeTimelineEvents(timelineData, matchData);
 
     return {
       success: true,
@@ -60,7 +61,7 @@ export default defineEventHandler(async (event) => {
 /**
  * タイムラインイベントを分析・整理する
  */
-function analyzeTimelineEvents(timelineData: any) {
+function analyzeTimelineEvents(timelineData: any, matchData?: any) {
   const events: any[] = [];
   
   if (!timelineData?.info?.frames) {
@@ -72,7 +73,7 @@ function analyzeTimelineEvents(timelineData: any) {
     if (!frame.events) return;
 
     frame.events.forEach((event: any) => {
-      const analyzedEvent = analyzeEvent(event, frameIndex);
+      const analyzedEvent = analyzeEvent(event, frameIndex, matchData);
       if (analyzedEvent) {
         events.push(analyzedEvent);
       }
@@ -88,7 +89,7 @@ function analyzeTimelineEvents(timelineData: any) {
 /**
  * 個別イベントを分析
  */
-function analyzeEvent(event: any, frameIndex: number) {
+function analyzeEvent(event: any, frameIndex: number, matchData?: any) {
   const timestamp = event.timestamp;
   const minutes = Math.floor(timestamp / 60000);
   const seconds = Math.floor((timestamp % 60000) / 1000);
@@ -102,7 +103,7 @@ function analyzeEvent(event: any, frameIndex: number) {
         timestamp,
         timeString,
         frameIndex,
-        description: `${getParticipantName(event.killerId)} が ${getParticipantName(event.victimId)} をキル`,
+        description: `${getParticipantName(event.killerId, matchData)} が ${getParticipantName(event.victimId, matchData)} をキル`,
         killerId: event.killerId,
         victimId: event.victimId,
         assistingParticipantIds: event.assistingParticipantIds || [],
@@ -178,7 +179,7 @@ function analyzeEvent(event: any, frameIndex: number) {
           timestamp,
           timeString,
           frameIndex,
-          description: `レベル${event.level}に到達`,
+          description: `${getParticipantName(event.participantId, matchData)}がレベル${event.level}に到達`,
           level: event.level,
           participantId: event.participantId,
           icon: '⬆️',
@@ -193,11 +194,43 @@ function analyzeEvent(event: any, frameIndex: number) {
 }
 
 /**
- * 参加者名取得（簡易版）
+ * 英語チャンピオン名を日本語に変換
  */
-function getParticipantName(participantId: number): string {
+function getJapaneseChampionName(englishName: string): string {
+  const champion = championData.data[englishName as keyof typeof championData.data];
+  return champion?.name || englishName;
+}
+
+/**
+ * 参加者のチャンピオン名取得
+ */
+function getParticipantName(participantId: number, matchData?: any): string {
+  if (!matchData) {
+    return `Player${participantId}`;
+  }
+
+  // myTeamとenemyTeamから参加者を結合
+  const allParticipants = [];
+  
+  if (matchData.myTeam && Array.isArray(matchData.myTeam)) {
+    allParticipants.push(...matchData.myTeam);
+  }
+  
+  if (matchData.enemyTeam && Array.isArray(matchData.enemyTeam)) {
+    allParticipants.push(...matchData.enemyTeam);
+  }
+  
+  if (allParticipants.length > 0) {
+    const participant = allParticipants.find((p: any) => p.participantId === participantId);
+    if (participant && participant.championName) {
+      const japaneseChampionName = getJapaneseChampionName(participant.championName);
+      return japaneseChampionName;
+    }
+  }
+
   return `Player${participantId}`;
 }
+
 
 /**
  * 建物タイプ取得

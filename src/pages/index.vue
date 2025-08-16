@@ -558,6 +558,7 @@
           <MatchTimeline 
             v-if="matchData.matchId"
             :match-id="matchData.matchId"
+            :match-data="matchData"
           />
 
           <!-- マッチアップ詳細 -->

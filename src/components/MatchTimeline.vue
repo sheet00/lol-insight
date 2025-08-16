@@ -97,6 +97,7 @@ interface TimelineEvent {
 
 interface Props {
   matchId: string;
+  matchData?: any; // 試合の全データ（参加者情報含む）
 }
 
 const props = defineProps<Props>();
@@ -130,7 +131,8 @@ const fetchTimeline = async () => {
     const response = await $fetch('/api/match/timeline', {
       method: 'POST',
       body: {
-        matchId: props.matchId
+        matchId: props.matchId,
+        matchData: props.matchData
       }
     });
 
