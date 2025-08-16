@@ -7,12 +7,12 @@
       >
         <div>
           <h2
-            class="text-xl font-bold text-gray-900 flex items-center space-x-2"
+            class="heading-lg flex items-center spacing-sm"
           >
             <span>進行中の試合</span>
-            <span class="text-green-600 text-sm font-normal">LIVE</span>
+            <span class="stat-highlight text-green-600 text-sm font-normal">LIVE</span>
           </h2>
-          <p class="text-gray-600">
+          <p class="text-secondary">
             {{ formatGameMode(liveMatchData.gameInfo.queueId) }} -
             {{ formatGameTime(liveMatchData.gameInfo.gameLength) }}経過
           </p>
@@ -25,9 +25,9 @@
             analysis-type="live"
             @generate-analysis="$emit('regenerateAdvice')"
           />
-          <div class="text-center">
-            <div class="text-2xl font-bold text-green-600">進行中</div>
-            <div class="text-sm text-gray-500">ゲーム状況</div>
+          <div class="text-center info-group">
+            <div class="info-group-title">ゲーム状況</div>
+            <div class="highlight-secondary text-green-600">進行中</div>
           </div>
         </div>
       </div>

@@ -22,12 +22,10 @@
         <div class="match-history-item-game-info">
           {{ match.gameMode }}
         </div>
-        <div class="match-history-item-details">
-          <span class="match-history-item-champion">{{ match.myChampion }}</span>
-          <span class="mx-2">•</span>
-          <span class="match-history-item-kda">{{ match.kda }}</span>
-          <span class="mx-2">•</span>
-          <span class="match-history-item-duration">{{ formatGameDuration(match.gameDuration) }}</span>
+        <div class="match-history-item-details spacing-sm">
+          <span class="highlight-tertiary">{{ match.myChampion }}</span>
+          <span class="stat-highlight">{{ match.kda }}</span>
+          <span class="text-muted text-sm">{{ formatGameDuration(match.gameDuration) }}</span>
         </div>
       </div>
 

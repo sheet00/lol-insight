@@ -31,22 +31,25 @@
             analysis-type="post-match"
             @generate-analysis="$emit('generatePostMatchAdvice')"
           />
-          <div class="text-center">
+          <div class="text-center info-group">
+            <div class="info-group-title">試合結果</div>
             <div
-              class="text-2xl font-bold"
+              class="highlight-primary"
               :class="matchData.myParticipant.win ? 'text-win' : 'text-loss'"
             >
               {{ matchData.myParticipant.win ? "勝利" : "敗北" }}
             </div>
-            <div class="text-sm text-muted">結果</div>
           </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-primary">
+          <div class="text-center info-group">
+            <div class="info-group-title">KDA</div>
+            <div class="highlight-secondary text-primary">
               {{ matchData.myParticipant.kills }}/{{
                 matchData.myParticipant.deaths
               }}/{{ matchData.myParticipant.assists }}
             </div>
-            <div class="text-sm text-muted">KDA</div>
+            <div class="stat-highlight mt-2">
+              レシオ: {{ calculateKDA(matchData.myParticipant) }}
+            </div>
           </div>
         </div>
       </div>
@@ -99,11 +102,11 @@
     <!-- プレイヤー詳細統計 -->
     <div class="card">
       <div class="mb-6">
-        <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+        <h3 class="heading-md flex items-center">
           <span class="mr-2">📈</span>
           プレイヤー詳細統計
         </h3>
-        <p class="text-gray-600 text-sm mt-1">
+        <p class="text-secondary text-sm mt-1">
           各プレイヤーのKDA、ダメージ、CS、ゴールド詳細
         </p>
       </div>
@@ -153,12 +156,15 @@
                   </div>
                 </div>
                 <div class="text-right">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="highlight-tertiary text-primary mb-1">
                     {{ player.kills }}/{{ player.deaths }}/{{ player.assists }}
                   </div>
+                  <div class="stat-highlight text-xs">
+                    KDA: {{ calculateKDA(player) }}
+                  </div>
                   <div
-                    class="text-xs"
-                    :class="player.rank ? 'text-blue-600' : 'text-gray-500'"
+                    class="text-xs mt-1"
+                    :class="player.rank ? 'text-blue-600' : 'text-muted'"
                   >
                     {{
                       player.rank
@@ -214,12 +220,15 @@
                   </div>
                 </div>
                 <div class="text-right">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="highlight-tertiary text-primary mb-1">
                     {{ player.kills }}/{{ player.deaths }}/{{ player.assists }}
                   </div>
+                  <div class="stat-highlight text-xs">
+                    KDA: {{ calculateKDA(player) }}
+                  </div>
                   <div
-                    class="text-xs"
-                    :class="player.rank ? 'text-red-600' : 'text-gray-500'"
+                    class="text-xs mt-1"
+                    :class="player.rank ? 'text-red-600' : 'text-muted'"
                   >
                     {{
                       player.rank
@@ -274,4 +283,13 @@ defineEmits<{
 // チャンピオンデータ初期化（SSR対応）
 const championIdMap = createChampionIdMap(championData);
 const getChampionName = createGetChampionName(championIdMap);
+
+// KDA計算関数
+const calculateKDA = (player: any): string => {
+  if (player.deaths === 0) {
+    return "Perfect";
+  }
+  const kda = (player.kills + player.assists) / player.deaths;
+  return kda.toFixed(2);
+};
 </script>

@@ -132,6 +132,80 @@
   .bg-loss { background-color: var(--loss); }
   .bg-neutral { background-color: var(--neutral); }
 
+  /* 視覚的ヒエラルキー強化 */
+  .highlight-primary {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .highlight-secondary {
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+
+  .highlight-tertiary {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  /* セクション分割の明確化 */
+  .section-divider {
+    border-top: 3px solid var(--lol-gold);
+    margin: 2rem 0;
+    position: relative;
+  }
+
+  .section-divider::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--lol-gold) 0%, transparent 100%);
+  }
+
+  /* 重要な統計データ強調 */
+  .stat-highlight {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, rgba(200, 155, 60, 0.1) 0%, rgba(200, 155, 60, 0.05) 100%);
+    border: 2px solid rgba(200, 155, 60, 0.3);
+    border-radius: 8px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+
+  .stat-highlight:hover {
+    background: linear-gradient(135deg, rgba(200, 155, 60, 0.15) 0%, rgba(200, 155, 60, 0.08) 100%);
+    border-color: rgba(200, 155, 60, 0.5);
+    transform: translateY(-1px);
+  }
+
+  /* 情報グループ化 */
+  .info-group {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .info-group-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
   /* メインコンテンツの横幅を80%に設定 */
   .main-content-width {
     width: 80%;
