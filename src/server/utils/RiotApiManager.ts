@@ -17,11 +17,17 @@ export class RiotApiManager {
   /**
    * Riot APIへのリクエストをキューに追加
    */
-  async request<T>(url: string): Promise<T> {
+  async request<T>(url: string, useHeaderAuth: boolean = false): Promise<T> {
     return new Promise((resolve, reject) => {
       const requestTask = async () => {
         try {
-          const response = await $fetch<T>(url);
+          const options: any = {};
+          if (useHeaderAuth) {
+            options.headers = {
+              "X-Riot-Token": this.apiKey,
+            };
+          }
+          const response = await $fetch<T>(url, options);
           resolve(response as T); // $fetchの型推論とPromise.resolveの期待する型の不整合を解消
         } catch (error) {
           reject(error);
@@ -148,11 +154,7 @@ export class RiotApiManager {
     const url = `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(
       gameName
     )}/${encodeURIComponent(tagLine)}`;
-    return $fetch<any>(url, {
-      headers: {
-        "X-Riot-Token": this.apiKey,
-      },
-    });
+    return this.request<any>(url, true); // useHeaderAuth = true
   }
 
   /**

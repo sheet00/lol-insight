@@ -1,7 +1,7 @@
 services:
   app:
     image: node:slim
-    container_name: lol-insight-app
+    container_name: app
     working_dir: /src
     ports:
       - "3000:3000"
