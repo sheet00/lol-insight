@@ -63,39 +63,13 @@
       :get-champion-name="getChampionName"
     />
 
-    <!-- 試合タイムライン（折りたたみ式） -->
+    <!-- 試合タイムライン -->
     <div class="card">
-      <div class="mb-4">
-        <button
-          @click="$emit('toggleTimeline')"
-          class="w-full flex items-center justify-between p-4 text-left bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
-        >
-          <div class="flex items-center">
-            <span class="mr-2">⏰</span>
-            <h3 class="text-xl font-semibold text-white">試合タイムライン</h3>
-            <span class="ml-2 text-sm text-gray-300">
-              (クリックで{{ showTimeline ? "折りたたみ" : "展開" }})
-            </span>
-          </div>
-          <div
-            class="transform transition-transform duration-200 text-gray-500"
-            :class="{ 'rotate-180': showTimeline }"
-          >
-            ⬇️
-          </div>
-        </button>
-      </div>
-
-      <div
-        class="timeline-content overflow-hidden overflow-y-auto max-h-96 transition-all duration-300 ease-in-out"
-        :class="showTimeline ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'"
-      >
-        <MatchTimeline
-          v-if="matchData.matchId && showTimeline"
-          :match-id="matchData.matchId"
-          :match-data="matchData"
-        />
-      </div>
+      <MatchTimeline
+        v-if="matchData.matchId"
+        :match-id="matchData.matchId"
+        :match-data="matchData"
+      />
     </div>
 
     <!-- プレイヤー詳細統計 -->
@@ -263,7 +237,6 @@ import "@/assets/styles/components/CompletedMatch.css";
 // Props
 interface Props {
   matchData: MatchDetail;
-  showTimeline: boolean;
   isGeneratingAdvice?: boolean;
   hasAdvice?: boolean;
 }
@@ -273,7 +246,6 @@ const props = defineProps<Props>();
 // Emits
 defineEmits<{
   downloadJson: [];
-  toggleTimeline: [];
   generatePostMatchAdvice: [];
 }>();
 

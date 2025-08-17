@@ -1,37 +1,49 @@
 <template>
-  <div class="match-timeline">
-    <div class="timeline-header">
-      <h3>⏰ 試合タイムライン</h3>
+  <h3
+    class="text-xl font-semibold text-white cursor-pointer"
+    @click="toggleTimeline"
+  >
+    <span class="mr-2">⏰</span>試合タイムライン
+    <span class="ml-2 text-sm text-gray-300">
+      (クリックで{{ isExpanded ? "折りたたみ" : "展開" }})
+    </span>
+  </h3>
+
+  <div
+    class="timeline-content transition-all duration-300 ease-in-out"
+    :class="isExpanded ? 'max-h-screen opacity-100 overflow-y-auto' : 'max-h-0 opacity-0 overflow-hidden'"
+  >
+    <div class="timeline-header mt-4">
       <div class="timeline-controls">
-        <button 
+        <button
           @click="toggleFilter('all')"
           :class="{ active: activeFilter === 'all' }"
           class="filter-btn"
         >
           全て
         </button>
-        <button 
+        <button
           @click="toggleFilter('KILL')"
           :class="{ active: activeFilter === 'KILL' }"
           class="filter-btn kill"
         >
           💀 キル
         </button>
-        <button 
+        <button
           @click="toggleFilter('MONSTER')"
           :class="{ active: activeFilter === 'MONSTER' }"
           class="filter-btn monster"
         >
           🐉 オブジェクト
         </button>
-        <button 
+        <button
           @click="toggleFilter('BUILDING')"
           :class="{ active: activeFilter === 'BUILDING' }"
           class="filter-btn building"
         >
           🏗️ 建物
         </button>
-        <button 
+        <button
           @click="toggleFilter('ITEM')"
           :class="{ active: activeFilter === 'ITEM' }"
           class="filter-btn item"
@@ -41,39 +53,52 @@
       </div>
     </div>
 
-    <div class="timeline-container" v-if="filteredEvents.length > 0">
-      <div 
-        v-for="event in filteredEvents" 
-        :key="`${event.timestamp}-${event.type}`"
-        class="timeline-event"
-        :class="[`event-${event.type.toLowerCase()}`, `priority-${event.priority}`, `team-${getEventTeam(event)}`]"
-      >
-        <div class="event-time">
-          {{ event.timeString }}
-        </div>
-        <div class="event-icon">
-          {{ event.icon }}
-        </div>
-        <div class="event-content">
-          <div class="event-description">
-            {{ event.description }}
+    <div class="timeline-contents">
+      <div class="timeline-container" v-if="filteredEvents.length > 0">
+        <div
+          v-for="event in filteredEvents"
+          :key="`${event.timestamp}-${event.type}`"
+          class="timeline-event"
+          :class="[
+            `event-${event.type.toLowerCase()}`,
+            `priority-${event.priority}`,
+            `team-${getEventTeam(event)}`,
+          ]"
+        >
+          <div class="event-time">
+            {{ event.timeString }}
           </div>
-          <div class="event-details" v-if="event.type === 'KILL' && event.assistingParticipantIds && event.assistingParticipantIds.length > 0">
-            <span class="assists">
-              アシスト: {{ event.assistingParticipantIds?.length }}人
-            </span>
+          <div class="event-icon">
+            {{ event.icon }}
+          </div>
+          <div class="event-content">
+            <div class="event-description">
+              {{ event.description }}
+            </div>
+            <div
+              class="event-details"
+              v-if="
+                event.type === 'KILL' &&
+                event.assistingParticipantIds &&
+                event.assistingParticipantIds.length > 0
+              "
+            >
+              <span class="assists">
+                アシスト: {{ event.assistingParticipantIds?.length }}人
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div v-else-if="loading" class="timeline-loading">
-      <div class="loading-spinner"></div>
-      <p>タイムライン読み込み中...</p>
-    </div>
+      <div v-else-if="loading" class="timeline-loading">
+        <div class="loading-spinner"></div>
+        <p>タイムライン読み込み中...</p>
+      </div>
 
-    <div v-else class="timeline-empty">
-      <p>📊 タイムラインデータがありません</p>
+      <div v-else class="timeline-empty">
+        <p>📊 タイムラインデータがありません</p>
+      </div>
     </div>
   </div>
 </template>
@@ -121,19 +146,24 @@ const props = defineProps<Props>();
 const events = ref<TimelineEvent[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
-const activeFilter = ref<string>('all');
+const activeFilter = ref<string>("all");
+const isExpanded = ref(false);
 
 // 計算プロパティ
 const filteredEvents = computed(() => {
-  if (activeFilter.value === 'all') {
+  if (activeFilter.value === "all") {
     return events.value;
   }
-  return events.value.filter(event => event.type === activeFilter.value);
+  return events.value.filter((event) => event.type === activeFilter.value);
 });
 
 // メソッド
 const toggleFilter = (filter: string) => {
   activeFilter.value = filter;
+};
+
+const toggleTimeline = () => {
+  isExpanded.value = !isExpanded.value;
 };
 
 // イベントのチーム判定
@@ -143,9 +173,9 @@ const getEventTeam = (event: TimelineEvent) => {
   if (event.attackerTeam) return event.attackerTeam;
   if (event.teamSide) return event.teamSide;
   if (event.purchaserTeam) return event.purchaserTeam;
-  
+
   // フォールバック
-  return 'neutral';
+  return "neutral";
 };
 
 const fetchTimeline = async () => {
@@ -155,33 +185,37 @@ const fetchTimeline = async () => {
   error.value = null;
 
   try {
-    const response = await $fetch('/api/match/timeline', {
-      method: 'POST',
+    const response = await $fetch("/api/match/timeline", {
+      method: "POST",
       body: {
         matchId: props.matchId,
-        matchData: props.matchData
-      }
+        matchData: props.matchData,
+      },
     });
 
     if (response.success) {
       events.value = response.data.events;
     } else {
-      throw new Error('タイムラインの取得に失敗しました');
+      throw new Error("タイムラインの取得に失敗しました");
     }
   } catch (err: any) {
-    console.error('タイムライン取得エラー:', err);
-    error.value = err.message || 'タイムラインの取得に失敗しました';
+    console.error("タイムライン取得エラー:", err);
+    error.value = err.message || "タイムラインの取得に失敗しました";
   } finally {
     loading.value = false;
   }
 };
 
 // ウォッチャー
-watch(() => props.matchId, (newMatchId) => {
-  if (newMatchId) {
-    fetchTimeline();
-  }
-}, { immediate: true });
+watch(
+  () => props.matchId,
+  (newMatchId) => {
+    if (newMatchId) {
+      fetchTimeline();
+    }
+  },
+  { immediate: true }
+);
 
 // ライフサイクル
 onMounted(() => {

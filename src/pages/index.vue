@@ -51,11 +51,9 @@
         <CompletedMatch
           v-if="matchData"
           :match-data="matchData"
-          :show-timeline="showTimeline"
           :is-generating-advice="isPostMatchAdviceGenerating"
           :has-advice="!!postMatchAdvice"
           @download-json="downloadMatchAnalysisAsJson"
-          @toggle-timeline="toggleTimeline"
           @generate-post-match-advice="generatePostMatchAdvice"
         />
 
@@ -145,8 +143,6 @@ let postMatchAdviceController: AbortController | null = null;
 // AIモデル選択
 const selectedAiModel = ref("");
 
-// タイムライン表示状態（デフォルト非表示）
-const showTimeline = ref(false);
 
 // モデル変更時の処理
 const onModelChange = (model: string) => {
@@ -303,10 +299,6 @@ const onRegenerateAdvice = () => {
   if (!isAdviceGenerating.value) generateAdviceHandler();
 };
 
-// タイムライン折りたたみトグル
-const toggleTimeline = () => {
-  showTimeline.value = !showTimeline.value;
-};
 
 // 分析結果をJSONファイルとしてダウンロード
 const downloadMatchAnalysisAsJson = () => {

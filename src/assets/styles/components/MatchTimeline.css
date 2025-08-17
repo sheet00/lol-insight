@@ -57,21 +57,21 @@
   @apply shadow-md transform scale-[1.02];
 }
 
-/* 自チーム（優先度を上げるため !important 使用） */
+/* 自チーム */
 .timeline-event.team-my {
   @apply border-l-blue-500;
-  background-color: rgb(10, 20, 40) !important;
+  background-color: rgb(10, 20, 40);
 }
 
-/* 敵チーム（優先度を上げるため !important 使用） */
+/* 敵チーム */
 .timeline-event.team-enemy {
   @apply border-l-red-500;
-  background-color: var(--lol-bg-secondary) !important;
+  background-color: rgba(139, 69, 19, 0.3);
 }
 
 /* 中立・デフォルト */
 .timeline-event.team-neutral {
-  background-color: var(--lol-bg-secondary) !important;
+  background-color: rgba(75, 85, 99, 0.3);
 }
 
 .timeline-event.team-neutral.event-kill {
