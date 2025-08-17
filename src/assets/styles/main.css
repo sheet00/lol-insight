@@ -2,11 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ゲーミングフォントのインポート */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
 /* カスタム CSS */
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
+    background-color: var(--lol-bg-primary);
+    color: #f9f9f9 !important;
     font-size: 1.125rem; /* 18px - デフォルトより大きく */
+  }
+
+  /* 全ての文字色を白基本色に統一 */
+  * {
+    color: #f9f9f9 !important;
   }
 
   /* フォントサイズを全体的に大きくする */
@@ -67,8 +76,10 @@
   }
 
   .btn-secondary {
-    @apply bg-gray-100 hover:bg-gray-200 text-gray-900 
-           focus:ring-gray-500 border border-gray-300;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    @apply hover:bg-gray-600 focus:ring-yellow-500;
   }
 
   .btn-lol-gold {
@@ -82,9 +93,12 @@
   .btn-md { @apply px-4 py-2 text-base; }
   .btn-lg { @apply px-6 py-3 text-lg; }
 
-  /* 統一カードシステム */
+  /* 統一カードシステム（LoLテーマ） */
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+    background-color: var(--lol-bg-secondary) !important;
+    border: 1px solid var(--border);
+    @apply rounded-lg shadow-lg;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
   .card-sm { @apply p-4; }
@@ -92,13 +106,18 @@
   .card-lg { @apply p-8; }
 
   .card-interactive {
-    @apply hover:shadow-md transition-shadow duration-200 cursor-pointer;
+    @apply hover:shadow-xl transition-shadow duration-200 cursor-pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .card-interactive:hover {
+    box-shadow: 0 8px 25px rgba(200, 155, 60, 0.2);
   }
 
   .card-lol {
     @apply border-2;
     border-color: var(--lol-gold);
-    background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+    background: linear-gradient(135deg, var(--lol-blue-2) 0%, var(--lol-blue-3) 100%);
   }
 
   /* 統一間隔システム */
@@ -108,20 +127,32 @@
   .spacing-lg { @apply gap-6; } /* 24px */
   .spacing-xl { @apply gap-8; } /* 32px */
 
-  /* タイポグラフィ統一 */
-  .heading-xl { @apply text-2xl font-bold text-gray-900; }
-  .heading-lg { @apply text-xl font-semibold text-gray-900; }
-  .heading-md { @apply text-lg font-medium text-gray-900; }
-  .heading-sm { @apply text-base font-medium text-gray-700; }
+  /* タイポグラフィ統一（ダークテーマ） */
+  .heading-xl { 
+    @apply text-2xl font-bold;
+    color: var(--text-primary);
+  }
+  .heading-lg { 
+    @apply text-xl font-semibold;
+    color: var(--text-primary);
+  }
+  .heading-md { 
+    @apply text-lg font-medium;
+    color: var(--text-primary);
+  }
+  .heading-sm { 
+    @apply text-base font-medium;
+    color: var(--text-secondary);
+  }
 
   .heading-lol {
     @apply text-2xl font-bold bg-gradient-to-r from-yellow-600 to-yellow-800 
            bg-clip-text text-transparent;
   }
 
-  .text-primary { @apply text-gray-900; }
-  .text-secondary { @apply text-gray-600; }
-  .text-muted { @apply text-gray-500; }
+  .text-primary { color: var(--text-primary); }
+  .text-secondary { color: var(--text-secondary); }
+  .text-muted { color: var(--text-muted); }
 
   /* 勝敗カラー */
   .text-win { color: var(--win); }
@@ -189,21 +220,105 @@
     transform: translateY(-1px);
   }
 
-  /* 情報グループ化 */
+  /* 情報グループ化（ダークテーマ） */
   .info-group {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(30, 35, 40, 0.4);
     border-radius: 12px;
     padding: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border);
   }
 
   .info-group-title {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--secondary);
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 8px;
+  }
+
+  /* LoL風ヘッダー・ゲーミングスタイル */
+  .lol-header {
+    background: linear-gradient(135deg, 
+      var(--lol-blue-1) 0%, 
+      var(--lol-blue-2) 50%, 
+      var(--lol-blue-1) 100%);
+    border-bottom: 2px solid var(--lol-gold-1);
+    box-shadow: 0 4px 20px rgba(200, 155, 60, 0.3);
+  }
+
+  .lol-title {
+    font-family: 'Orbitron', monospace;
+    background: linear-gradient(45deg, var(--lol-gold-1), var(--lol-gold-2));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
+    font-weight: 900;
+    letter-spacing: 1px;
+  }
+
+  /* ゲーミングフォント適用クラス */
+  .gaming-font {
+    font-family: 'Orbitron', monospace;
+  }
+
+  /* 勝敗表示の強化 */
+  .victory-glow {
+    color: #00f5ff;
+    text-shadow: 
+      0 0 5px #00f5ff,
+      0 0 10px #00f5ff,
+      0 0 20px #00f5ff;
+    animation: victoryPulse 2s ease-in-out infinite;
+  }
+
+  .defeat-glow {
+    color: #ff4655;
+    text-shadow: 
+      0 0 5px #ff4655,
+      0 0 10px #ff4655,
+      0 0 15px #ff4655;
+  }
+
+  @keyframes victoryPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* LoL風アクセント */
+  .lol-accent {
+    position: relative;
+  }
+
+  .lol-accent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -4px;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--lol-gold-1) 0%, transparent 100%);
+  }
+
+  /* ゲーミング風ボタン強化 */
+  .btn-gaming {
+    background: linear-gradient(135deg, var(--lol-blue-2) 0%, var(--lol-blue-3) 100%);
+    border: 1px solid var(--lol-gold-1);
+    color: var(--lol-gold-2);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    box-shadow: 
+      0 0 10px rgba(200, 155, 60, 0.3),
+      inset 0 1px 0 rgba(240, 230, 210, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .btn-gaming:hover {
+    background: linear-gradient(135deg, var(--lol-blue-3) 0%, var(--lol-blue-2) 100%);
+    box-shadow: 
+      0 0 20px rgba(200, 155, 60, 0.5),
+      inset 0 1px 0 rgba(240, 230, 210, 0.2);
+    transform: translateY(-1px);
   }
 
   /* メインコンテンツの横幅を80%に設定 */
@@ -213,15 +328,30 @@
   }
 }
 
-/* LoL テーマカラー・統一デザインシステム */
+/* LoL 基本カラーシステム */
 :root {
+  /* LoL基本カラー */
+  --lol-bg-primary: rgb(10, 20, 40);     /* メイン背景色 */
+  --lol-bg-secondary: #292929;           /* カード背景色 */
+  --lol-text-primary: #f9f9f9;          /* 基本文字色 */
+  --lol-text-secondary: #cccccc;        /* セカンダリ文字色 */
+  --lol-text-muted: #999999;            /* ミュート文字色 */
+  
+  /* LoL公式ブランドカラー */
+  --lol-blue-1: #010a13;
+  --lol-blue-2: #1e2328;
+  --lol-blue-3: #3c3c41;
+  --lol-gold-1: #c89b3c;
+  --lol-gold-2: #f0e6d2;
+  --lol-gold-3: #cdbe91;
+  
   /* メインLoLカラー */
-  --lol-gold: #c9aa71;
+  --lol-gold: #c89b3c;
   --lol-gold-dark: #b8994d;
   --lol-gold-light: #d4b885;
   
-  --lol-blue: #0f2027;
-  --lol-blue-light: #1e3a46;
+  --lol-blue: #010a13;
+  --lol-blue-light: #1e2328;
   --lol-blue-dark: #0a1519;
   
   /* セマンティックカラー */
@@ -237,12 +367,17 @@
   --loss: #dc2626; /* red-600 */
   --neutral: #6b7280; /* gray-500 */
   
-  /* 背景・境界線 */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb; /* gray-50 */
-  --bg-tertiary: #f3f4f6; /* gray-100 */
-  --border: #e5e7eb; /* gray-200 */
-  --border-focus: var(--primary);
+  /* 背景・境界線（LoL基本カラー使用） */
+  --bg-primary: var(--lol-bg-secondary);
+  --bg-secondary: var(--lol-bg-primary); 
+  --bg-tertiary: #1a1a1a;
+  --border: rgb(59, 67, 83);
+  --border-focus: var(--lol-gold-1);
+  
+  /* テキストカラー（LoL基本カラー使用） */
+  --text-primary: var(--lol-text-primary);
+  --text-secondary: var(--lol-text-secondary);
+  --text-muted: var(--lol-text-muted);
 }
 
 /* ヘッダーの高さ考慮した最小高さ */

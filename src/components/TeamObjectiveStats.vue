@@ -1,11 +1,11 @@
 <template>
   <div class="card">
     <div class="mb-6">
-      <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+      <h3 class="heading-md flex items-center">
         <span class="mr-2">📊</span>
         チーム成績・オブジェクト情報
       </h3>
-      <p class="text-gray-600 text-sm mt-1">
+      <p class="text-secondary text-sm mt-1">
         この試合でのチーム成績とオブジェクト制圧状況
       </p>
     </div>
@@ -16,11 +16,10 @@
         <div class="flex items-center justify-between">
           <h4 class="text-lg font-semibold text-blue-600">自チーム</h4>
           <div
-            class="text-sm font-medium px-3 py-1 rounded-full"
             :class="
               teamStats.myTeam.win
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
+                ? 'team-result-badge win'
+                : 'team-result-badge loss'
             "
           >
             {{ teamStats.myTeam.win ? '勝利' : '敗北' }}
@@ -28,8 +27,8 @@
         </div>
 
         <!-- オブジェクト統計 -->
-        <div class="bg-blue-50 rounded-lg p-4">
-          <h5 class="font-semibold text-blue-800 mb-3">オブジェクト制圧</h5>
+        <div class="bg-blue-900 rounded-lg p-4">
+          <h5 class="font-semibold text-blue-300 mb-3">オブジェクト制圧</h5>
           <div class="space-y-2">
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-700 flex items-center">
@@ -45,7 +44,7 @@
               </span>
               <span class="font-semibold text-blue-600 flex items-center">
                 {{ teamStats.myTeam.objectives.tower.kills }}
-                <span v-if="teamStats.myTeam.objectives.tower.first" class="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 rounded">First</span>
+                <span v-if="teamStats.myTeam.objectives.tower.first" class="first-badge">First</span>
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -54,7 +53,7 @@
               </span>
               <span class="font-semibold text-blue-600 flex items-center">
                 {{ teamStats.myTeam.objectives.dragon.kills }}
-                <span v-if="teamStats.myTeam.objectives.dragon.first" class="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 rounded">First</span>
+                <span v-if="teamStats.myTeam.objectives.dragon.first" class="first-badge">First</span>
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -63,7 +62,7 @@
               </span>
               <span class="font-semibold text-blue-600 flex items-center">
                 {{ teamStats.myTeam.objectives.baron.kills }}
-                <span v-if="teamStats.myTeam.objectives.baron.first" class="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 rounded">First</span>
+                <span v-if="teamStats.myTeam.objectives.baron.first" class="first-badge">First</span>
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -72,7 +71,7 @@
               </span>
               <span class="font-semibold text-blue-600 flex items-center">
                 {{ teamStats.myTeam.objectives.riftHerald.kills }}
-                <span v-if="teamStats.myTeam.objectives.riftHerald.first" class="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 rounded">First</span>
+                <span v-if="teamStats.myTeam.objectives.riftHerald.first" class="first-badge">First</span>
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -101,11 +100,10 @@
         <div class="flex items-center justify-between">
           <h4 class="text-lg font-semibold text-red-600">敵チーム</h4>
           <div
-            class="text-sm font-medium px-3 py-1 rounded-full"
             :class="
               teamStats.enemyTeam.win
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
+                ? 'team-result-badge win'
+                : 'team-result-badge loss'
             "
           >
             {{ teamStats.enemyTeam.win ? '勝利' : '敗北' }}
@@ -113,7 +111,7 @@
         </div>
 
         <!-- オブジェクト統計 -->
-        <div class="bg-red-50 rounded-lg p-4">
+        <div class="bg-red-900 rounded-lg p-4">
           <h5 class="font-semibold text-red-800 mb-3">オブジェクト制圧</h5>
           <div class="space-y-2">
             <div class="flex justify-between items-center">
@@ -130,7 +128,7 @@
               </span>
               <span class="font-semibold text-red-600 flex items-center">
                 {{ teamStats.enemyTeam.objectives.tower.kills }}
-                <span v-if="teamStats.enemyTeam.objectives.tower.first" class="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 rounded">First</span>
+                <span v-if="teamStats.enemyTeam.objectives.tower.first" class="first-badge">First</span>
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -139,7 +137,7 @@
               </span>
               <span class="font-semibold text-red-600 flex items-center">
                 {{ teamStats.enemyTeam.objectives.dragon.kills }}
-                <span v-if="teamStats.enemyTeam.objectives.dragon.first" class="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 rounded">First</span>
+                <span v-if="teamStats.enemyTeam.objectives.dragon.first" class="first-badge">First</span>
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -148,7 +146,7 @@
               </span>
               <span class="font-semibold text-red-600 flex items-center">
                 {{ teamStats.enemyTeam.objectives.baron.kills }}
-                <span v-if="teamStats.enemyTeam.objectives.baron.first" class="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 rounded">First</span>
+                <span v-if="teamStats.enemyTeam.objectives.baron.first" class="first-badge">First</span>
               </span>
             </div>
             <div class="flex justify-between items-center">
@@ -157,7 +155,7 @@
               </span>
               <span class="font-semibold text-red-600 flex items-center">
                 {{ teamStats.enemyTeam.objectives.riftHerald.kills }}
-                <span v-if="teamStats.enemyTeam.objectives.riftHerald.first" class="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 rounded">First</span>
+                <span v-if="teamStats.enemyTeam.objectives.riftHerald.first" class="first-badge">First</span>
               </span>
             </div>
             <div class="flex justify-between items-center">

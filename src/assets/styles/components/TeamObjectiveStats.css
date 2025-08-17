@@ -40,3 +40,25 @@
   /* チーム比較サマリー用 */
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
+
+/* 勝敗バッジ（濃い色） */
+.team-result-badge {
+  @apply text-sm font-medium px-3 py-1 rounded-full;
+}
+
+.team-result-badge.win {
+  background-color: #064e3b !important;
+  color: #10b981 !important;
+}
+
+.team-result-badge.loss {
+  background-color: #7f1d1d !important;
+  color: #f87171 !important;
+}
+
+/* Firstバッジ（濃い黄色） */
+.first-badge {
+  background-color: #713f12 !important;
+  color: #fbbf24 !important;
+  @apply ml-1 text-xs px-1 rounded;
+}

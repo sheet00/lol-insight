@@ -48,7 +48,7 @@ const buttonText = computed(() => {
 
 const buttonClass = computed(() => {
   const baseClass = "btn flex items-center spacing-sm";
-  const typeClass = props.buttonType === "primary" ? "btn-lol-gold" : "btn-secondary";
+  const typeClass = props.buttonType === "primary" ? "btn-gaming" : "btn-secondary";
   const sizeClass = {
     sm: "btn-sm",
     md: "btn-md", 

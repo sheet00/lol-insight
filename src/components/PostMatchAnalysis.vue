@@ -1,11 +1,11 @@
 <template>
   <div v-if="advice" class="post-match-analysis-container card">
     <div class="mb-6">
-      <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+      <h3 class="text-xl font-semibold flex items-center" style="color: var(--lol-text-primary);">
         <span class="mr-2">🤖</span>
         AIアドバイス
       </h3>
-      <p class="text-gray-600 text-sm mt-1">
+      <p class="text-sm mt-1" style="color: var(--lol-text-secondary);">
         試合後の詳細な分析と改善アドバイス
       </p>
     </div>
@@ -46,8 +46,8 @@
           良かった点・悪かった点
         </h4>
         <div class="analysis-content">
-          <div class="analysis-item good-point">
-            <h5 class="analysis-item-title text-green-700">
+          <div class="analysis-item">
+            <h5 class="analysis-item-title">
               <span class="mr-2">✅</span>
               ここが良かった
             </h5>
@@ -55,8 +55,8 @@
               {{ advice["良かった点・悪かった点"]["ここが良かった"] }}
             </p>
           </div>
-          <div class="analysis-item bad-point">
-            <h5 class="analysis-item-title text-red-700">
+          <div class="analysis-item">
+            <h5 class="analysis-item-title">
               <span class="mr-2">❌</span>
               ここが悪かった
             </h5>
@@ -65,7 +65,7 @@
             </p>
           </div>
           <div class="analysis-item">
-            <h5 class="analysis-item-title text-blue-700">
+            <h5 class="analysis-item-title">
               <span class="mr-2">📊</span>
               数値での評価
             </h5>
@@ -112,7 +112,7 @@
         </h4>
         <div class="analysis-content">
           <div class="analysis-item">
-            <h5 class="analysis-item-title text-blue-700">
+            <h5 class="analysis-item-title">
               <span class="mr-2">📋</span>
               購入順序の評価
             </h5>
@@ -121,7 +121,7 @@
             </p>
           </div>
           <div class="analysis-item">
-            <h5 class="analysis-item-title text-red-700">
+            <h5 class="analysis-item-title">
               <span class="mr-2">🛡️</span>
               相手チーム対応度
             </h5>
@@ -130,7 +130,7 @@
             </p>
           </div>
           <div class="analysis-item">
-            <h5 class="analysis-item-title text-green-700">
+            <h5 class="analysis-item-title">
               <span class="mr-2">🔧</span>
               ビルド最適化提案
             </h5>
@@ -148,8 +148,8 @@
           具体的改善アドバイス
         </h4>
         <div class="analysis-content">
-          <div class="analysis-item improvement">
-            <h5 class="analysis-item-title text-green-700">
+          <div class="analysis-item">
+            <h5 class="analysis-item-title">
               <span class="mr-2">🎯</span>
               こうするとよい
             </h5>
@@ -158,7 +158,7 @@
             </p>
           </div>
           <div class="analysis-item">
-            <h5 class="analysis-item-title text-orange-700">
+            <h5 class="analysis-item-title">
               <span class="mr-2">⚠️</span>
               気をつける点
             </h5>
@@ -167,7 +167,7 @@
             </p>
           </div>
           <div class="analysis-item">
-            <h5 class="analysis-item-title text-purple-700">
+            <h5 class="analysis-item-title">
               <span class="mr-2">🧠</span>
               戦術的提案
             </h5>

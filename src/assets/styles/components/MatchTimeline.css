@@ -1,6 +1,8 @@
 /* MatchTimeline.vue のスタイル */
 .match-timeline {
-  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  background-color: var(--lol-bg-secondary) !important;
+  border: 1px solid var(--border);
+  @apply rounded-lg shadow-sm p-6;
 }
 
 .timeline-header {
@@ -8,7 +10,8 @@
 }
 
 .timeline-header h3 {
-  @apply text-xl font-bold text-gray-900;
+  color: var(--lol-text-primary);
+  @apply text-xl font-bold;
 }
 
 .timeline-controls {
@@ -16,9 +19,11 @@
 }
 
 .filter-btn {
+  background-color: var(--lol-bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--lol-text-secondary);
   @apply px-3 py-1 rounded-lg text-sm font-medium;
-  @apply border border-gray-300 bg-gray-100 text-gray-700;
-  @apply hover:bg-gray-200 hover:border-gray-400;
+  @apply hover:bg-gray-600 hover:border-gray-500;
 }
 
 .filter-btn.active {
@@ -55,18 +60,18 @@
 /* 自チーム（優先度を上げるため !important 使用） */
 .timeline-event.team-my {
   @apply border-l-blue-500;
-  background-color: rgb(30 58 138 / 0.05) !important;
+  background-color: rgb(10, 20, 40) !important;
 }
 
 /* 敵チーム（優先度を上げるため !important 使用） */
 .timeline-event.team-enemy {
   @apply border-l-red-500;
-  background-color: rgb(127 29 29 / 0.05) !important;
+  background-color: var(--lol-bg-secondary) !important;
 }
 
 /* 中立・デフォルト */
 .timeline-event.team-neutral {
-  @apply bg-gray-50;
+  background-color: var(--lol-bg-secondary) !important;
 }
 
 .timeline-event.team-neutral.event-kill {
@@ -116,7 +121,8 @@
 
 /* イベント時刻 */
 .event-time {
-  @apply text-sm font-mono font-bold text-gray-600 min-w-12 text-right;
+  color: var(--lol-text-secondary);
+  @apply text-sm font-mono font-bold min-w-12 text-right;
   font-feature-settings: 'tnum';
 }
 
@@ -131,11 +137,13 @@
 }
 
 .event-description {
-  @apply text-gray-900 font-medium;
+  color: var(--lol-text-primary);
+  @apply font-medium;
 }
 
 .event-details {
-  @apply text-sm text-gray-600 mt-1;
+  color: var(--lol-text-secondary);
+  @apply text-sm mt-1;
 }
 
 .assists {
@@ -144,16 +152,20 @@
 
 /* ローディング状態 */
 .timeline-loading {
-  @apply flex flex-col items-center justify-center py-12 text-gray-600;
+  color: var(--lol-text-secondary);
+  @apply flex flex-col items-center justify-center py-12;
 }
 
 .loading-spinner {
-  @apply w-8 h-8 border-2 border-gray-600 border-t-blue-500 rounded-full animate-spin mb-4;
+  @apply w-8 h-8 border-2 border-t-blue-500 rounded-full animate-spin mb-4;
+  border-color: var(--border);
+  border-top-color: #3b82f6;
 }
 
 /* 空状態 */
 .timeline-empty {
-  @apply text-center py-12 text-gray-600;
+  color: var(--lol-text-secondary);
+  @apply text-center py-12;
 }
 
 .timeline-empty p {
@@ -190,6 +202,6 @@
 /* ダークモード対応の追加調整 */
 @media (prefers-color-scheme: dark) {
   .match-timeline {
-    @apply bg-gray-900;
+    background-color: var(--lol-bg-secondary) !important;
   }
 }

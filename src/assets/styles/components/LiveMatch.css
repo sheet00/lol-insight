@@ -2,7 +2,9 @@
 
 /* カードスタイル */
 .card {
-  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  background-color: var(--lol-bg-secondary) !important;
+  border: 1px solid var(--border) !important;
+  @apply rounded-lg shadow-sm p-6;
 }
 
 /* ボタンスタイル */
@@ -21,7 +23,7 @@
 
 /* チーム統計のグラデーション */
 .team-stats-gradient {
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
 }
 
 /* AIアドバイスセクションのアニメーション */
@@ -35,11 +37,11 @@
 }
 
 .winrate-highest {
-  @apply bg-green-100 text-green-800;
+  @apply bg-green-900 text-green-300;
 }
 
 .winrate-lowest {
-  @apply bg-red-100 text-red-800;
+  @apply bg-red-900 text-red-300;
 }
 
 /* ローディングスピナー */
@@ -50,7 +52,7 @@
 
 /* プログレスバー */
 .progress-bar {
-  @apply bg-gray-200 rounded-full h-2 overflow-hidden;
+  @apply bg-gray-700 rounded-full h-2 overflow-hidden;
 }
 
 .progress-fill {
@@ -73,12 +75,4 @@
 }
 
 /* ダークモード対応 */
-@media (prefers-color-scheme: dark) {
-  .card {
-    @apply bg-gray-800 border-gray-700;
-  }
-  
-  .btn-primary {
-    @apply bg-blue-500 hover:bg-blue-600;
-  }
-}
+/* メディアクエリは削除 - デフォルトでダークテーマを適用 */

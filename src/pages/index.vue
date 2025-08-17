@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen" style="background-color: var(--lol-bg-primary);">
     <!-- ヘッダー -->
     <SearchHeader
       :search-form="searchForm"
@@ -71,14 +71,14 @@
         </ClientOnly>
 
         <!-- エラー表示 -->
-        <div v-if="error" class="card card-md bg-red-50 border-red-200">
+        <div v-if="error" class="card card-md bg-red-900 border-red-700">
           <div class="flex items-center spacing-md">
-            <div class="text-red-600">⚠️</div>
+            <div class="text-red-400">⚠️</div>
             <div>
-              <h3 class="heading-sm text-red-800">
+              <h3 class="heading-sm text-red-300">
                 エラーが発生しました
               </h3>
-              <p class="text-red-700">{{ error }}</p>
+              <p class="text-red-200">{{ error }}</p>
             </div>
           </div>
         </div>

@@ -1,6 +1,9 @@
 /* 試合履歴リストのスタイル */
 .match-history-container {
-  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6 mb-6;
+  background-color: var(--lol-bg-secondary) !important;
+  border: 1px solid var(--border);
+  @apply rounded-lg shadow-lg p-6 mt-6 mb-6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .match-history-header {
@@ -8,11 +11,13 @@
 }
 
 .match-history-title {
-  @apply text-xl font-bold text-gray-900;
+  color: var(--lol-text-primary);
+  @apply text-xl font-bold;
 }
 
 .match-history-count {
-  @apply text-sm text-gray-500;
+  color: var(--lol-text-muted);
+  @apply text-sm;
 }
 
 .match-history-list {
@@ -28,25 +33,36 @@
 }
 
 .match-history-error {
-  @apply bg-red-50 border border-red-200 rounded-lg p-4 text-red-700;
+  background-color: #4a1a1a;
+  border: 1px solid #8b2c2c;
+  color: #ff9999;
+  @apply rounded-lg p-4;
 }
 
 .match-history-empty {
-  @apply text-center py-8 text-gray-500;
+  color: var(--lol-text-muted);
+  @apply text-center py-8;
 }
 
 .match-history-pagination {
-  @apply flex items-center justify-between mt-6 pt-4 border-t border-gray-200;
+  border-top: 1px solid var(--border);
+  @apply flex items-center justify-between mt-6 pt-4;
 }
 
 .match-history-nav-button {
-  @apply px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200;
+  background-color: var(--lol-bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--lol-text-primary);
+  @apply px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200;
 }
 
 .match-history-nav-button:disabled {
-  @apply bg-gray-100 text-gray-400 cursor-not-allowed;
+  background-color: #1a1a1a;
+  color: var(--lol-text-muted);
+  @apply cursor-not-allowed;
 }
 
 .match-history-page-info {
-  @apply text-sm text-gray-600;
+  color: var(--lol-text-secondary);
+  @apply text-sm;
 }

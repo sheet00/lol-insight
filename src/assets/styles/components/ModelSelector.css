@@ -3,19 +3,31 @@
 }
 
 .model-selector-label {
-  @apply text-sm font-medium text-gray-700;
+  color: var(--lol-text-secondary);
+  @apply text-sm font-medium;
 }
 
 .model-selector-dropdown {
-  @apply px-3 py-2 border border-gray-300 rounded-md
-         bg-white text-gray-900 text-sm
-         focus:ring-2 focus:ring-blue-500 focus:border-transparent
-         hover:border-gray-400 transition-colors
-         min-w-48;
+  background-color: var(--lol-bg-secondary) !important;
+  color: var(--lol-text-primary);
+  border: 1px solid var(--border);
+  @apply px-3 py-2 rounded-md text-sm transition-colors min-w-48;
+}
+
+.model-selector-dropdown:focus {
+  border-color: var(--lol-gold);
+  box-shadow: 0 0 0 2px rgba(200, 155, 60, 0.2);
+  outline: none;
+}
+
+.model-selector-dropdown:hover {
+  border-color: var(--lol-gold);
 }
 
 .model-selector-dropdown:disabled {
-  @apply bg-gray-100 text-gray-500 cursor-not-allowed;
+  background-color: #1a1a1a !important;
+  color: var(--lol-text-muted);
+  @apply cursor-not-allowed;
 }
 
 /* コンパクト表示用 */

@@ -20,11 +20,15 @@
 }
 
 .match-history-item-result.win {
-  @apply bg-green-100 text-green-800;
+  background-color: #064e3b !important;
+  color: #10b981 !important;
+  @apply px-2 py-1 rounded-full text-xs font-semibold;
 }
 
 .match-history-item-result.lose {
-  @apply bg-red-100 text-red-800;
+  background-color: #7f1d1d !important;
+  color: #f87171 !important;
+  @apply px-2 py-1 rounded-full text-xs font-semibold;
 }
 
 .match-history-item-content {

@@ -1,21 +1,42 @@
 <template>
   <div class="space-y-6">
     <!-- 分析対象プレイヤーとゲーム情報 -->
-    <div class="card">
-      <div
-        class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6"
-      >
-        <div>
-          <h2 class="heading-lg">
+    <div class="card player-info">
+      <div class="flex items-center justify-between gap-6">
+        <!-- プレイヤー基本情報 -->
+        <div class="flex-1 min-w-0 p-3 bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-l-4 border-yellow-500">
+          <h2 class="text-yellow-400 font-bold truncate">
             {{ matchData.myParticipant.summonerName }}
           </h2>
-          <p class="text-secondary">
-            {{ getChampionName(matchData.myParticipant.championId) }} -
-            {{ formatGameMode(matchData.gameInfo.queueId) }}
+          <p class="text-blue-300 font-semibold truncate">
+            {{ getChampionName(matchData.myParticipant.championId) }} - {{ formatGameMode(matchData.gameInfo.queueId) }}
           </p>
         </div>
-
-        <div class="flex items-center space-x-4">
+        
+        <!-- 試合結果 -->
+        <div class="flex-shrink-0 info-group">
+          <span class="mr-2">試合結果:</span>
+          <span
+            class="font-bold"
+            :class="matchData.myParticipant.win ? 'text-win' : 'text-loss'"
+          >
+            {{ matchData.myParticipant.win ? "勝利" : "敗北" }}
+          </span>
+        </div>
+        
+        <!-- KDA情報 -->
+        <div class="flex-shrink-0 info-group">
+          <span class="mr-2">KDA:</span>
+          <span class="text-primary gaming-font mr-2">
+            {{ matchData.myParticipant.kills }}/{{ matchData.myParticipant.deaths }}/{{ matchData.myParticipant.assists }}
+          </span>
+          <span class="gaming-font">
+            ({{ calculateKDA(matchData.myParticipant) }})
+          </span>
+        </div>
+        
+        <!-- アクションボタン -->
+        <div class="flex-shrink-0 flex items-center gap-2">
           <button
             @click="$emit('downloadJson')"
             class="btn btn-secondary btn-sm flex items-center spacing-sm"
@@ -31,26 +52,6 @@
             analysis-type="post-match"
             @generate-analysis="$emit('generatePostMatchAdvice')"
           />
-          <div class="text-center info-group">
-            <div class="info-group-title">試合結果</div>
-            <div
-              class="highlight-primary"
-              :class="matchData.myParticipant.win ? 'text-win' : 'text-loss'"
-            >
-              {{ matchData.myParticipant.win ? "勝利" : "敗北" }}
-            </div>
-          </div>
-          <div class="text-center info-group">
-            <div class="info-group-title">KDA</div>
-            <div class="highlight-secondary text-primary">
-              {{ matchData.myParticipant.kills }}/{{
-                matchData.myParticipant.deaths
-              }}/{{ matchData.myParticipant.assists }}
-            </div>
-            <div class="stat-highlight mt-2">
-              レシオ: {{ calculateKDA(matchData.myParticipant) }}
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -67,14 +68,12 @@
       <div class="mb-4">
         <button
           @click="$emit('toggleTimeline')"
-          class="w-full flex items-center justify-between p-4 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full flex items-center justify-between p-4 text-left bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
         >
           <div class="flex items-center">
             <span class="mr-2">⏰</span>
-            <h3 class="text-xl font-semibold text-gray-900">
-              試合タイムライン
-            </h3>
-            <span class="ml-2 text-sm text-gray-500">
+            <h3 class="text-xl font-semibold text-white">試合タイムライン</h3>
+            <span class="ml-2 text-sm text-gray-300">
               (クリックで{{ showTimeline ? "折りたたみ" : "展開" }})
             </span>
           </div>
@@ -102,7 +101,7 @@
     <!-- プレイヤー詳細統計 -->
     <div class="card">
       <div class="mb-6">
-        <h3 class="heading-md flex items-center">
+        <h3 class="heading-md flex items-center lol-accent">
           <span class="mr-2">📈</span>
           プレイヤー詳細統計
         </h3>
@@ -124,11 +123,10 @@
               自チーム
             </h4>
             <div
-              class="text-sm font-medium px-3 py-1 rounded-full"
               :class="
                 matchData.myParticipant.win
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'
+                  ? 'team-result-badge win'
+                  : 'team-result-badge loss'
               "
             >
               {{ matchData.myParticipant.win ? "勝利" : "敗北" }}
@@ -141,8 +139,8 @@
               class="p-3 rounded-lg transition-colors"
               :class="
                 player.puuid === matchData.myParticipant.puuid
-                  ? 'bg-blue-50 border border-blue-200'
-                  : 'bg-gray-50 hover:bg-gray-100'
+                  ? 'bg-blue-900 border border-blue-600'
+                  : 'bg-gray-700 hover:bg-gray-600'
               "
             >
               <!-- プレイヤー基本情報 -->
@@ -193,11 +191,10 @@
               敵チーム
             </h4>
             <div
-              class="text-sm font-medium px-3 py-1 rounded-full"
               :class="
                 !matchData.myParticipant.win
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'
+                  ? 'team-result-badge win'
+                  : 'team-result-badge loss'
               "
             >
               {{ !matchData.myParticipant.win ? "勝利" : "敗北" }}
@@ -207,7 +204,7 @@
             <div
               v-for="player in matchData.enemyTeam"
               :key="player.puuid"
-              class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              class="p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
             >
               <!-- プレイヤー基本情報 -->
               <div class="flex items-center justify-between mb-2">

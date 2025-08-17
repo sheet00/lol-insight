@@ -1,7 +1,9 @@
 /* PlayerDamageStats コンポーネント用スタイル */
 
 .player-stats-container {
-  @apply mt-3 mb-3 bg-gray-50 rounded-lg p-3 border border-gray-200;
+  background-color: var(--lol-bg-secondary) !important;
+  border: 1px solid var(--border);
+  @apply mt-3 mb-3 rounded-lg p-3;
 }
 
 .stats-details {
@@ -13,7 +15,8 @@
 }
 
 .stats-section-title {
-  @apply text-xs font-medium text-gray-600 uppercase tracking-wide;
+  color: var(--lol-text-secondary);
+  @apply text-xs font-medium uppercase tracking-wide;
 }
 
 .stats-items {
@@ -21,75 +24,90 @@
 }
 
 .stats-item {
-  @apply flex justify-between items-center py-1 px-2 rounded text-xs bg-white border border-gray-100;
+  background-color: var(--lol-bg-secondary) !important;
+  border: 1px solid var(--border);
+  color: var(--lol-text-primary);
+  @apply flex justify-between items-center py-1 px-2 rounded text-xs;
 }
 
 .stats-item.physical {
-  @apply border-orange-200 bg-orange-50;
+  background-color: rgba(251, 146, 60, 0.1) !important;
+  border-color: rgba(251, 146, 60, 0.3) !important;
 }
 
 .stats-item.physical .stats-label {
-  @apply text-orange-700;
+  color: #fb923c;
 }
 
 .stats-item.physical .stats-value {
-  @apply text-orange-800 font-medium;
+  color: #f97316;
+  @apply font-medium;
 }
 
 .stats-item.magical {
-  @apply border-blue-200 bg-blue-50;
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
 }
 
 .stats-item.magical .stats-label {
-  @apply text-blue-700;
+  color: #3b82f6;
 }
 
 .stats-item.magical .stats-value {
-  @apply text-blue-800 font-medium;
+  color: #2563eb;
+  @apply font-medium;
 }
 
 .stats-item.true-damage {
-  @apply border-purple-200 bg-purple-50;
+  background-color: rgba(147, 51, 234, 0.1) !important;
+  border-color: rgba(147, 51, 234, 0.3) !important;
 }
 
 .stats-item.true-damage .stats-label {
-  @apply text-purple-700;
+  color: #9333ea;
 }
 
 .stats-item.true-damage .stats-value {
-  @apply text-purple-800 font-medium;
+  color: #7c3aed;
+  @apply font-medium;
 }
 
 .stats-item.cs {
-  @apply border-green-200 bg-green-50;
+  background-color: rgba(34, 197, 94, 0.1) !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
 }
 
 .stats-item.cs .stats-label {
-  @apply text-green-700;
+  color: #22c55e;
 }
 
 .stats-item.cs .stats-value {
-  @apply text-green-800 font-medium;
+  color: #16a34a;
+  @apply font-medium;
 }
 
 .stats-item.gold {
-  @apply border-yellow-200 bg-yellow-50;
+  background-color: rgba(200, 155, 60, 0.1) !important;
+  border-color: rgba(200, 155, 60, 0.3) !important;
 }
 
 .stats-item.gold .stats-label {
-  @apply text-yellow-700;
+  color: var(--lol-gold);
 }
 
 .stats-item.gold .stats-value {
-  @apply text-yellow-800 font-medium;
+  color: var(--lol-gold-dark);
+  @apply font-medium;
 }
 
 .stats-label {
-  @apply text-gray-600 font-medium;
+  color: var(--lol-text-secondary);
+  @apply font-medium;
 }
 
 .stats-value {
-  @apply text-gray-800 font-semibold;
+  color: var(--lol-text-primary);
+  @apply font-semibold;
 }
 
 /* レスポンシブ対応 */

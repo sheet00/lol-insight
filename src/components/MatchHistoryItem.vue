@@ -9,7 +9,7 @@
         {{ formatMatchDate(match.gameCreation) }}
       </div>
       <div 
-        class="match-history-item-result"
+        class="match-history-item-result font-bold"
         :class="match.result === 'WIN' ? 'text-win' : 'text-loss'"
       >
         {{ match.result === 'WIN' ? '勝利' : '敗北' }}

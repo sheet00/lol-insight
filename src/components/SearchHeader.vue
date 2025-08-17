@@ -1,13 +1,13 @@
 <template>
   <!-- 帯状ヘッダ（トップの余白0） -->
-  <header class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur border-b">
+  <header class="sticky top-0 z-50 w-full lol-header backdrop-blur">
     <div class="mx-auto main-content-width px-6">
       <div class="h-16 flex items-center justify-between gap-6">
         <div class="min-w-0">
-          <h1 class="heading-lg leading-none">
+          <h1 class="lol-title text-xl leading-none">
             LoL Teacher
           </h1>
-          <p class="hidden sm:block text-xs text-secondary truncate">
+          <p class="hidden sm:block text-xs text-gray-300 truncate">
             最新試合のマッチアップを分析
           </p>
         </div>
@@ -38,7 +38,7 @@
               "
               type="text"
               required
-              class="flex-1 min-w-52 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              class="flex-1 min-w-52 px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
               placeholder="ゲーム名"
             />
             <input
@@ -51,7 +51,7 @@
               "
               type="text"
               required
-              class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              class="w-24 px-3 py-2 border border-gray-600 bg-gray-800 text-white rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
               placeholder="JP1"
             />
             <button

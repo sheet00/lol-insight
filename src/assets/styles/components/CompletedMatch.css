@@ -2,7 +2,9 @@
 
 /* カードスタイル */
 .card {
-  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  background-color: var(--lol-bg-secondary) !important;
+  border: 1px solid var(--border) !important;
+  @apply rounded-lg shadow-sm p-6;
 }
 
 /* ボタンスタイル */
@@ -100,11 +102,15 @@
 }
 
 .team-result-badge.win {
-  @apply bg-green-100 text-green-800;
+  background-color: #064e3b !important;
+  color: #10b981 !important;
+  @apply text-sm font-medium px-3 py-1 rounded-full;
 }
 
 .team-result-badge.loss {
-  @apply bg-red-100 text-red-800;
+  background-color: #7f1d1d !important;
+  color: #f87171 !important;
+  @apply text-sm font-medium px-3 py-1 rounded-full;
 }
 
 /* アニメーション */
