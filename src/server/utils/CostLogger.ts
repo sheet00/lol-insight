@@ -1,12 +1,10 @@
 /**
  * OpenRouter API 費用ログ管理クラス
  * 
- * Winstonを使用してAPI使用料金を日別ファイルに記録
+ * Cloudflare Workers対応版 - console.logベースのロギング
+ * 将来的にはCloudflare D1/KVストレージに対応予定
  */
 
-import winston from 'winston'
-import 'winston-daily-rotate-file'
-import DailyRotateFile from 'winston-daily-rotate-file'
 import { v4 as uuidv4 } from 'uuid'
 import { CostCalculator, type CostResult } from './CostCalculator'
 
@@ -34,46 +32,28 @@ export interface CostLogEntry {
 }
 
 export class CostLogger {
-  private static logger: winston.Logger | null = null
+  /**
+   * 環境検出：Cloudflare Workers環境かどうか
+   */
+  private static isCloudflareWorkers(): boolean {
+    return typeof globalThis !== 'undefined' && 
+           typeof globalThis.caches !== 'undefined' &&
+           typeof process === 'undefined'
+  }
 
   /**
-   * Winstonロガーの初期化
+   * ログ出力の実装（環境に応じて切り替え）
    */
-  private static initializeLogger(): winston.Logger {
-    if (this.logger) {
-      return this.logger
+  private static writeLog(logEntry: CostLogEntry): void {
+    const logString = JSON.stringify(logEntry)
+    
+    if (this.isCloudflareWorkers()) {
+      // Cloudflare Workers環境：console.logでログ出力
+      console.log(`[CostLog] ${logString}`)
+    } else {
+      // Node.js環境：将来的にファイル出力等に拡張可能
+      console.log(`[CostLog] ${logString}`)
     }
-
-    this.logger = winston.createLogger({
-      level: 'info',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-      ),
-      transports: [
-        new DailyRotateFile({
-          filename: 'logs/cost-logs/cost-%DATE%.jsonl',
-          datePattern: 'YYYY-MM-DD',
-          maxSize: '20m',          // 1ファイル最大20MB
-          maxFiles: '30d',         // 30日間保持
-          format: winston.format.printf(info => JSON.stringify(info)),
-          createSymlink: false,    // シンボリックリンク作成無効
-          auditFile: 'logs/cost-logs/.audit.json'  // 監査ファイル
-        }),
-        // 開発環境ではコンソール出力も追加
-        ...(process.env.NODE_ENV === 'development' ? [
-          new winston.transports.Console({
-            format: winston.format.combine(
-              winston.format.colorize(),
-              winston.format.simple()
-            )
-          })
-        ] : [])
-      ]
-    })
-
-    console.log('[CostLogger] Winston logger initialized')
-    return this.logger
   }
 
   /**
@@ -82,8 +62,6 @@ export class CostLogger {
    */
   static async logCost(entry: Partial<CostLogEntry>): Promise<void> {
     try {
-      const logger = this.initializeLogger()
-      
       // 必須フィールドのデフォルト値設定
       const logEntry: CostLogEntry = {
         id: uuidv4(),
@@ -108,10 +86,11 @@ export class CostLogger {
       }
 
       // ログ出力
-      logger.info(logEntry)
+      this.writeLog(logEntry)
       
       // 開発環境では詳細ログも出力
-      if (process.env.NODE_ENV === 'development') {
+      const isDev = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development'
+      if (isDev) {
         console.log('[CostLogger] Cost logged:', {
           endpoint: logEntry.endpoint,
           model: logEntry.model,
@@ -202,16 +181,10 @@ export class CostLogger {
 
   /**
    * ロガーのクリーンアップ
+   * Cloudflare Workers環境では特に何もしない
    */
   static async cleanup(): Promise<void> {
-    if (this.logger) {
-      await new Promise<void>((resolve) => {
-        this.logger?.end(() => {
-          console.log('[CostLogger] Logger cleanup completed')
-          resolve()
-        })
-      })
-      this.logger = null
-    }
+    // Cloudflare Workers環境では特別なクリーンアップは不要
+    console.log('[CostLogger] Logger cleanup completed (no-op for Cloudflare Workers)')
   }
 }
