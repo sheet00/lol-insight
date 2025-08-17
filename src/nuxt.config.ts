@@ -16,14 +16,11 @@ export default defineNuxtConfig({
         }
       }
     },
-    // 静的ファイルのMIMEタイプ設定
+    // 静的ファイルのキャッシュ設定
     publicAssets: [
       {
         dir: '_nuxt',
-        maxAge: 31536000,
-        headers: {
-          'Content-Type': 'text/css; charset=utf-8'
-        }
+        maxAge: 31536000
       }
     ]
   },

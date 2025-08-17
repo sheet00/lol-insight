@@ -16,7 +16,9 @@ export class PrismaDatabaseManager {
     if (env?.LOGS_DB) {
       console.log('☁️ Using Cloudflare D1 with Prisma')
       const adapter = new PrismaD1(env.LOGS_DB)
-      this.client = new PrismaClient({ adapter })
+      this.client = new PrismaClient({ 
+        adapter: adapter as any  // TypeScript型エラー回避
+      } as any)
     }
     // 開発環境：ローカルSQLite
     else {
@@ -117,68 +119,6 @@ export class PrismaDatabaseManager {
     }
   }
 
-  /**
-   * JSONLコストログからPrismaに保存
-   * 既存のJSONLファイルからデータをインポート
-   */
-  static async saveCostLogFromJsonl(
-    jsonlData: {
-      message: {
-        id: string
-        timestamp: string
-        endpoint: string
-        model: string
-        usage: {
-          prompt_tokens: number
-          completion_tokens: number
-          total_tokens: number
-        }
-        cost: {
-          input_cost_usd: number
-          output_cost_usd: number
-          total_cost_usd: number
-          total_cost_jpy: number
-        }
-        metadata?: any
-        response_time_ms: number
-        success: boolean
-        error?: string
-      }
-      level: string
-      timestamp: string
-    },
-    env?: any
-  ) {
-    try {
-      const prisma = this.getClient(env)
-      const { message } = jsonlData
-      
-      await prisma.costLog.create({
-        data: {
-          id: message.id,
-          timestamp: new Date(message.timestamp),
-          endpoint: message.endpoint,
-          model: message.model,
-          promptTokens: message.usage.prompt_tokens,
-          completionTokens: message.usage.completion_tokens,
-          totalTokens: message.usage.total_tokens,
-          inputCostUsd: message.cost.input_cost_usd,
-          outputCostUsd: message.cost.output_cost_usd,
-          totalCostUsd: message.cost.total_cost_usd,
-          totalCostJpy: message.cost.total_cost_jpy,
-          responseTimeMs: message.response_time_ms,
-          success: message.success,
-          error: message.error || null,
-          metadata: message.metadata ? JSON.stringify(message.metadata) : null,
-          level: jsonlData.level,
-        },
-      })
-
-      console.log(`📦 JSONL cost log imported: ${message.endpoint} - $${message.cost.total_cost_usd}`)
-    } catch (error) {
-      console.error('❌ Failed to import JSONL cost log:', error)
-    }
-  }
 
   /**
    * コストログ取得

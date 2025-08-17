@@ -22,7 +22,6 @@ model Log {
 }
 
 // コストログテーブル（OpenRouter API費用管理）
-// JSONLファイル形式に対応
 model CostLog {
   id               String   @id // UUIDそのまま使用
   timestamp        DateTime // メッセージのtimestamp
