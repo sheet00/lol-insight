@@ -33,10 +33,12 @@
     <!-- ローディング表示 -->
     <div
       v-else-if="isHistoryLoading && matchHistory.length === 0"
-      class="loading-spinner text-center py-8"
+      class="text-center py-8"
     >
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
-      <div class="loading-text">試合履歴を読み込み中...</div>
+      <div class="flex items-center justify-center gap-3 mb-3">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 flex-shrink-0"></div>
+        <div class="loading-text">試合履歴を読み込み中...</div>
+      </div>
     </div>
 
     <!-- 試合履歴が空の場合 -->
