@@ -1,0 +1,17 @@
+name = "lol-teacher"
+compatibility_date = "2025-08-17"
+
+[env.production]
+name = "lol-teacher"
+
+[env.development] 
+name = "lol-teacher-dev"
+
+# Node.js compat
+node_compat = true
+
+# Build settings
+[build]
+command = "cd src && npm install && npm run build"
+cwd = "."
+watch_dir = "src"
