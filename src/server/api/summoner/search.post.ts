@@ -1,3 +1,15 @@
+/**
+ * 【サモナー検索API】
+ * 
+ * 目的: Riot IDからプレイヤーの基本情報とランク情報を取得する
+ * 
+ * 機能:
+ * - Riot ID（ゲーム名#タグライン）からPUUIDを解決
+ * - プレイヤーのランク情報（ソロ/デュオ、フレックス等）を取得
+ * - チャレンジ実績とトータルポイントの取得
+ * - アカウント基本情報（PUUID、ゲーム名、タグライン）の統合
+ * - 後続のAPIコール（試合履歴、ライブ試合等）で使用するPUUIDを提供
+ */
 import type { RiotAccount, SummonerInfo, LeagueEntry, SummonerSearchResult } from '~/types'
 import { RiotApiManager } from '~/server/utils/RiotApiManager'
 

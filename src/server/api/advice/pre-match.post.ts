@@ -1,3 +1,15 @@
+/**
+ * 【リアルタイム試合AIアドバイス生成API】
+ * 
+ * 目的: 進行中のLoL試合において、チーム構成とマッチアップ情報を基に
+ *       生成AIを活用してリアルタイムでプレイアドバイスを生成する
+ * 
+ * 機能:
+ * - 進行中の試合情報（ゲームID、チーム構成、敵チーム構成）を受け取り
+ * - OpenRouterのAIモデルを使用してマッチアップ分析を実行
+ * - プレイヤー向けの戦略的アドバイスを生成して返却
+ * - エラーハンドリング（レート制限、設定不足等）を含む
+ */
 import { defineEventHandler, readBody, createError } from 'h3'
 import { OpenRouterClient, type AdvicePayload } from '~/server/utils/OpenRouterClient'
 
@@ -35,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     try {
-      console.log('[AI] /api/advice/generate called', {
+      console.log('[AI] /api/advice/pre-match called', {
         gameId,
         gameMode: gameInfo?.gameMode,
         queueId: gameInfo?.queueId,
@@ -49,7 +61,7 @@ export default defineEventHandler(async (event) => {
     const json = await client.generateAdvice(payload)
     return json
   } catch (e: any) {
-    console.error('[AI] /api/advice/generate failed', e?.message || e)
+    console.error('[AI] /api/advice/pre-match failed', e?.message || e)
     if (e?.status === 429) {
       throw createError({ statusCode: 429, message: 'レート制限に達しました。時間をおいて再試行してください' })
     }

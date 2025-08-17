@@ -1,3 +1,16 @@
+/**
+ * 【試合詳細データ取得・分析API】
+ * 
+ * 目的: 完了した試合の詳細データを取得し、総合的な試合分析を行う
+ * 
+ * 機能:
+ * - 指定されたmatchIdまたは最新試合の詳細データを取得
+ * - 全参加者のランク情報を並列取得して試合レベルを分析
+ * - 試合結果、KDA、ダメージ、チーム戦績等の詳細統計を算出
+ * - タイムライン情報を統合した総合分析サマリーを生成
+ * - MVPプレイヤーやワーストプレイヤーの特定
+ * - 試合後AI分析の基礎データとして提供
+ */
 import type { MatchDetail, ParticipantWithRank, TeamStats, MatchAnalysisSummary, TeamSummary, PlayerDetailedStats, TopPlayerStats, PlayerSummaryStats, TimelineEvent } from '~/types'
 import { RiotApiManager } from '~/server/utils/RiotApiManager'
 import championData from "~/data/champion.json"

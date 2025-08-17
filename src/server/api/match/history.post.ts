@@ -1,3 +1,15 @@
+/**
+ * 【試合履歴取得API】
+ * 
+ * 目的: プレイヤーの過去試合履歴を一覧形式で取得し、基本的な結果情報を提供する
+ * 
+ * 機能:
+ * - 指定されたPUUIDの試合履歴リストを並列取得
+ * - 各試合の基本情報（勝敗、KDA、使用チャンピオン、ゲームモード）を抽出
+ * - ページネーション機能で段階的に履歴を読み込み
+ * - ゲームモードの日本語化とチャンピオン名の変換
+ * - 試合詳細画面への遷移用データとして活用
+ */
 import type { MatchHistoryResponse, MatchHistoryItem } from '~/types'
 import { RiotApiManager } from '~/server/utils/RiotApiManager'
 import championData from "~/data/champion.json"

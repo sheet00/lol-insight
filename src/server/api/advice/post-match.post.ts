@@ -1,3 +1,15 @@
+/**
+ * 【試合後詳細分析AIアドバイス生成API】
+ * 
+ * 目的: 終了したLoL試合の詳細データを基に、パフォーマンス分析と
+ *       改善点の提案を生成AIで行い、次回試合に向けたアドバイスを提供する
+ * 
+ * 機能:
+ * - 完了した試合の詳細情報（スタッツ、タイムライン、チーム構成等）を受け取り
+ * - 試合結果、KDA、オブジェクト獲得状況、試合展開を総合的に分析
+ * - 個人プレイの改善点と次回試合への具体的なアドバイスを生成
+ * - 勝敗に関わらず建設的なフィードバックを提供
+ */
 import { defineEventHandler, readBody, createError } from 'h3'
 import { OpenRouterClient } from '~/server/utils/OpenRouterClient'
 

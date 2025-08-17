@@ -1,3 +1,16 @@
+/**
+ * 【リアルタイム進行中試合情報取得API】
+ * 
+ * 目的: プレイヤーが現在参加中の試合情報をリアルタイムで取得・分析する
+ * 
+ * 機能:
+ * - Spectator APIを使用して進行中試合の存在確認と基本情報取得
+ * - 全参加者のランク情報とサモナー情報を並列取得
+ * - チーム平均ランクの算出とマッチアップバランス分析
+ * - 各チーム内の勝率トップ/ボトムプレイヤーの特定
+ * - バン情報とチーム構成の取得
+ * - リアルタイムAIアドバイス生成の基礎データとして提供
+ */
 import type { LiveMatchDetail, RankInfo } from "~/types";
 import { RiotApiManager } from "~/server/utils/RiotApiManager";
 

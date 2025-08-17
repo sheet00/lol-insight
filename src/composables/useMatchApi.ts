@@ -165,7 +165,7 @@ export const useMatchApi = () => {
       model: selectedAiModel || undefined,
     };
 
-    const res: any = await $fetch("/api/advice/generate", {
+    const res: any = await $fetch("/api/advice/pre-match", {
       method: "POST",
       body,
       signal: controller.signal,

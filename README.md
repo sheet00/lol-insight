@@ -67,7 +67,7 @@ src/
 │   │   │   ├── latest.post.ts    # 最新試合API
 │   │   │   └── timeline.post.ts  # タイムラインAPI
 │   │   └── advice/
-│   │       ├── generate.post.ts   # 試合前AIアドバイスAPI
+│   │       ├── pre-match.post.ts  # 試合前AIアドバイスAPI
 │   │       └── post-match.post.ts # 試合後AIアドバイスAPI
 │   ├── prompts/               # AIプロンプトテンプレート
 │   │   ├── system.md          # システムプロンプト
@@ -168,7 +168,7 @@ npm run dev
 
 ### AI アドバイス関連
 
-- `POST /api/advice/generate` - 試合前 AI アドバイス生成
+- `POST /api/advice/pre-match` - 試合前 AI アドバイス生成
 - `POST /api/advice/post-match` - 試合後 AI アドバイス生成
 
 ## � 参考リンク

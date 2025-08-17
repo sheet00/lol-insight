@@ -1,3 +1,15 @@
+/**
+ * 【開発用テストデータ取得API】
+ * 
+ * 目的: 開発・デバッグ時に実際のゲームデータを使用してテストを行う
+ * 
+ * 機能:
+ * - Featured Games APIからCLASSICモードの進行中試合を取得
+ * - リトライ機能付きで安定したテストデータの確保
+ * - 取得した試合の参加者からテスト用PUUIDとRiot IDを抽出
+ * - フロントエンド開発時のモックデータとして活用
+ * - 指数関数バックオフによる効率的なAPI呼び出し制御
+ */
 import { defineEventHandler, createError } from "h3";
 import { RiotApiManager } from "~/server/utils/RiotApiManager";
 
