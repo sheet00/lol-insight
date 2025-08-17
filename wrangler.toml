@@ -4,6 +4,7 @@ compatibility_date = "2025-08-17"
 
 [env.production]
 name = "lol-teacher"
+
 [[env.production.d1_databases]]
 binding = "LOGS_DB"
 database_name = "lol-teacher-logs"
