@@ -29,53 +29,6 @@ export class PrismaDatabaseManager {
     return this.client
   }
 
-  /**
-   * ログ保存
-   */
-  static async saveLog(
-    level: 'info' | 'warn' | 'error' | 'debug',
-    message: string,
-    data?: any,
-    env?: any
-  ) {
-    try {
-      const prisma = this.getClient(env)
-      
-      await prisma.log.create({
-        data: {
-          level,
-          message,
-          data: data ? JSON.stringify(data) : null,
-        },
-      })
-
-      console.log(`📝 Log saved: [${level.toUpperCase()}] ${message}`)
-    } catch (error) {
-      console.error('❌ Failed to save log:', error)
-    }
-  }
-
-  /**
-   * ログ取得
-   */
-  static async getLogs(limit = 100, env?: any) {
-    try {
-      const prisma = this.getClient(env)
-      
-      const logs = await prisma.log.findMany({
-        orderBy: { timestamp: 'desc' },
-        take: limit,
-      })
-
-      return logs.map(log => ({
-        ...log,
-        data: log.data ? JSON.parse(log.data) : null,
-      }))
-    } catch (error) {
-      console.error('❌ Failed to get logs:', error)
-      return []
-    }
-  }
 
   /**
    * コストログ保存

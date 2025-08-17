@@ -9,18 +9,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ログテーブル
-model Log {
-  id        Int      @id @default(autoincrement())
-  timestamp DateTime @default(now())
-  level     String   // info, warn, error, debug
-  message   String
-  data      String?  // JSON文字列
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("logs")
-}
-
 // コストログテーブル（OpenRouter API費用管理）
 model CostLog {
   id               String   @id // UUIDそのまま使用

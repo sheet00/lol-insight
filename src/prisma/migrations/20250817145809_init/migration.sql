@@ -1,14 +1,4 @@
 -- CreateTable
-CREATE TABLE "logs" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "timestamp" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "level" TEXT NOT NULL,
-    "message" TEXT NOT NULL,
-    "data" TEXT,
-    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- CreateTable
 CREATE TABLE "cost_logs" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "timestamp" DATETIME NOT NULL,
