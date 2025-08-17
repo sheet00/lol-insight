@@ -1,0 +1,53 @@
+// Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ログテーブル
+model Log {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  level     String   // info, warn, error, debug
+  message   String
+  data      String?  // JSON文字列
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("logs")
+}
+
+// コストログテーブル（OpenRouter API費用管理）
+// JSONLファイル形式に対応
+model CostLog {
+  id               String   @id // UUIDそのまま使用
+  timestamp        DateTime // メッセージのtimestamp
+  endpoint         String   // API エンドポイント
+  model            String   // 使用モデル名
+  
+  // usage情報
+  promptTokens     Int      @map("prompt_tokens")
+  completionTokens Int      @map("completion_tokens")
+  totalTokens      Int      @map("total_tokens")
+  
+  // cost情報
+  inputCostUsd     Float    @map("input_cost_usd")
+  outputCostUsd    Float    @map("output_cost_usd")
+  totalCostUsd     Float    @map("total_cost_usd")
+  totalCostJpy     Float    @map("total_cost_jpy")
+  
+  // その他の情報
+  responseTimeMs   Int      @map("response_time_ms")
+  success          Boolean
+  error            String?
+  metadata         String?  // JSON文字列（matchIdなど）
+  level            String   // ログレベル（info/warn/error/debug）
+  
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@map("cost_logs")
+}

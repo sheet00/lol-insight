@@ -23,24 +23,18 @@ command = "cd src && npm install && npm run build"
 cwd = "."
 watch_dir = "src"
 
-# Assets configuration for static files
-[env.production.assets]
-rules = [
-  { type = "fetch", globs = ["**/*"] }
+# Assets serving configuration
+[[env.production.assets]]
+bucket = ".output/public"
+exclude = ["*.map"]
+
+# Route configuration for static assets
+[[env.production.routes]]
+pattern = "/_nuxt/*"
+script = "index.mjs"
+headers = [
+  { header = "Content-Type", match = "*.css", value = "text/css" },
+  { header = "Content-Type", match = "*.js", value = "application/javascript" },
+  { header = "Content-Type", match = "*.mjs", value = "application/javascript" },
+  { header = "Cache-Control", value = "public, max-age=31536000, immutable" }
 ]
-
-# MIME type rules for static assets
-[[env.production.rules]]
-type = "transform"
-globs = ["**/*.css"]
-headers = { "content-type" = "text/css" }
-
-[[env.production.rules]]
-type = "transform"  
-globs = ["**/*.js"]
-headers = { "content-type" = "application/javascript" }
-
-[[env.production.rules]]
-type = "transform"
-globs = ["**/*.mjs"]
-headers = { "content-type" = "application/javascript" }

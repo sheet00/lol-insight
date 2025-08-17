@@ -7,7 +7,7 @@
 
 import { v4 as uuidv4 } from 'uuid'
 import { CostCalculator, type CostResult } from './CostCalculator'
-import { DatabaseManager } from './DatabaseManager'
+import { PrismaDatabaseManager } from './PrismaDatabaseManager'
 
 export interface CostLogEntry {
   id: string                    // ユニークID (UUID)
@@ -48,12 +48,25 @@ export class CostLogger {
   private static async writeLog(logEntry: CostLogEntry, env?: any): Promise<void> {
     const logString = JSON.stringify(logEntry)
     
-    // データベースに保存
-    await DatabaseManager.saveLog(
-      'info',
-      `Cost Log: ${logEntry.endpoint}`,
+    // Prismaでコストログ保存
+    await PrismaDatabaseManager.saveCostLog(
       {
-        cost_log: logEntry
+        id: logEntry.id,
+        timestamp: new Date(logEntry.timestamp),
+        endpoint: logEntry.endpoint,
+        model: logEntry.model,
+        promptTokens: logEntry.usage.prompt_tokens,
+        completionTokens: logEntry.usage.completion_tokens,
+        totalTokens: logEntry.usage.total_tokens,
+        inputCostUsd: logEntry.cost.input_cost_usd,
+        outputCostUsd: logEntry.cost.output_cost_usd,
+        totalCostUsd: logEntry.cost.total_cost_usd,
+        totalCostJpy: logEntry.cost.total_cost_jpy,
+        responseTimeMs: logEntry.response_time_ms,
+        success: logEntry.success,
+        error: logEntry.error,
+        metadata: logEntry.metadata,
+        level: 'info', // コストログは基本的にinfo
       },
       env
     )

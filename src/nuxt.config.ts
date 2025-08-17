@@ -10,15 +10,22 @@ export default defineNuxtConfig({
         headers: { "cache-control": "no-cache" },
         cors: true,
       },
-    },
-    // Cloudflare Workers用の静的ファイルハンドリング設定
-    cloudflare: {
-      pages: {
-        routes: {
-          exclude: ["/build/*", "/_nuxt/*"]
+      "/_nuxt/**": {
+        headers: {
+          "cache-control": "public, max-age=31536000, immutable"
         }
       }
-    }
+    },
+    // 静的ファイルのMIMEタイプ設定
+    publicAssets: [
+      {
+        dir: '_nuxt',
+        maxAge: 31536000,
+        headers: {
+          'Content-Type': 'text/css; charset=utf-8'
+        }
+      }
+    ]
   },
   devtools: { enabled: true },
   compatibilityDate: "2025-08-11",
