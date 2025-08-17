@@ -109,9 +109,9 @@
         </div>
       </div>
 
-      <div v-else-if="loading" class="timeline-loading">
-        <div class="loading-spinner"></div>
-        <p>タイムライン読み込み中...</p>
+      <div v-else-if="loading" class="loading-spinner text-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+        <div class="loading-text">タイムライン読み込み中...</div>
       </div>
 
       <div v-else class="timeline-empty">

@@ -6,7 +6,9 @@
   "scripts": {
     "test": "node openrouter-test.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "dotenv": "^17.2.1"
+  },
   "engines": {
     "node": ">=14.0.0"
   }

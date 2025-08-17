@@ -4,6 +4,11 @@
  */
 
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
+
+// .envファイルを読み込み
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 // 環境変数から OpenRouter API キーを取得
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;

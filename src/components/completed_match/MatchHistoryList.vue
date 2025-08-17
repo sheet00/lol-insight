@@ -16,7 +16,7 @@
  */
 -->
 <template>
-  <div class="match-history-container">
+  <div class="card space-y-6">
     <!-- ヘッダー -->
     <div class="match-history-header">
       <h2 class="match-history-title">過去の試合履歴</h2>
@@ -33,9 +33,10 @@
     <!-- ローディング表示 -->
     <div
       v-else-if="isHistoryLoading && matchHistory.length === 0"
-      class="match-history-loading"
+      class="loading-spinner text-center py-8"
     >
-      <div class="match-history-loading-spinner"></div>
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+      <div class="loading-text">試合履歴を読み込み中...</div>
     </div>
 
     <!-- 試合履歴が空の場合 -->

@@ -53,9 +53,9 @@
           :disabled="isLoading"
           @click="onDetailClick"
         >
-          <div v-if="isLoading" class="match-history-item-loading">
-            <div class="match-history-item-loading-spinner"></div>
-            <span>読込中</span>
+          <div v-if="isLoading" class="loading-spinner">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+            <span class="loading-text">読込中</span>
           </div>
           <span v-else>詳細表示</span>
         </button>
