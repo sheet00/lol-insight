@@ -96,6 +96,15 @@
             </button>
           </form>
         </div>
+
+        <!-- ログアウトボタン -->
+        <button
+          @click="handleLogout"
+          class="logout-button ml-4 flex items-center justify-center"
+          title="ログアウト"
+        >
+          🚪
+        </button>
       </div>
     </div>
   </header>
@@ -103,7 +112,10 @@
 
 <script setup lang="ts">
 import ModelSelector from "~/components/common/ModelSelector.vue";
+import { useAuthStore } from '@/stores/auth';
 import "@/assets/styles/components/SearchHeader.css";
+
+const authStore = useAuthStore();
 
 // Props
 interface Props {
@@ -127,4 +139,10 @@ defineEmits<{
   "update:tagLine": [value: string];
   fetchFeaturedUser: [];
 }>();
+
+// ログアウト処理
+const handleLogout = async () => {
+  await authStore.logout();
+  await navigateTo('/login');
+};
 </script>

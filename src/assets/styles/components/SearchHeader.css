@@ -139,6 +139,18 @@
   @apply bg-blue-700;
 }
 
+/* ログアウトボタン */
+.logout-button {
+  @apply w-10 h-10 rounded-full bg-gray-700 hover:bg-red-600 text-white transition-all duration-200;
+  @apply hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  font-size: 16px;
+}
+
+.logout-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
 /* バックドロップ効果 */
 .backdrop-blur {
   backdrop-filter: blur(8px);

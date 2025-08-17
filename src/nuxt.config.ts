@@ -21,7 +21,7 @@ export default defineNuxtConfig({
   css: ["~/assets/styles/main.css"],
 
   // モジュール
-  modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt"],
+  modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt", "nuxt-auth-utils"],
 
   // TypeScript 設定
   typescript: {
@@ -60,6 +60,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // プライベート（サーバーサイドのみ）
     riotApiKey: process.env.RIOT_API_KEY,
+    appPassword: process.env.APP_PASSWORD,
     openRouter: {
       apiKey: process.env.OPENROUTER_API_KEY,
       model: process.env.OPENROUTER_MODEL,
