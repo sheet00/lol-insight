@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import ModelSelector from "~/components/ModelSelector.vue";
+import ModelSelector from "~/components/common/ModelSelector.vue";
 import "@/assets/styles/components/SearchHeader.css";
 
 // Props

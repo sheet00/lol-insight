@@ -91,11 +91,11 @@ import type {
   MatchDetail,
   LiveMatchDetail,
 } from "~/types";
-import SearchHeader from "~/components/SearchHeader.vue";
-import LiveMatch from "~/components/LiveMatch.vue";
-import CompletedMatch from "~/components/CompletedMatch.vue";
-import PostMatchAnalysis from "~/components/PostMatchAnalysis.vue";
-import MatchHistoryList from "~/components/MatchHistoryList.vue";
+import SearchHeader from "~/components/common/SearchHeader.vue";
+import LiveMatch from "~/components/live_match/LiveMatch.vue";
+import CompletedMatch from "~/components/completed_match/CompletedMatch.vue";
+import PostMatchAnalysis from "~/components/completed_match/PostMatchAnalysis.vue";
+import MatchHistoryList from "~/components/completed_match/MatchHistoryList.vue";
 import { formatGameMode, formatNumber } from "@/utils/gameFormatters";
 import {
   createChampionIdMap,

@@ -428,7 +428,7 @@ import {
   getSummonerSpellName,
 } from "@/utils/championUtils";
 import championData from "@/data/champion.json";
-import AIAnalysisButton from "~/components/AIAnalysisButton.vue";
+import AIAnalysisButton from "~/components/common/AIAnalysisButton.vue";
 import "@/assets/styles/components/LiveMatch.css";
 
 // Props

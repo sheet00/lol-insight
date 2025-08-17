@@ -228,10 +228,10 @@ import {
   createGetChampionName,
 } from "@/utils/championUtils";
 import championData from "@/data/champion.json";
-import TeamObjectiveStats from "~/components/TeamObjectiveStats.vue";
-import PlayerDamageStats from "~/components/PlayerDamageStats.vue";
-import MatchTimeline from "~/components/MatchTimeline.vue";
-import AIAnalysisButton from "~/components/AIAnalysisButton.vue";
+import TeamObjectiveStats from "~/components/live_match/TeamObjectiveStats.vue";
+import PlayerDamageStats from "~/components/completed_match/PlayerDamageStats.vue";
+import MatchTimeline from "~/components/completed_match/MatchTimeline.vue";
+import AIAnalysisButton from "~/components/common/AIAnalysisButton.vue";
 import "@/assets/styles/components/CompletedMatch.css";
 
 // Props
