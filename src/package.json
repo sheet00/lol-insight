@@ -20,7 +20,9 @@
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.8.0",
     "@pinia/nuxt": "^0.5.1",
+    "openai": "^4.54.1",
     "pinia": "^2.1.7",
-    "openai": "^4.54.1"
+    "uuid": "^11.1.0",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }

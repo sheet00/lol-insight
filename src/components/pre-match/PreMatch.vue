@@ -247,9 +247,11 @@
         </p>
       </div>
 
-      <div v-if="isAdviceGenerating" class="loading-spinner text-center py-8">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
-        <div class="loading-text text-gray-400">AIがマッチアップを分析中…</div>
+      <div v-if="isAdviceGenerating" class="text-center py-8">
+        <div class="flex items-center justify-center gap-3 mb-3">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 flex-shrink-0"></div>
+          <div class="loading-text text-gray-400">AIがマッチアップを分析中…</div>
+        </div>
       </div>
 
       <div v-else-if="aiAdvice" class="space-y-6">

@@ -1,0 +1,112 @@
+{
+  "name": "lol_post_match_analysis",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "ゲーム全体の総評": {
+        "type": "object",
+        "properties": {
+          "試合の流れ": {
+            "type": "string",
+            "description": "ゲーム全体の展開と結果に至るまでの流れを時系列で分析"
+          },
+          "勝敗要因": {
+            "type": "string",
+            "description": "勝利または敗北の主要な要因とその背景"
+          },
+          "チーム貢献度": {
+            "type": "string",
+            "description": "チーム全体への貢献と役割の評価"
+          }
+        },
+        "required": ["試合の流れ", "勝敗要因", "チーム貢献度"],
+        "additionalProperties": false
+      },
+      "良かった点・悪かった点": {
+        "type": "object",
+        "properties": {
+          "ここが良かった": {
+            "type": "string",
+            "description": "具体的なタイムスタンプや場面を含む優秀なプレイの分析"
+          },
+          "ここが悪かった": {
+            "type": "string",
+            "description": "具体的な失敗場面とその原因、タイムスタンプ付きで分析"
+          },
+          "数値での評価": {
+            "type": "string",
+            "description": "KDA、CS、ダメージ等の統計データによる客観評価"
+          }
+        },
+        "required": ["ここが良かった", "ここが悪かった", "数値での評価"],
+        "additionalProperties": false
+      },
+      "ターニングポイント分析": {
+        "type": "object",
+        "properties": {
+          "試合の転換点": {
+            "type": "string",
+            "description": "ここで試合が逆転した・決定的になった瞬間の詳細分析"
+          },
+          "重要な判断": {
+            "type": "string",
+            "description": "勝敗を分けた重要な判断やプレイの分析"
+          },
+          "もしもの選択": {
+            "type": "string",
+            "description": "その場面で違う選択をしていたらどうなったかの仮説"
+          }
+        },
+        "required": ["試合の転換点", "重要な判断", "もしもの選択"],
+        "additionalProperties": false
+      },
+      "アイテムビルド分析": {
+        "type": "object",
+        "properties": {
+          "購入順序の評価": {
+            "type": "string",
+            "description": "分析対象プレイヤー（myParticipant）が実際に購入したアイテムのタイミングと選択の妥当性、各フェーズでの選択理由、より効率的だった代替ビルドの提案"
+          },
+          "相手チーム対応度": {
+            "type": "string",
+            "description": "分析対象プレイヤーのアイテム選択が敵チーム構成に対して適切だったか、対戦相手の脅威に対する防御アイテムの必要性、相手キャリーへの対策ができていたか"
+          },
+          "ビルド最適化提案": {
+            "type": "string",
+            "description": "同じ状況での理想的なアイテム構成、コストパフォーマンスの良いアイテム選択、試合状況に応じたビルド変更のタイミング"
+          }
+        },
+        "required": ["購入順序の評価", "相手チーム対応度", "ビルド最適化提案"],
+        "additionalProperties": false
+      },
+      "具体的改善アドバイス": {
+        "type": "object",
+        "properties": {
+          "こうするとよい": {
+            "type": "string",
+            "description": "次回同じような場面での具体的な改善行動"
+          },
+          "気をつける点": {
+            "type": "string",
+            "description": "次回の試合で意識すべきスキルや判断力"
+          },
+          "戦術的提案": {
+            "type": "string",
+            "description": "同チャンピオン・同ロールでの戦術改善案"
+          }
+        },
+        "required": ["こうするとよい", "気をつける点", "戦術的提案"],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "ゲーム全体の総評",
+      "良かった点・悪かった点",
+      "ターニングポイント分析",
+      "アイテムビルド分析",
+      "具体的改善アドバイス"
+    ],
+    "additionalProperties": false
+  }
+}

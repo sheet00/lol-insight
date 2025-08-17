@@ -1,8 +1,10 @@
 import OpenAI from "openai";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { CostLogger } from "./CostLogger";
+import { CostCalculator } from "./CostCalculator";
 
-export type AdvicePayload = {
+export type PreMatchAdvicePayload = {
   gameId: string;
   gameInfo: { gameMode: string; queueId: number };
   myChampion: {
@@ -44,10 +46,18 @@ export type PostMatchAdvicePayload = {
   model?: string;
 };
 
+/**
+ * OpenRouter API クライアント
+ * League of Legends アドバイス生成用のAI APIクライアント
+ */
 export class OpenRouterClient {
   private client: OpenAI;
   private defaultModel: string;
 
+  /**
+   * OpenRouterClientのコンストラクター
+   * 環境変数からAPIキーとモデル設定を読み込み、OpenAIクライアントを初期化
+   */
   constructor() {
     const config = useRuntimeConfig() as any;
     const or = config?.openRouter || {};
@@ -61,7 +71,9 @@ export class OpenRouterClient {
       if (availableModels.length > 0) {
         defaultModel = availableModels[0];
       } else {
-        throw new Error("デフォルトモデルが設定されていません（OPENROUTER_MODEL または AVAILABLE_AI_MODELS が必要です）");
+        throw new Error(
+          "デフォルトモデルが設定されていません（OPENROUTER_MODEL または AVAILABLE_AI_MODELS が必要です）"
+        );
       }
     }
 
@@ -70,17 +82,23 @@ export class OpenRouterClient {
       apiKey: or.apiKey,
       defaultHeaders: {
         "HTTP-Referer":
-          or.httpReferer || "https://github.com/your-org/lol-insight",
-        "X-Title": or.xTitle || "lol-insight",
+          or.httpReferer || "https://github.com/your-org/lol-teacher",
+        "X-Title": or.xTitle || "lol-teacher",
       },
     });
     this.defaultModel = defaultModel;
   }
 
-  async generateAdvice(payload: AdvicePayload) {
-    const { systemPrompt, instruction } = await this.loadPrompts();
+  /**
+   * 試合前アドバイス生成
+   * @param payload 試合情報とチーム構成データ
+   * @returns 生成されたアドバイス（JSON形式）
+   */
+  async generatePreMatchAdvice(payload: PreMatchAdvicePayload) {
+    const { systemPrompt, instruction } = await this.loadPreMatchPrompts();
     const inputJson = this.buildPromptPayload(payload);
-    
+    const schema = await this.loadJsonSchema("pre-match");
+
     // payloadで指定されたモデルを使用、なければデフォルトモデル
     const modelToUse = payload.model || this.defaultModel;
 
@@ -104,107 +122,35 @@ export class OpenRouterClient {
       // noop
     }
 
-    // 1回目: 通常生成
-    const first = await this.client.chat.completions.create({
-      model: modelToUse,
-      temperature: 0.4,
-      max_tokens: 65536,
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "lol_advice_structured",
-          strict: true,
-          schema: {
-            type: "object",
-            properties: {
-              対面チャンピオン分析: {
-                type: "object",
-                description: "自分のレーンの直接対面するチャンピオンのみに関する分析。BOT=ADC+SUP、MID/TOP/JG=各1人のみ。他のレーンのチャンピオンは含めない。",
-                properties: {
-                  警戒ポイント: {
-                    type: "string",
-                    description: "対面チャンピオン（自分と同じレーン）の危険なタイミング、スキル、行動パターンを丁寧な長文で説明。具体的なレベル、時間帯、状況を含める。箇条書きは不可。他のレーンのチャンピオンは言及しない。"
-                  },
-                  対策方法: {
-                    type: "string",
-                    description: "対面チャンピオン（自分と同じレーン）に対する具体的な対策、ポジショニング、スキルの使い方を丁寧な長文で説明。実行可能なアクションを含める。箇条書きは不可。他のレーンのチャンピオンは言及しない。"
-                  }
-                },
-                required: ["警戒ポイント", "対策方法"],
-                additionalProperties: false
-              },
-              自分の戦略: {
-                type: "object",
-                description: "自分のプレイに関する戦略",
-                properties: {
-                  レーン戦: {
-                    type: "string",
-                    description: "レーン戦での具体的な立ち回り、ファーム方法、ハラスのタイミング、ガンク対応を丁寧な長文で説明。箇条書きは不可。"
-                  },
-                  集団戦: {
-                    type: "string", 
-                    description: "集団戦での役割、ポジション、スキルの使用順序、狙うべきターゲットを丁寧な長文で説明。箇条書きは不可。"
-                  },
-                  装備戦略: {
-                    type: "string",
-                    description: "相手チーム構成に合わせた装備選択、アイテムの優先順位、状況別の装備変更を丁寧な長文で説明。具体的なアイテム名を含める。箇条書きは不可。"
-                  }
-                },
-                required: ["レーン戦", "集団戦", "装備戦略"],
-                additionalProperties: false
-              }
-            },
-            required: ["対面チャンピオン分析", "自分の戦略"],
-            additionalProperties: false
-          }
-        }
-      } as any,
-      messages: [
+    // 共通API呼び出しメソッドを使用
+    const response = await this.makeRequest(
+      modelToUse,
+      [
         { role: "system", content: systemPrompt },
         { role: "user", content: `${instruction}\n\n[INPUT]\n${inputJson}` },
       ],
-    });
-    const finish1 = first.choices?.[0]?.finish_reason;
-    const text1 = first.choices?.[0]?.message?.content || "";
-    console.log("[AI] Response meta", {
-      finish_reason: finish1,
-      model: first.model,
-      usage: (first as any).usage || undefined,
-    });
-    console.log("[AI] Response content", text1);
-    
-    // デバッグ用: レスポンスをtmpフォルダに保存
-    try {
-      const fs = await import('node:fs');
-      const path = await import('node:path');
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = `ai-response-${timestamp}.json`;
-      const tmpDir = path.resolve(process.cwd(), 'tmp');
-      
-      // tmpディレクトリが存在しない場合は作成
-      if (!fs.existsSync(tmpDir)) {
-        fs.mkdirSync(tmpDir, { recursive: true });
-      }
-      
-      const filepath = path.join(tmpDir, filename);
-      fs.writeFileSync(filepath, text1, 'utf-8');
-      console.log(`[AI] Response saved to: ${filepath}`);
-    } catch (saveError) {
-      console.log("[AI] Failed to save response:", saveError);
-    }
-    
-    try {
-      return JSON.parse(text1);
-    } catch (e1: any) {
-      const snippet1 = text1.slice(0, 500);
-      const msg1 = String(e1?.message || e1);
-      
-      
-      throw new Error(`JSON parse failed: ${msg1}. finish_reason=${finish1}. snippet=${snippet1}`);
-    }
+      {
+        temperature: 0.4,
+        max_tokens: 65536,
+        response_format: {
+          type: "json_schema",
+          json_schema: schema,
+        } as any,
+      },
+      "/api/advice/pre-match",
+      { gameId: payload.gameId }
+    );
+
+    // 共通レスポンス処理メソッドを使用
+    return await this.processResponse(response, "pre-match");
   }
 
-  private buildPromptPayload(payload: AdvicePayload) {
+  /**
+   * 試合前アドバイス用プロンプトペイロード構築
+   * @param payload 試合情報
+   * @returns JSONペイロード文字列
+   */
+  private buildPromptPayload(payload: PreMatchAdvicePayload) {
     return JSON.stringify({
       // 自分のチャンピオンを明確に指定
       myChampionName: payload.myChampion?.championName,
@@ -212,22 +158,33 @@ export class OpenRouterClient {
       ...payload,
       schema: {
         対面チャンピオン分析: {
-          警戒ポイント: "string (対面チャンピオンの危険なタイミング、スキル、行動パターンを具体的に説明)",
-          対策方法: "string (対面チャンピオンに対する具体的な対策、ポジショニング、スキルの使い方を説明)"
+          警戒ポイント:
+            "string (対面チャンピオンの危険なタイミング、スキル、行動パターンを具体的に説明)",
+          対策方法:
+            "string (対面チャンピオンに対する具体的な対策、ポジショニング、スキルの使い方を説明)",
         },
         自分の戦略: {
-          レーン戦: "string (レーン戦での具体的な立ち回り、ファーム方法、ハラスのタイミング、ガンク対応を説明)",
-          集団戦: "string (集団戦での役割、ポジション、スキルの使用順序、狙うべきターゲットを説明)",
-          装備戦略: "string (相手チーム構成に合わせた装備選択、アイテムの優先順位、状況別の装備変更を説明)"
-        }
+          レーン戦:
+            "string (レーン戦での具体的な立ち回り、ファーム方法、ハラスのタイミング、ガンク対応を説明)",
+          集団戦:
+            "string (集団戦での役割、ポジション、スキルの使用順序、狙うべきターゲットを説明)",
+          装備戦略:
+            "string (相手チーム構成に合わせた装備選択、アイテムの優先順位、状況別の装備変更を説明)",
+        },
       },
     });
   }
 
+  /**
+   * 試合後分析アドバイス生成
+   * @param payload 試合結果データ
+   * @returns 生成された分析結果（JSON形式）
+   */
   async generatePostMatchAdvice(payload: PostMatchAdvicePayload) {
     const { systemPrompt, instruction } = await this.loadPostMatchPrompts();
     const inputJson = this.buildPostMatchPromptPayload(payload);
-    
+    const schema = await this.loadJsonSchema("post-match");
+
     // payloadで指定されたモデルを使用、なければデフォルトモデル
     const modelToUse = payload.model || this.defaultModel;
 
@@ -239,218 +196,245 @@ export class OpenRouterClient {
         queueId: payload.matchData?.gameInfo?.queueId,
         gameDuration: payload.matchData?.gameInfo?.gameDuration,
         myChampion: payload.matchData?.myParticipant?.championName,
-        result: payload.matchData?.myParticipant?.win ? 'WIN' : 'LOSE',
+        result: payload.matchData?.myParticipant?.win ? "WIN" : "LOSE",
         timelineEventsCount: payload.matchData?.timelineEvents?.length || 0,
       });
     } catch {
       // noop
     }
 
-    // 試合後分析用のレスポンス生成
-    const completion = await this.client.chat.completions.create({
-      model: modelToUse,
-      temperature: 0.6,
-      max_tokens: 65536,
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "lol_post_match_analysis",
-          strict: true,
-          schema: {
-            type: "object",
-            properties: {
-              "ゲーム全体の総評": {
-                type: "object",
-                properties: {
-                  "試合の流れ": {
-                    type: "string",
-                    description: "ゲーム全体の展開と結果に至るまでの流れを時系列で分析"
-                  },
-                  "勝敗要因": {
-                    type: "string", 
-                    description: "勝利または敗北の主要な要因とその背景"
-                  },
-                  "チーム貢献度": {
-                    type: "string",
-                    description: "チーム全体への貢献と役割の評価"
-                  }
-                },
-                required: ["試合の流れ", "勝敗要因", "チーム貢献度"],
-                additionalProperties: false
-              },
-              "良かった点・悪かった点": {
-                type: "object",
-                properties: {
-                  "ここが良かった": {
-                    type: "string",
-                    description: "具体的なタイムスタンプや場面を含む優秀なプレイの分析"
-                  },
-                  "ここが悪かった": {
-                    type: "string",
-                    description: "具体的な失敗場面とその原因、タイムスタンプ付きで分析"
-                  },
-                  "数値での評価": {
-                    type: "string",
-                    description: "KDA、CS、ダメージ等の統計データによる客観評価"
-                  }
-                },
-                required: ["ここが良かった", "ここが悪かった", "数値での評価"],
-                additionalProperties: false
-              },
-              "ターニングポイント分析": {
-                type: "object",
-                properties: {
-                  "試合の転換点": {
-                    type: "string",
-                    description: "ここで試合が逆転した・決定的になった瞬間の詳細分析"
-                  },
-                  "重要な判断": {
-                    type: "string",
-                    description: "勝敗を分けた重要な判断やプレイの分析"
-                  },
-                  "もしもの選択": {
-                    type: "string",
-                    description: "その場面で違う選択をしていたらどうなったかの仮説"
-                  }
-                },
-                required: ["試合の転換点", "重要な判断", "もしもの選択"],
-                additionalProperties: false
-              },
-              "アイテムビルド分析": {
-                type: "object",
-                properties: {
-                  "購入順序の評価": {
-                    type: "string",
-                    description: "分析対象プレイヤー（myParticipant）が実際に購入したアイテムのタイミングと選択の妥当性、各フェーズでの選択理由、より効率的だった代替ビルドの提案"
-                  },
-                  "相手チーム対応度": {
-                    type: "string",
-                    description: "分析対象プレイヤーのアイテム選択が敵チーム構成に対して適切だったか、対戦相手の脅威に対する防御アイテムの必要性、相手キャリーへの対策ができていたか"
-                  },
-                  "ビルド最適化提案": {
-                    type: "string",
-                    description: "同じ状況での理想的なアイテム構成、コストパフォーマンスの良いアイテム選択、試合状況に応じたビルド変更のタイミング"
-                  }
-                },
-                required: ["購入順序の評価", "相手チーム対応度", "ビルド最適化提案"],
-                additionalProperties: false
-              },
-              "具体的改善アドバイス": {
-                type: "object",
-                properties: {
-                  "こうするとよい": {
-                    type: "string",
-                    description: "次回同じような場面での具体的な改善行動"
-                  },
-                  "気をつける点": {
-                    type: "string",
-                    description: "次回の試合で意識すべきスキルや判断力"
-                  },
-                  "戦術的提案": {
-                    type: "string",
-                    description: "同チャンピオン・同ロールでの戦術改善案"
-                  }
-                },
-                required: ["こうするとよい", "気をつける点", "戦術的提案"],
-                additionalProperties: false
-              }
-            },
-            required: ["ゲーム全体の総評", "良かった点・悪かった点", "ターニングポイント分析", "アイテムビルド分析", "具体的改善アドバイス"],
-            additionalProperties: false
-          }
-        }
-      } as any,
-      messages: [
+    // 共通API呼び出しメソッドを使用
+    const response = await this.makeRequest(
+      modelToUse,
+      [
         { role: "system", content: systemPrompt },
         { role: "user", content: `${instruction}\n\n[INPUT]\n${inputJson}` },
       ],
+      {
+        temperature: 0.6,
+        max_tokens: 65536,
+        response_format: {
+          type: "json_schema",
+          json_schema: schema,
+        } as any,
+      },
+      "/api/advice/post-match",
+      { matchId: payload.matchId }
+    );
+
+    // 共通レスポンス処理メソッドを使用
+    return await this.processResponse(response, "post-match");
+  }
+
+  /**
+   * 試合後分析用プロンプトペイロード構築
+   * @param payload 試合結果データ
+   * @returns JSONペイロード文字列
+   */
+  private buildPostMatchPromptPayload(payload: PostMatchAdvicePayload) {
+    // 自分のアイテム購入履歴を抽出
+    const myItemPurchases =
+      payload.matchData?.timelineEvents?.filter(
+        (event: any) => event.type === "ITEM" && event.isMyself === true
+      ) || [];
+
+    return JSON.stringify(
+      {
+        matchId: payload.matchId,
+        myChampionName: payload.matchData?.myParticipant?.championName,
+        gameResult: payload.matchData?.myParticipant?.win ? "WIN" : "LOSE",
+        myItemPurchases: myItemPurchases.map((item: any) => ({
+          timeString: item.timeString,
+          timestamp: item.timestamp,
+          itemName: item.itemName,
+          itemId: item.itemId,
+          description: item.description,
+        })),
+        ...payload.matchData,
+      },
+      null,
+      2
+    );
+  }
+
+  /**
+   * 試合前アドバイス用プロンプトファイル読み込み
+   * @returns システムプロンプトと指示文
+   */
+  private async loadPreMatchPrompts() {
+    // 常にMDを読み込む（ホットリロード用途）
+    const cwd = process.cwd();
+    const systemPath = resolve(cwd, "server/prompts/system.md");
+    const instructionPath = resolve(
+      cwd,
+      "server/prompts/pre-match-instruction.md"
+    );
+    const [sysBuf, insBuf] = await Promise.all([
+      readFile(systemPath, "utf-8"),
+      readFile(instructionPath, "utf-8"),
+    ]);
+    return { systemPrompt: sysBuf.trim(), instruction: insBuf.trim() };
+  }
+
+  /**
+   * 試合後分析用プロンプトファイル読み込み
+   * @returns システムプロンプトと指示文
+   */
+  private async loadPostMatchPrompts() {
+    // 試合後分析用のプロンプトを読み込む
+    const cwd = process.cwd();
+    const systemPath = resolve(cwd, "server/prompts/system.md");
+    const instructionPath = resolve(
+      cwd,
+      "server/prompts/post-match-instruction.md"
+    );
+    const [sysBuf, insBuf] = await Promise.all([
+      readFile(systemPath, "utf-8"),
+      readFile(instructionPath, "utf-8"),
+    ]);
+    return { systemPrompt: sysBuf.trim(), instruction: insBuf.trim() };
+  }
+
+  /**
+   * JSONスキーマファイル読み込み
+   * @param schemaType スキーマタイプ（pre-match | post-match）
+   * @returns パースされたJSONスキーマオブジェクト
+   */
+  private async loadJsonSchema(
+    schemaType: "pre-match" | "post-match"
+  ): Promise<any> {
+    const cwd = process.cwd();
+    const schemaPath = resolve(cwd, `server/schemas/${schemaType}-schema.json`);
+
+    try {
+      const schemaBuf = await readFile(schemaPath, "utf-8");
+      return JSON.parse(schemaBuf);
+    } catch (error) {
+      console.error(
+        `[OpenRouterClient] Failed to load ${schemaType} schema:`,
+        error
+      );
+      throw new Error(`Failed to load ${schemaType} JSON schema`);
+    }
+  }
+
+  /**
+   * 共通API呼び出しメソッド（費用ログ統合）
+   * @param model 使用するAIモデル名
+   * @param messages チャットメッセージ配列
+   * @param config API設定オブジェクト
+   * @param endpoint APIエンドポイント名（ログ用）
+   * @param metadata 追加メタデータ（ログ用）
+   * @returns OpenAI APIレスポンス
+   */
+  private async makeRequest(
+    model: string,
+    messages: any[],
+    config: any,
+    endpoint: string,
+    metadata?: any
+  ): Promise<any> {
+    const startTime = Date.now();
+
+    try {
+      const response = await this.client.chat.completions.create({
+        model,
+        ...config,
+        messages,
+      });
+
+      const responseTime = Date.now() - startTime;
+
+      // 費用ログを統一処理
+      if (response.usage) {
+        await CostLogger.logCostSimple(
+          endpoint,
+          model,
+          {
+            prompt_tokens: response.usage.prompt_tokens,
+            completion_tokens: response.usage.completion_tokens,
+            total_tokens: response.usage.total_tokens,
+          },
+          metadata,
+          responseTime,
+          true
+        );
+      }
+
+      return response;
+    } catch (error: any) {
+      const responseTime = Date.now() - startTime;
+
+      // エラー時も費用ログ記録
+      await CostLogger.logError(
+        endpoint,
+        model,
+        error.message || String(error),
+        responseTime,
+        metadata
+      );
+
+      throw error;
+    }
+  }
+
+  /**
+   * 共通レスポンス処理メソッド
+   * @param response OpenAI APIレスポンス
+   * @param responseType レスポンスタイプ（pre-match | post-match）
+   * @returns パースされたJSONオブジェクト
+   */
+  private async processResponse(
+    response: any,
+    responseType: "pre-match" | "post-match"
+  ): Promise<any> {
+    const finishReason = response.choices?.[0]?.finish_reason;
+    const responseText = response.choices?.[0]?.message?.content || "";
+
+    // 統一ログ出力
+    console.log(`[AI] ${responseType} response meta`, {
+      finish_reason: finishReason,
+      model: response.model,
+      usage: response.usage || undefined,
     });
 
-    const finishReason = completion.choices?.[0]?.finish_reason;
-    const responseText = completion.choices?.[0]?.message?.content || "";
-    
-    console.log("[AI] Post-match response meta", {
-      finish_reason: finishReason,
-      model: completion.model,
-      usage: (completion as any).usage || undefined,
-    });
-    console.log("[AI] Post-match response content", responseText);
-    
-    // デバッグ用: レスポンスをtmpフォルダに保存
-    try {
-      const fs = await import('node:fs');
-      const path = await import('node:path');
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = `post-match-ai-response-${timestamp}.json`;
-      const tmpDir = path.resolve(process.cwd(), 'tmp');
-      
-      // tmpディレクトリが存在しない場合は作成
-      if (!fs.existsSync(tmpDir)) {
-        fs.mkdirSync(tmpDir, { recursive: true });
-      }
-      
-      const filepath = path.join(tmpDir, filename);
-      fs.writeFileSync(filepath, responseText, 'utf-8');
-      console.log(`[AI] Post-match response saved to: ${filepath}`);
-    } catch (saveError) {
-      console.log("[AI] Failed to save post-match response:", saveError);
-    }
-    
+    // 統一JSONレスポンス保存
+    await this.saveJsonResponse(responseText, responseType);
+
+    // JSON解析
     try {
       return JSON.parse(responseText);
     } catch (parseError: any) {
       const snippet = responseText.slice(0, 500);
       const msg = String(parseError?.message || parseError);
-      throw new Error(`Post-match JSON parse failed: ${msg}. finish_reason=${finishReason}. snippet=${snippet}`);
+      throw new Error(
+        `${responseType} JSON parse failed: ${msg}. finish_reason=${finishReason}. snippet=${snippet}`
+      );
     }
   }
 
-  private buildPostMatchPromptPayload(payload: PostMatchAdvicePayload) {
-    // 自分のアイテム購入履歴を抽出
-    const myItemPurchases = payload.matchData?.timelineEvents?.filter((event: any) => 
-      event.type === 'ITEM' && event.isMyself === true
-    ) || [];
+  /**
+   * 共通JSONレスポンス保存メソッド
+   * @param content 保存するJSONコンテンツ
+   * @param type ファイル名プレフィックス
+   */
+  private async saveJsonResponse(content: string, type: string): Promise<void> {
+    try {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const filename = `${type}-ai-response-${timestamp}.json`;
+      const tmpDir = path.resolve(process.cwd(), "tmp");
 
-    return JSON.stringify({
-      matchId: payload.matchId,
-      myChampionName: payload.matchData?.myParticipant?.championName,
-      gameResult: payload.matchData?.myParticipant?.win ? 'WIN' : 'LOSE',
-      myItemPurchases: myItemPurchases.map((item: any) => ({
-        timeString: item.timeString,
-        timestamp: item.timestamp,
-        itemName: item.itemName,
-        itemId: item.itemId,
-        description: item.description
-      })),
-      ...payload.matchData,
-    }, null, 2);
+      if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir, { recursive: true });
+      }
+
+      const filepath = path.join(tmpDir, filename);
+      fs.writeFileSync(filepath, content, "utf-8");
+      console.log(`[AI] ${type} response saved to: ${filepath}`);
+    } catch (saveError) {
+      console.log(`[AI] Failed to save ${type} response:`, saveError);
+    }
   }
-
-  private async loadPrompts() {
-    // 常にMDを読み込む（ホットリロード用途）
-    const cwd = process.cwd();
-    const systemPath = resolve(cwd, "server/prompts/system.md");
-    const instructionPath = resolve(cwd, "server/prompts/pre-match-instruction.md");
-    const [sysBuf, insBuf] = await Promise.all([
-      readFile(systemPath, "utf-8"),
-      readFile(instructionPath, "utf-8"),
-    ]);
-    return { systemPrompt: sysBuf.trim(), instruction: insBuf.trim() };
-  }
-
-  private async loadPostMatchPrompts() {
-    // 試合後分析用のプロンプトを読み込む
-    const cwd = process.cwd();
-    const systemPath = resolve(cwd, "server/prompts/system.md");
-    const instructionPath = resolve(cwd, "server/prompts/post-match-instruction.md");
-    const [sysBuf, insBuf] = await Promise.all([
-      readFile(systemPath, "utf-8"),
-      readFile(instructionPath, "utf-8"),
-    ]);
-    return { systemPrompt: sysBuf.trim(), instruction: insBuf.trim() };
-  }
-
-
-
-
 }

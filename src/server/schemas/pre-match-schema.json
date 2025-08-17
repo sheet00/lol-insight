@@ -1,0 +1,47 @@
+{
+  "name": "lol_advice_structured",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "対面チャンピオン分析": {
+        "type": "object",
+        "description": "自分のレーンの直接対面するチャンピオンのみに関する分析。BOT=ADC+SUP、MID/TOP/JG=各1人のみ。他のレーンのチャンピオンは含めない。",
+        "properties": {
+          "警戒ポイント": {
+            "type": "string",
+            "description": "対面チャンピオン（自分と同じレーン）の危険なタイミング、スキル、行動パターンを丁寧な長文で説明。具体的なレベル、時間帯、状況を含める。箇条書きは不可。他のレーンのチャンピオンは言及しない。"
+          },
+          "対策方法": {
+            "type": "string",
+            "description": "対面チャンピオン（自分と同じレーン）に対する具体的な対策、ポジショニング、スキルの使い方を丁寧な長文で説明。実行可能なアクションを含める。箇条書きは不可。他のレーンのチャンピオンは言及しない。"
+          }
+        },
+        "required": ["警戒ポイント", "対策方法"],
+        "additionalProperties": false
+      },
+      "自分の戦略": {
+        "type": "object",
+        "description": "自分のプレイに関する戦略",
+        "properties": {
+          "レーン戦": {
+            "type": "string",
+            "description": "レーン戦での具体的な立ち回り、ファーム方法、ハラスのタイミング、ガンク対応を丁寧な長文で説明。箇条書きは不可。"
+          },
+          "集団戦": {
+            "type": "string",
+            "description": "集団戦での役割、ポジション、スキルの使用順序、狙うべきターゲットを丁寧な長文で説明。箇条書きは不可。"
+          },
+          "装備戦略": {
+            "type": "string",
+            "description": "相手チーム構成に合わせた装備選択、アイテムの優先順位、状況別の装備変更を丁寧な長文で説明。具体的なアイテム名を含める。箇条書きは不可。"
+          }
+        },
+        "required": ["レーン戦", "集団戦", "装備戦略"],
+        "additionalProperties": false
+      }
+    },
+    "required": ["対面チャンピオン分析", "自分の戦略"],
+    "additionalProperties": false
+  }
+}

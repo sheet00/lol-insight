@@ -5,6 +5,7 @@ AGENTS.md
 work/
 
 tmp/
+logs/
 
 # Nuxt.js
 node_modules/
