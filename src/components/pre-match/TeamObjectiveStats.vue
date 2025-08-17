@@ -3,7 +3,7 @@
  * TeamObjectiveStats.vue - チーム成績・オブジェクト統計表示コンポーネント
  * 
  * 【使用場所】
- * - components/completed_match/CompletedMatch.vue（完了試合詳細内）
+ * - components/post-match/PostMatch.vue（完了試合詳細内）
  * 
  * 【機能・UI概要】
  * - 試合における両チームの総合統計情報表示

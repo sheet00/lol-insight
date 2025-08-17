@@ -3,7 +3,7 @@
  * MatchTimeline.vue - 試合タイムライン表示コンポーネント
  * 
  * 【使用場所】
- * - components/completed_match/CompletedMatch.vue（タイムラインタブ内）
+ * - components/post-match/PostMatch.vue（タイムラインタブ内）
  * 
  * 【機能・UI概要】
  * - 試合中の重要なイベント時系列表示

@@ -3,7 +3,7 @@
  * MatchHistoryItem.vue - 個別試合履歴項目コンポーネント
  * 
  * 【使用場所】
- * - components/completed_match/MatchHistoryList.vue（各試合項目として）
+ * - components/post-match/MatchHistoryList.vue（各試合項目として）
  * 
  * 【機能・UI概要】
  * - 単一試合の概要情報カード表示

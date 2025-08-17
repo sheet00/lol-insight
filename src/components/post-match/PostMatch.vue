@@ -1,6 +1,6 @@
 <!--
 /**
- * CompletedMatch.vue - 完了試合詳細表示コンポーネント
+ * PostMatch.vue - 完了試合詳細表示コンポーネント
  * 
  * 【使用場所】
  * - pages/index.vue（進行中試合がない場合のメイン表示）
@@ -247,11 +247,11 @@ import {
   createGetChampionName,
 } from "@/utils/championUtils";
 import championData from "@/data/champion.json";
-import TeamObjectiveStats from "~/components/live_match/TeamObjectiveStats.vue";
-import PlayerDamageStats from "~/components/completed_match/PlayerDamageStats.vue";
-import MatchTimeline from "~/components/completed_match/MatchTimeline.vue";
+import TeamObjectiveStats from "~/components/pre-match/TeamObjectiveStats.vue";
+import PlayerDamageStats from "~/components/post-match/PlayerDamageStats.vue";
+import MatchTimeline from "~/components/post-match/MatchTimeline.vue";
 import AIAnalysisButton from "~/components/common/AIAnalysisButton.vue";
-import "@/assets/styles/components/CompletedMatch.css";
+import "@/assets/styles/components/PostMatch.css";
 
 // Props
 interface Props {

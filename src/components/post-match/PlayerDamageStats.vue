@@ -3,7 +3,7 @@
  * PlayerDamageStats.vue - プレイヤーダメージ統計表示コンポーネント
  * 
  * 【使用場所】
- * - components/completed_match/CompletedMatch.vue（ダメージ統計タブ内）
+ * - components/post-match/PostMatch.vue（ダメージ統計タブ内）
  * 
  * 【機能・UI概要】
  * - 対象プレイヤーの詳細ダメージ統計表示

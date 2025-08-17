@@ -38,7 +38,7 @@
         </div>
 
         <!-- 進行中試合分析結果 -->
-        <LiveMatch
+        <PreMatch
           v-if="liveMatchData"
           :live-match-data="liveMatchData"
           :ai-advice="aiAdvice"
@@ -48,7 +48,7 @@
         />
 
         <!-- 過去試合分析結果 -->
-        <CompletedMatch
+        <PostMatch
           v-if="matchData"
           :match-data="matchData"
           :is-generating-advice="isPostMatchAdviceGenerating"
@@ -92,10 +92,10 @@ import type {
   LiveMatchDetail,
 } from "~/types";
 import SearchHeader from "~/components/common/SearchHeader.vue";
-import LiveMatch from "~/components/live_match/LiveMatch.vue";
-import CompletedMatch from "~/components/completed_match/CompletedMatch.vue";
-import PostMatchAnalysis from "~/components/completed_match/PostMatchAnalysis.vue";
-import MatchHistoryList from "~/components/completed_match/MatchHistoryList.vue";
+import PreMatch from "~/components/pre-match/PreMatch.vue";
+import PostMatch from "~/components/post-match/PostMatch.vue";
+import PostMatchAnalysis from "~/components/post-match/PostMatchAnalysis.vue";
+import MatchHistoryList from "~/components/post-match/MatchHistoryList.vue";
 import { formatGameMode, formatNumber } from "@/utils/gameFormatters";
 import {
   createChampionIdMap,

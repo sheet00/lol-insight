@@ -3,8 +3,8 @@
  * AIAnalysisButton.vue - AI分析実行ボタンコンポーネント
  * 
  * 【使用場所】
- * - components/live_match/LiveMatch.vue（ライブ試合画面）
- * - components/completed_match/CompletedMatch.vue（完了試合画面）
+ * - components/pre-match/PreMatch.vue（ライブ試合画面）
+ * - components/post-match/PostMatch.vue（完了試合画面）
  * 
  * 【機能・UI概要】
  * - AI分析開始ボタン（🤖アイコン付き）

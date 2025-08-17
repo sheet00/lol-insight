@@ -1,6 +1,6 @@
 <!--
 /**
- * LiveMatch.vue - 進行中試合詳細表示コンポーネント
+ * PreMatch.vue - 進行中試合詳細表示コンポーネント
  * 
  * 【使用場所】
  * - pages/index.vue（進行中試合がある場合のメイン表示）
@@ -445,7 +445,7 @@ import {
 } from "@/utils/championUtils";
 import championData from "@/data/champion.json";
 import AIAnalysisButton from "~/components/common/AIAnalysisButton.vue";
-import "@/assets/styles/components/LiveMatch.css";
+import "@/assets/styles/components/PreMatch.css";
 
 // Props
 interface Props {
