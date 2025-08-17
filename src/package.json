@@ -20,9 +20,18 @@
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@pinia/nuxt": "^0.11.2",
+    "better-sqlite3": "^11.5.0",
     "nuxt-auth-utils": "^0.5.23",
     "openai": "^5.12.2",
     "pinia": "^3.0.3",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "^2.6.2",
+    "@types/better-sqlite3": "^7.6.11",
+    "@volar/typescript": "^2.4.23",
+    "nuxt": "^4.0.3",
+    "typescript": "^5.9.2",
+    "vue-tsc": "^3.0.5"
   }
 }

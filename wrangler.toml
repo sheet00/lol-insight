@@ -4,9 +4,14 @@ compatibility_date = "2025-08-17"
 
 [env.production]
 name = "lol-teacher"
+[[env.production.d1_databases]]
+binding = "LOGS_DB"
+database_name = "lol-teacher-logs"
+database_id = "YOUR_D1_DATABASE_ID"
 
 [env.development] 
 name = "lol-teacher-dev"
+# 開発環境ではローカルSQLiteを使用（D1設定なし）
 
 # Node.js compat
 node_compat = true
@@ -16,3 +21,25 @@ node_compat = true
 command = "cd src && npm install && npm run build"
 cwd = "."
 watch_dir = "src"
+
+# Assets configuration for static files
+[env.production.assets]
+rules = [
+  { type = "fetch", globs = ["**/*"] }
+]
+
+# MIME type rules for static assets
+[[env.production.rules]]
+type = "transform"
+globs = ["**/*.css"]
+headers = { "content-type" = "text/css" }
+
+[[env.production.rules]]
+type = "transform"  
+globs = ["**/*.js"]
+headers = { "content-type" = "application/javascript" }
+
+[[env.production.rules]]
+type = "transform"
+globs = ["**/*.mjs"]
+headers = { "content-type" = "application/javascript" }

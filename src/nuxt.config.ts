@@ -11,6 +11,14 @@ export default defineNuxtConfig({
         cors: true,
       },
     },
+    // Cloudflare Workers用の静的ファイルハンドリング設定
+    cloudflare: {
+      pages: {
+        routes: {
+          exclude: ["/build/*", "/_nuxt/*"]
+        }
+      }
+    }
   },
   devtools: { enabled: true },
   compatibilityDate: "2025-08-11",

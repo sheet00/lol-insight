@@ -7,6 +7,7 @@
 
 import { v4 as uuidv4 } from 'uuid'
 import { CostCalculator, type CostResult } from './CostCalculator'
+import { DatabaseManager } from './DatabaseManager'
 
 export interface CostLogEntry {
   id: string                    // ユニークID (UUID)
@@ -44,8 +45,18 @@ export class CostLogger {
   /**
    * ログ出力の実装（環境に応じて切り替え）
    */
-  private static writeLog(logEntry: CostLogEntry): void {
+  private static async writeLog(logEntry: CostLogEntry, env?: any): Promise<void> {
     const logString = JSON.stringify(logEntry)
+    
+    // データベースに保存
+    await DatabaseManager.saveLog(
+      'info',
+      `Cost Log: ${logEntry.endpoint}`,
+      {
+        cost_log: logEntry
+      },
+      env
+    )
     
     if (this.isCloudflareWorkers()) {
       // Cloudflare Workers環境：console.logでログ出力
@@ -59,8 +70,9 @@ export class CostLogger {
   /**
    * 費用ログを記録
    * @param entry ログエントリ
+   * @param env Cloudflare環境オブジェクト
    */
-  static async logCost(entry: Partial<CostLogEntry>): Promise<void> {
+  static async logCost(entry: Partial<CostLogEntry>, env?: any): Promise<void> {
     try {
       // 必須フィールドのデフォルト値設定
       const logEntry: CostLogEntry = {
@@ -86,7 +98,7 @@ export class CostLogger {
       }
 
       // ログ出力
-      this.writeLog(logEntry)
+      await this.writeLog(logEntry, env)
       
       // 開発環境では詳細ログも出力
       const isDev = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development'
