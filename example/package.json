@@ -1,0 +1,13 @@
+{
+  "name": "openrouter-test",
+  "version": "1.0.0",
+  "description": "OpenRouter API テスト用スクリプト",
+  "main": "openrouter-test.js",
+  "scripts": {
+    "test": "node openrouter-test.js"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

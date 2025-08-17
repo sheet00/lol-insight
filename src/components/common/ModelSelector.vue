@@ -1,3 +1,18 @@
+<!--
+/**
+ * ModelSelector.vue - AI分析モデル選択ドロップダウンコンポーネント
+ * 
+ * 【使用場所】
+ * - components/common/SearchHeader.vue（ヘッダー右側）
+ * 
+ * 【機能・UI概要】
+ * - 利用可能なAIモデル一覧をドロップダウンで表示
+ * - ユーザーがGemini、GPT、Claude等から選択可能
+ * - 選択されたモデルを親コンポーネントに通知
+ * - AI分析（試合前アドバイス・試合後分析）で使用モデル切り替え
+ * - 環境変数で設定された利用可能モデルリストを表示
+ */
+-->
 <template>
   <div class="model-selector">
     <label for="ai-model-select" class="model-selector-label">
