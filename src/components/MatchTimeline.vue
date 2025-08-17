@@ -11,7 +11,7 @@
 
   <div
     class="timeline-content transition-all duration-300 ease-in-out"
-    :class="isExpanded ? 'max-h-screen opacity-100 overflow-y-auto' : 'max-h-0 opacity-0 overflow-hidden'"
+    :class="isExpanded ? 'max-h-none opacity-100' : 'max-h-0 opacity-0 overflow-hidden'"
   >
     <div class="timeline-header mt-4">
       <div class="timeline-controls">
