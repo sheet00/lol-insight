@@ -82,7 +82,9 @@ export default defineNuxtConfig({
     // パブリック（クライアントサイドでも利用可能）
     public: {
       apiBase: "/api",
-      availableAiModels: JSON.parse(process.env.AVAILABLE_AI_MODELS || "[]"),
+      // デフォルト値を設定。
+      // この値は、環境変数 NUXT_PUBLIC_AVAILABLE_AI_MODELS によってランタイムで上書きされる。
+      availableAiModels: '[]',
     },
   },
 });
