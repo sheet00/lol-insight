@@ -59,6 +59,12 @@ export default defineNuxtConfig({
     // プライベート（サーバーサイドのみ）
     riotApiKey: process.env.RIOT_API_KEY,
     appPassword: process.env.APP_PASSWORD,
+    // セッション（nuxt-auth-utils 用）
+    session: {
+      // Cloudflare Secrets: NUXT_SESSION_PASSWORD に設定する
+      // 型の都合で空文字を初期値にし、実運用ではSecretで上書きする
+      password: process.env.NUXT_SESSION_PASSWORD || "",
+    },
     openRouter: {
       apiKey: process.env.OPENROUTER_API_KEY,
       model: process.env.OPENROUTER_MODEL,
