@@ -23,13 +23,13 @@ command = "cd src && npm install && npm run build"
 cwd = "."
 watch_dir = "src"
 
-# Assets serving configuration
-[[env.production.assets]]
-bucket = ".output/public"
+# Assets serving configuration (全環境共通)
+[assets]
+bucket = "src/.output/public"
 exclude = ["*.map"]
 
-# Route configuration for static assets
-[[env.production.routes]]
+# Route configuration for static assets (全環境共通)
+[[routes]]
 pattern = "/_nuxt/*"
 script = "index.mjs"
 headers = [
