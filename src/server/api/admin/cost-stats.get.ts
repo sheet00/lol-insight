@@ -1,11 +1,27 @@
 /**
  * コストログ統計API
- * Prismaを使って費用統計を取得
+ * SQLITE一時無効化: Prismaを使って費用統計を取得
  */
-import { PrismaDatabaseManager } from '~/server/utils/PrismaDatabaseManager'
+// SQLITE一時無効化: import { PrismaDatabaseManager } from '~/server/utils/PrismaDatabaseManager'
 
 export default defineEventHandler(async (event) => {
   try {
+    // SQLITE一時無効化: 仮データを返す
+    return {
+      success: true,
+      period: 'today',
+      total: {
+        cost_usd: 0,
+        cost_jpy: 0,
+        tokens: 0,
+        requests: 0,
+      },
+      by_endpoint: [],
+      by_model: [],
+      recent_logs: [],
+    }
+
+    /* SQLITE一時無効化
     const query = getQuery(event)
     const { period = 'today' } = query
 
@@ -131,12 +147,13 @@ export default defineEventHandler(async (event) => {
       })),
       recent_logs: recentLogs,
     }
+    SQLITE一時無効化 */
 
   } catch (error) {
     console.error('Cost stats error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to get cost statistics'
+      statusMessage: 'Failed to get cost statistics (SQLITE disabled)'
     })
   }
 })

@@ -8,28 +8,29 @@
     "dev": "nuxt dev --host 0.0.0.0 --port 3000",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare && prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "postinstall": "nuxt prepare",
+    "_postinstall_disabled": "nuxt prepare && prisma generate",
+    "_db:migrate": "prisma migrate dev",
+    "_db:generate": "prisma generate",
+    "_db:push": "prisma db push",
+    "_db:studio": "prisma studio"
   },
   "devDependencies": {
     "@nuxt/devtools": "^2.6.2",
     "@volar/typescript": "^2.4.23",
     "nuxt": "^4.0.3",
-    "prisma": "^6.1.0",
+    "_prisma_disabled": "^6.1.0",
     "typescript": "^5.9.2",
     "vue-tsc": "^3.0.5"
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@pinia/nuxt": "^0.11.2",
-    "@prisma/adapter-d1": "^6.1.0",
-    "@prisma/client": "^6.1.0",
+    "_@prisma/adapter-d1_disabled": "^6.1.0",
+    "_@prisma/client_disabled": "^6.1.0",
     "nuxt-auth-utils": "^0.5.23",
     "openai": "^5.12.2",
     "pinia": "^3.0.3",
-    "uuid": "^11.1.0"
+    "_uuid_disabled": "^11.1.0"
   }
 }

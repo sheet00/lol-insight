@@ -5,9 +5,9 @@
  * 将来的にはCloudflare D1/KVストレージに対応予定
  */
 
-import { v4 as uuidv4 } from 'uuid'
+// SQLITE一時無効化: import { v4 as uuidv4 } from 'uuid'
 import { CostCalculator, type CostResult } from './CostCalculator'
-import { PrismaDatabaseManager } from './PrismaDatabaseManager'
+// SQLITE一時無効化: import { PrismaDatabaseManager } from './PrismaDatabaseManager'
 
 export interface CostLogEntry {
   id: string                    // ユニークID (UUID)
@@ -48,7 +48,8 @@ export class CostLogger {
   private static async writeLog(logEntry: CostLogEntry, env?: any): Promise<void> {
     const logString = JSON.stringify(logEntry)
     
-    // Prismaでコストログ保存
+    // SQLITE一時無効化: Prismaでコストログ保存
+    /* 
     await PrismaDatabaseManager.saveCostLog(
       {
         id: logEntry.id,
@@ -70,6 +71,7 @@ export class CostLogger {
       },
       env
     )
+    */
     
     if (this.isCloudflareWorkers()) {
       // Cloudflare Workers環境：console.logでログ出力
@@ -89,7 +91,7 @@ export class CostLogger {
     try {
       // 必須フィールドのデフォルト値設定
       const logEntry: CostLogEntry = {
-        id: uuidv4(),
+        id: 'temp-id-' + Date.now(), // SQLITE一時無効化: uuidv4(),
         timestamp: new Date().toISOString(),
         endpoint: entry.endpoint || 'unknown',
         model: entry.model || 'unknown',
