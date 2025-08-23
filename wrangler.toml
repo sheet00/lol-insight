@@ -1,24 +1,8 @@
+# Cloudflare Pages プロジェクト設定
 name = "lol-teacher"
-main = "src/.output/server/index.mjs"
 compatibility_date = "2024-09-19"
-compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "src/dist"
 
-# 静的アセットの設定（成功例参考）
-[site]
-bucket = "src/.output/public"
-
-[env.production]
-name = "lol-teacher"
-
-[[env.production.d1_databases]]
-binding = "LOGS_DB"
-database_name = "lol-teacher-logs"
-database_id = "YOUR_D1_DATABASE_ID"
-
-[env.development] 
-name = "lol-teacher-dev"
-# 開発環境ではローカルSQLiteを使用（D1設定なし）
-
-# Build settings（srcディレクトリ内のNuxtプロジェクト対応）
+# Cloudflare Pages用ビルド設定
 [build]
 command = "cd src && npm run build"
