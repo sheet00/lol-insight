@@ -23,18 +23,5 @@ command = "cd src && npm install && npm run build"
 cwd = "."
 watch_dir = "src"
 
-# Assets serving configuration (全環境共通)
-[assets]
-bucket = "src/.output/public"
-exclude = ["*.map"]
-
-# Route configuration for static assets (全環境共通)
-[[routes]]
-pattern = "/_nuxt/*"
-script = "index.mjs"
-headers = [
-  { header = "Content-Type", match = "*.css", value = "text/css" },
-  { header = "Content-Type", match = "*.js", value = "application/javascript" },
-  { header = "Content-Type", match = "*.mjs", value = "application/javascript" },
-  { header = "Cache-Control", value = "public, max-age=31536000, immutable" }
-]
+# Assets serving configuration - Nuxtのミドルウェアで処理
+# (wrangler.tomlでのassets設定は新バージョンで変更されたため無効化)
