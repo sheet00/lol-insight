@@ -48,10 +48,8 @@ export default defineEventHandler(async (event) => {
     // キャッシュヘッダーも設定
     setHeader(event, 'Cache-Control', 'public, max-age=31536000, immutable')
     
-    // X-Content-Type-Optionsヘッダーを完全に削除
-    removeHeader(event, 'X-Content-Type-Options')
-    
     // デバッグログ追加
-    console.log(`🔧 Static file served: ${url.pathname} (${ext}) -> Content-Type: ${event.headers['content-type'] || 'not set'}`)
+    const contentType = getHeader(event, 'content-type') || 'not set'
+    console.log(`🔧 Static file served: ${url.pathname} (${ext}) -> Content-Type: ${contentType}`)
   }
 })

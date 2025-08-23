@@ -13,9 +13,7 @@ export default defineNuxtConfig({
       "/_nuxt/**": {
         headers: {
           "cache-control": "public, max-age=31536000, immutable"
-        },
-        // 静的ファイルもNuxtルーターで処理
-        index: false
+        }
       }
     },
     // 静的ファイルの処理を無効化（ミドルウェアで処理）
