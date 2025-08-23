@@ -1,8 +1,13 @@
 import OpenAI from "openai";
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import { CostLogger } from "./CostLogger";
 import { CostCalculator } from "./CostCalculator";
+import {
+  SYSTEM_PROMPT,
+  PRE_MATCH_INSTRUCTION,
+  POST_MATCH_INSTRUCTION,
+  PRE_MATCH_SCHEMA,
+  POST_MATCH_SCHEMA
+} from "../constants/prompts";
 
 export type PreMatchAdvicePayload = {
   gameId: string;
@@ -258,57 +263,37 @@ export class OpenRouterClient {
   }
 
   /**
-   * 試合前アドバイス用プロンプトファイル読み込み
+   * 試合前アドバイス用プロンプト取得（Cloudflare Workers対応）
    * @returns システムプロンプトと指示文
    */
   private async loadPreMatchPrompts() {
-    // 常にMDを読み込む（ホットリロード用途）
-    const cwd = process.cwd();
-    const systemPath = resolve(cwd, "server/prompts/system.md");
-    const instructionPath = resolve(
-      cwd,
-      "server/prompts/pre-match-instruction.md"
-    );
-    const [sysBuf, insBuf] = await Promise.all([
-      readFile(systemPath, "utf-8"),
-      readFile(instructionPath, "utf-8"),
-    ]);
-    return { systemPrompt: sysBuf.trim(), instruction: insBuf.trim() };
+    return {
+      systemPrompt: SYSTEM_PROMPT.trim(),
+      instruction: PRE_MATCH_INSTRUCTION.trim()
+    };
   }
 
   /**
-   * 試合後分析用プロンプトファイル読み込み
+   * 試合後分析用プロンプト取得（Cloudflare Workers対応）
    * @returns システムプロンプトと指示文
    */
   private async loadPostMatchPrompts() {
-    // 試合後分析用のプロンプトを読み込む
-    const cwd = process.cwd();
-    const systemPath = resolve(cwd, "server/prompts/system.md");
-    const instructionPath = resolve(
-      cwd,
-      "server/prompts/post-match-instruction.md"
-    );
-    const [sysBuf, insBuf] = await Promise.all([
-      readFile(systemPath, "utf-8"),
-      readFile(instructionPath, "utf-8"),
-    ]);
-    return { systemPrompt: sysBuf.trim(), instruction: insBuf.trim() };
+    return {
+      systemPrompt: SYSTEM_PROMPT.trim(),
+      instruction: POST_MATCH_INSTRUCTION.trim()
+    };
   }
 
   /**
-   * JSONスキーマファイル読み込み
+   * JSONスキーマ取得（Cloudflare Workers対応）
    * @param schemaType スキーマタイプ（pre-match | post-match）
-   * @returns パースされたJSONスキーマオブジェクト
+   * @returns JSONスキーマオブジェクト
    */
   private async loadJsonSchema(
     schemaType: "pre-match" | "post-match"
   ): Promise<any> {
-    const cwd = process.cwd();
-    const schemaPath = resolve(cwd, `server/schemas/${schemaType}-schema.json`);
-
     try {
-      const schemaBuf = await readFile(schemaPath, "utf-8");
-      return JSON.parse(schemaBuf);
+      return schemaType === "pre-match" ? PRE_MATCH_SCHEMA : POST_MATCH_SCHEMA;
     } catch (error) {
       console.error(
         `[OpenRouterClient] Failed to load ${schemaType} schema:`,
@@ -398,8 +383,8 @@ export class OpenRouterClient {
       usage: response.usage || undefined,
     });
 
-    // 統一JSONレスポンス保存
-    await this.saveJsonResponse(responseText, responseType);
+    // JSONレスポンス保存はCloudflare Workers環境では無効（ファイルシステムアクセス不可）
+    // await this.saveJsonResponse(responseText, responseType);
 
     // JSON解析
     try {
@@ -413,28 +398,4 @@ export class OpenRouterClient {
     }
   }
 
-  /**
-   * 共通JSONレスポンス保存メソッド
-   * @param content 保存するJSONコンテンツ
-   * @param type ファイル名プレフィックス
-   */
-  private async saveJsonResponse(content: string, type: string): Promise<void> {
-    try {
-      const fs = await import("node:fs");
-      const path = await import("node:path");
-      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const filename = `${type}-ai-response-${timestamp}.json`;
-      const tmpDir = path.resolve(process.cwd(), "tmp");
-
-      if (!fs.existsSync(tmpDir)) {
-        fs.mkdirSync(tmpDir, { recursive: true });
-      }
-
-      const filepath = path.join(tmpDir, filename);
-      fs.writeFileSync(filepath, content, "utf-8");
-      console.log(`[AI] ${type} response saved to: ${filepath}`);
-    } catch (saveError) {
-      console.log(`[AI] Failed to save ${type} response:`, saveError);
-    }
-  }
 }

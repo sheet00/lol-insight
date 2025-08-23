@@ -16,6 +16,7 @@ node_modules/
 .nitro
 .cache
 .output
+.wrangler
 dist
 
 # OS

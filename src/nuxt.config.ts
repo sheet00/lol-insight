@@ -3,29 +3,12 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-09-19",
   
   nitro: {
-    experimental: {
-      wasm: true,
-    },
-    preset: 'cloudflare_pages', // 2025年推奨プリセット
-    // ルートルール警告を抑制
-    routeRules: {
-      "/api/**": {
-        headers: { "cache-control": "no-cache" },
-        cors: true,
-      },
-      "/_nuxt/**": {
-        headers: {
-          "cache-control": "public, max-age=31536000, immutable"
-        }
-      }
-    },
-    // 静的ファイルの処理を無効化（ミドルウェアで処理）
-    // publicAssets: [
-    //   {
-    //     dir: '_nuxt',
-    //     maxAge: 31536000
-    //   }
-    // ]
+    preset: "cloudflare_module",
+
+    cloudflare: {
+      deployConfig: true,
+      nodeCompat: true
+    }
   },
   devtools: { enabled: true },
 
@@ -36,7 +19,7 @@ export default defineNuxtConfig({
   css: ["~/assets/styles/main.css"],
 
   // モジュール
-  modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt", "nuxt-auth-utils"],
+  modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt", "nuxt-auth-utils", "nitro-cloudflare-dev"],
 
   // TypeScript 設定
   typescript: {

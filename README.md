@@ -121,6 +121,47 @@ npm install
 npm run dev
 ```
 
+## ☁️ Cloudflare Workers デプロイ
+
+### 前提条件
+- Wrangler CLI がインストールされていること
+- Cloudflare アカウントでログイン済みであること
+
+### デプロイ手順
+
+```bash
+cd src
+
+# ビルド & デプロイ（一括実行）
+npm run deploy
+
+# または手動で実行
+npm run build
+npx wrangler deploy
+```
+
+### 環境変数の設定
+
+Cloudflare Workers 環境では、環境変数をシークレットとして設定：
+
+```bash
+# 必須環境変数
+npx wrangler secret put RIOT_API_KEY
+
+# AI機能用（任意）
+npx wrangler secret put OPENROUTER_API_KEY
+npx wrangler secret put OPENROUTER_MODEL
+npx wrangler secret put AVAILABLE_AI_MODELS
+
+# 認証用（任意）
+npx wrangler secret put APP_PASSWORD
+```
+
+### 設定ファイル
+
+- `wrangler.jsonc` - Cloudflare Workers 設定
+- `nuxt.config.ts` - cloudflare-module プリセット対応
+
 ## 🎮 使用方法
 
 1. **プレイヤー検索**: ゲーム名とタグライン（例: shaat00#JP1）を入力
