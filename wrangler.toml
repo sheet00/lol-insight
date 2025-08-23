@@ -19,11 +19,6 @@ database_id = "YOUR_D1_DATABASE_ID"
 name = "lol-teacher-dev"
 # 開発環境ではローカルSQLiteを使用（D1設定なし）
 
-# Build settings
+# Build settings（srcディレクトリ内のNuxtプロジェクト対応）
 [build]
-command = "cd src && npm install && npm run build"
-cwd = "."
-watch_dir = "src"
-
-# Assets serving configuration - Nuxtのミドルウェアで処理
-# (wrangler.tomlでのassets設定は新バージョンで変更されたため無効化)
+command = "cd src && npm run build"
