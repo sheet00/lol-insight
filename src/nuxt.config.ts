@@ -13,16 +13,18 @@ export default defineNuxtConfig({
       "/_nuxt/**": {
         headers: {
           "cache-control": "public, max-age=31536000, immutable"
-        }
+        },
+        // 静的ファイルもNuxtルーターで処理
+        index: false
       }
     },
-    // 静的ファイルのキャッシュ設定
-    publicAssets: [
-      {
-        dir: '_nuxt',
-        maxAge: 31536000
-      }
-    ]
+    // 静的ファイルの処理を無効化（ミドルウェアで処理）
+    // publicAssets: [
+    //   {
+    //     dir: '_nuxt',
+    //     maxAge: 31536000
+    //   }
+    // ]
   },
   devtools: { enabled: true },
   compatibilityDate: "2025-08-11",
