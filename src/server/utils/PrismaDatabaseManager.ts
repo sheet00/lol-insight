@@ -1,139 +1,52 @@
-// Prisma Database Manager
-import { PrismaClient } from '@prisma/client'
-import { PrismaD1 } from '@prisma/adapter-d1'
+// SQLITE一時無効化: Prisma Database Manager
+// import { PrismaClient } from '@prisma/client'
+// import { PrismaD1 } from '@prisma/adapter-d1'
 
+// SQLITE一時無効化: ダミークラス
 export class PrismaDatabaseManager {
-  private static client: PrismaClient | null = null
+  private static client: any = null
 
   /**
    * Prisma Client インスタンス取得
    * 環境に応じて自動切り替え
    */
-  static getClient(env?: any): PrismaClient {
-    if (this.client) return this.client
-
-    // 本番環境：Cloudflare D1
-    if (env?.LOGS_DB) {
-      console.log('☁️ Using Cloudflare D1 with Prisma')
-      const adapter = new PrismaD1(env.LOGS_DB)
-      this.client = new PrismaClient({ 
-        adapter: adapter as any  // TypeScript型エラー回避
-      } as any)
-    }
-    // 開発環境：ローカルSQLite
-    else {
-      console.log('🔧 Using local SQLite with Prisma')
-      this.client = new PrismaClient()
-    }
-
-    return this.client
+  static getClient(env?: any): any {
+    console.log('⚠️ SQLITE一時無効化: PrismaDatabaseManager is disabled')
+    return null
   }
 
 
   /**
-   * コストログ保存
+   * コストログ保存（SQLITE一時無効化）
    */
   static async saveCostLog(
-    costData: {
-      id: string
-      timestamp?: Date
-      endpoint: string
-      model: string
-      promptTokens: number
-      completionTokens: number
-      totalTokens: number
-      inputCostUsd: number
-      outputCostUsd: number
-      totalCostUsd: number
-      totalCostJpy: number
-      responseTimeMs: number
-      success: boolean
-      error?: string
-      metadata?: any
-      level?: string
-    },
+    costData: any,
     env?: any
   ) {
-    try {
-      const prisma = this.getClient(env)
-      
-      await prisma.costLog.create({
-        data: {
-          ...costData,
-          timestamp: costData.timestamp || new Date(),
-          level: costData.level || 'info',
-          metadata: costData.metadata ? JSON.stringify(costData.metadata) : null,
-        },
-      })
-
-      console.log(`💰 Cost log saved: ${costData.endpoint} - $${costData.totalCostUsd}`)
-    } catch (error) {
-      console.error('❌ Failed to save cost log:', error)
-    }
+    console.log('⚠️ SQLITE一時無効化: saveCostLog is disabled')
   }
 
 
   /**
-   * コストログ取得
+   * コストログ取得（SQLITE一時無効化）
    */
   static async getCostLogs(limit = 100, env?: any) {
-    try {
-      const prisma = this.getClient(env)
-      
-      const logs = await prisma.costLog.findMany({
-        orderBy: { timestamp: 'desc' },
-        take: limit,
-      })
-
-      return logs.map(log => ({
-        ...log,
-        metadata: log.metadata ? JSON.parse(log.metadata) : null,
-      }))
-    } catch (error) {
-      console.error('❌ Failed to get cost logs:', error)
-      return []
-    }
+    console.log('⚠️ SQLITE一時無効化: getCostLogs is disabled')
+    return []
   }
 
   /**
-   * 今日のコスト合計取得
+   * 今日のコスト合計取得（SQLITE一時無効化）
    */
   static async getTodayCost(env?: any) {
-    try {
-      const prisma = this.getClient(env)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-
-      const result = await prisma.costLog.aggregate({
-        _sum: {
-          totalCostUsd: true,
-          totalCostJpy: true,
-        },
-        where: {
-          timestamp: {
-            gte: today,
-          },
-          success: true,
-        },
-      })
-
-      return {
-        totalUsd: result._sum.totalCostUsd || 0,
-        totalJpy: result._sum.totalCostJpy || 0,
-      }
-    } catch (error) {
-      console.error('❌ Failed to get today cost:', error)
-      return { totalUsd: 0, totalJpy: 0 }
-    }
+    console.log('⚠️ SQLITE一時無効化: getTodayCost is disabled')
+    return { totalUsd: 0, totalJpy: 0 }
   }
 
   /**
-   * 接続終了
+   * 接続終了（SQLITE一時無効化）
    */
   static async disconnect() {
-    if (this.client) {
-      await this.client.$disconnect()
-      this.client = null
-    }
+    console.log('⚠️ SQLITE一時無効化: disconnect is disabled')
   }
 }
