@@ -1,9 +1,12 @@
 export default defineNuxtConfig({
+  // 2025年推奨設定
+  compatibilityDate: "2024-09-19",
+  
   nitro: {
     experimental: {
       wasm: true,
     },
-    preset: 'cloudflare', // 成功例に合わせてcloudflareを使用
+    preset: 'cloudflare_pages', // 2025年推奨プリセット
     // ルートルール警告を抑制
     routeRules: {
       "/api/**": {
@@ -25,7 +28,6 @@ export default defineNuxtConfig({
     // ]
   },
   devtools: { enabled: true },
-  compatibilityDate: "2025-08-11",
 
   // SSR設定を明示的に指定
   ssr: true,
