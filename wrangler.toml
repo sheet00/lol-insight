@@ -1,6 +1,11 @@
 name = "lol-teacher"
 main = "src/.output/server/index.mjs"
 compatibility_date = "2025-08-17"
+compatibility_flags = ["nodejs_compat"]
+
+# 静的アセットの設定（成功例参考）
+[site]
+bucket = "src/.output/public"
 
 [env.production]
 name = "lol-teacher"
@@ -13,9 +18,6 @@ database_id = "YOUR_D1_DATABASE_ID"
 [env.development] 
 name = "lol-teacher-dev"
 # 開発環境ではローカルSQLiteを使用（D1設定なし）
-
-# Node.js compat
-node_compat = true
 
 # Build settings
 [build]
