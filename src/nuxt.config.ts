@@ -3,7 +3,7 @@ export default defineNuxtConfig({
     experimental: {
       wasm: true,
     },
-    preset: 'cloudflare',
+    preset: 'cloudflare', // 成功例に合わせてcloudflareを使用
     // ルートルール警告を抑制
     routeRules: {
       "/api/**": {
