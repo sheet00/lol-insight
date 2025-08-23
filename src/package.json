@@ -18,20 +18,24 @@
     "_db:studio": "prisma studio"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^2.6.2",
+    "@nuxt/devtools": "^2.6.3",
     "@volar/typescript": "^2.4.23",
     "nitro-cloudflare-dev": "^0.2.2",
     "nitropack": "^2.12.4",
     "nuxt": "^4.0.3",
     "typescript": "^5.9.2",
-    "vue-tsc": "^3.0.5",
+    "vue-tsc": "^3.0.6",
     "wrangler": "^4.32.0"
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@pinia/nuxt": "^0.11.2",
     "nuxt-auth-utils": "^0.5.23",
-    "openai": "^5.12.2",
+    "openai": "^5.15.0",
     "pinia": "^3.0.3"
+  },
+  "overrides": {
+    "replace-in-file": "^8.3.0",
+    "glob": "^10.4.5"
   }
 }
