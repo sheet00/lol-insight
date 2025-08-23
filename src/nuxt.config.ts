@@ -1,14 +1,14 @@
 export default defineNuxtConfig({
   // 2025年推奨設定
   compatibilityDate: "2024-09-19",
-  
+
   nitro: {
     preset: "cloudflare_module",
 
     cloudflare: {
       deployConfig: true,
-      nodeCompat: true
-    }
+      nodeCompat: true,
+    },
   },
   devtools: { enabled: true },
 
@@ -19,7 +19,12 @@ export default defineNuxtConfig({
   css: ["~/assets/styles/main.css"],
 
   // モジュール
-  modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt", "nuxt-auth-utils", "nitro-cloudflare-dev"],
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "@pinia/nuxt",
+    "nuxt-auth-utils",
+    "nitro-cloudflare-dev",
+  ],
 
   // TypeScript 設定
   typescript: {
@@ -77,19 +82,7 @@ export default defineNuxtConfig({
     // パブリック（クライアントサイドでも利用可能）
     public: {
       apiBase: "/api",
-      availableAiModels: (() => {
-        try {
-          return JSON.parse(
-            process.env.AVAILABLE_AI_MODELS || '["google/gemini-2.5-flash"]'
-          );
-        } catch (e) {
-          console.warn(
-            "AVAILABLE_AI_MODELS の解析に失敗、デフォルト値を使用:",
-            e
-          );
-          return ["google/gemini-2.5-flash"];
-        }
-      })(),
+      availableAiModels: JSON.parse(process.env.AVAILABLE_AI_MODELS || "[]"),
     },
   },
 });
