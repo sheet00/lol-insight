@@ -1,8 +1,0 @@
-# Cloudflare Pages プロジェクト設定
-name = "lol-teacher"
-compatibility_date = "2024-09-19"
-pages_build_output_dir = "src/dist"
-
-# Cloudflare Pages用ビルド設定
-[build]
-command = "cd src && npm run build"

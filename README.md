@@ -145,17 +145,27 @@ npx wrangler deploy
 Cloudflare Workers 環境では、環境変数をシークレットとして設定：
 
 ```bash
-# 必須環境変数
+# 必須（アプリ機能）
 npx wrangler secret put RIOT_API_KEY
+
+# 必須（セッション管理｜nuxt-auth-utils）
+# 32文字以上のランダムな文字列を推奨。未設定だと認証が動作しません
+npx wrangler secret put NUXT_SESSION_PASSWORD
+
+# 認証ゲート（任意）
+# 設定するとログイン画面でこの値との一致チェックを行います
+npx wrangler secret put APP_PASSWORD
 
 # AI機能用（任意）
 npx wrangler secret put OPENROUTER_API_KEY
 npx wrangler secret put OPENROUTER_MODEL
 npx wrangler secret put AVAILABLE_AI_MODELS
-
-# 認証用（任意）
-npx wrangler secret put APP_PASSWORD
 ```
+
+補足
+- 本プロジェクトは Cloudflare ランタイムの ENV を優先して参照します（`APP_PASSWORD` など）
+- シークレットを更新したら `npx wrangler deploy` で再デプロイしてください
+- `NUXT_SESSION_PASSWORD` はサーバー側セッション暗号化に必須です（公開しないでください）
 
 ### 設定ファイル
 
