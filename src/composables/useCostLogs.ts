@@ -1,5 +1,56 @@
 import { ref, onMounted } from "vue";
 
+interface CostLogsSummaryResponse {
+  success: boolean;
+  total: {
+    cost_usd: number;
+    cost_jpy: number;
+    tokens: number;
+    requests: number;
+  };
+  by_endpoint: Array<{
+    endpoint: string;
+    cost_usd: number;
+    tokens: number;
+    requests: number;
+  }>;
+  by_model: Array<{
+    model: string;
+    cost_usd: number;
+    tokens: number;
+    requests: number;
+  }>;
+}
+
+interface CostLogsListResponse {
+  success: boolean;
+  logs: Array<{
+    id: string;
+    timestamp: string;
+    createdAt: string;
+    endpoint: string;
+    model: string;
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+    inputCostUsd: number;
+    outputCostUsd: number;
+    totalCostUsd: number;
+    totalCostJpy: number;
+    responseTimeMs: number;
+    success: boolean;
+    error: string | null;
+    metadata: any;
+    level: string;
+  }>;
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
+
 export function useCostLogs() {
   // リアクティブデータ
   const stats = ref<any>({});
@@ -16,7 +67,9 @@ export function useCostLogs() {
   // メソッド
   const loadStats = async () => {
     try {
-      const response = await $fetch("/api/admin/cost/summary");
+      const response = await $fetch<CostLogsSummaryResponse>(
+        "/api/admin/cost/summary"
+      );
       stats.value = response;
     } catch (error) {
       console.error("Failed to load stats:", error);
@@ -35,12 +88,14 @@ export function useCostLogs() {
         offset: pagination.value.offset,
       };
 
-      const response = await $fetch("/api/admin/cost/list", { query });
+      const response = await $fetch<CostLogsListResponse>(
+        "/api/admin/cost/list",
+        { query }
+      );
 
-      const data = (response as any).data || (response as any).value || response;
-      if (data && data.logs) {
-        logs.value = data.logs;
-        pagination.value = data.pagination;
+      if (response && response.logs && response.pagination) {
+        logs.value = response.logs;
+        pagination.value = response.pagination;
       } else {
         logs.value = [];
         console.error("Unexpected response structure:", response);

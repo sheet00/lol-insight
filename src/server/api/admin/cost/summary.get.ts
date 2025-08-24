@@ -1,143 +1,127 @@
 /**
  * コストログ統計API
- * Prismaを使って費用統計を取得
+ * Drizzleを使って費用統計を取得
  */
-import { PrismaDatabaseManager } from '~/server/utils/PrismaDatabaseManager'
+import { DrizzleDatabaseManager } from "~/server/utils/DrizzleDatabaseManager";
+import { costLogs } from "~/server/db/schema";
+import { desc, count, sum, gte, eq, sql } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
   try {
-    const query = getQuery(event)
-    const { period } = query // デフォルト値を削除
+    const query = getQuery(event);
+    const { period } = query; // デフォルト値を削除
 
-    const prisma = PrismaDatabaseManager.getClient(event.context.cloudflare?.env)
+    const db = DrizzleDatabaseManager.getInstance();
 
     // 期間設定
-    let dateFilter: any = {}
+    let dateFilter: any = undefined;
     if (period) {
-      const now = new Date()
+      const now = new Date();
       switch (period) {
-        case 'today':
-          const today = new Date()
-          today.setHours(0, 0, 0, 0)
-          dateFilter = { gte: today }
-          break
-        case 'week':
-          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-          dateFilter = { gte: weekAgo }
-          break
-        case 'month':
-          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-          dateFilter = { gte: monthAgo }
-          break
+        case "today":
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          dateFilter = gte(costLogs.createdAt, today);
+          break;
+        case "week":
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          dateFilter = gte(costLogs.createdAt, weekAgo);
+          break;
+        case "month":
+          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          dateFilter = gte(costLogs.createdAt, monthAgo);
+          break;
       }
     }
 
+    // 基本統計のWHERE条件
+    const baseWhere = dateFilter
+      ? sql`${eq(costLogs.success, true)} AND ${dateFilter}`
+      : eq(costLogs.success, true);
+
     // 基本統計
-    const totalStats = await prisma.costLog.aggregate({
-      _sum: {
-        totalCostUsd: true,
-        totalCostJpy: true,
-        totalTokens: true,
-      },
-      _count: {
-        id: true,
-      },
-      where: {
-        timestamp: dateFilter,
-        success: true,
-      },
-    })
+    const totalStats = await db
+      .select({
+        totalCostUsd: sum(costLogs.totalCostUsd),
+        totalCostJpy: sum(costLogs.totalCostJpy),
+        totalTokens: sum(costLogs.totalTokens),
+        count: count(),
+      })
+      .from(costLogs)
+      .where(baseWhere);
 
     // エンドポイント別統計
-    const endpointStats = await prisma.costLog.groupBy({
-      by: ['endpoint'],
-      _sum: {
-        totalCostUsd: true,
-        totalTokens: true,
-      },
-      _count: {
-        id: true,
-      },
-      where: {
-        timestamp: dateFilter,
-        success: true,
-      },
-      orderBy: {
-        _sum: {
-          totalCostUsd: 'desc',
-        },
-      },
-    })
+    const endpointStats = await db
+      .select({
+        endpoint: costLogs.endpoint,
+        totalCostUsd: sum(costLogs.totalCostUsd),
+        totalTokens: sum(costLogs.totalTokens),
+        count: count(),
+      })
+      .from(costLogs)
+      .where(baseWhere)
+      .groupBy(costLogs.endpoint)
+      .orderBy(desc(sum(costLogs.totalCostUsd)));
 
     // モデル別統計
-    const modelStats = await prisma.costLog.groupBy({
-      by: ['model'],
-      _sum: {
-        totalCostUsd: true,
-        totalTokens: true,
-      },
-      _count: {
-        id: true,
-      },
-      where: {
-        timestamp: dateFilter,
-        success: true,
-      },
-      orderBy: {
-        _sum: {
-          totalCostUsd: 'desc',
-        },
-      },
-    })
+    const modelStats = await db
+      .select({
+        model: costLogs.model,
+        totalCostUsd: sum(costLogs.totalCostUsd),
+        totalTokens: sum(costLogs.totalTokens),
+        count: count(),
+      })
+      .from(costLogs)
+      .where(baseWhere)
+      .groupBy(costLogs.model)
+      .orderBy(desc(sum(costLogs.totalCostUsd)));
 
     // 最新のログ
-    const recentLogs = await prisma.costLog.findMany({
-      orderBy: { timestamp: 'desc' },
-      take: 10,
-      where: {
-        timestamp: dateFilter,
-      },
-      select: {
-        id: true,
-        timestamp: true,
-        endpoint: true,
-        model: true,
-        totalCostUsd: true,
-        totalTokens: true,
-        success: true,
-        responseTimeMs: true,
-      },
-    })
+    const whereClause = dateFilter ? dateFilter : undefined;
+    const recentLogs = await db
+      .select({
+        id: costLogs.id,
+        createdAt: costLogs.createdAt,
+        endpoint: costLogs.endpoint,
+        model: costLogs.model,
+        totalCostUsd: costLogs.totalCostUsd,
+        totalTokens: costLogs.totalTokens,
+        success: costLogs.success,
+        responseTimeMs: costLogs.responseTimeMs,
+      })
+      .from(costLogs)
+      .where(whereClause)
+      .orderBy(desc(costLogs.createdAt))
+      .limit(10);
 
     return {
       success: true,
       period,
       total: {
-        cost_usd: totalStats._sum.totalCostUsd || 0,
-        cost_jpy: totalStats._sum.totalCostJpy || 0,
-        tokens: totalStats._sum.totalTokens || 0,
-        requests: totalStats._count.id || 0,
+        cost_usd: totalStats[0]?.totalCostUsd || 0,
+        cost_jpy: totalStats[0]?.totalCostJpy || 0,
+        tokens: totalStats[0]?.totalTokens || 0,
+        requests: totalStats[0]?.count || 0,
       },
-      by_endpoint: endpointStats.map(stat => ({
+      by_endpoint: endpointStats.map((stat: any) => ({
         endpoint: stat.endpoint,
-        cost_usd: stat._sum.totalCostUsd || 0,
-        tokens: stat._sum.totalTokens || 0,
-        requests: stat._count.id || 0,
+        cost_usd: stat.totalCostUsd || 0,
+        tokens: stat.totalTokens || 0,
+        requests: stat.count || 0,
       })),
-      by_model: modelStats.map(stat => ({
+      by_model: modelStats.map((stat: any) => ({
         model: stat.model,
-        cost_usd: stat._sum.totalCostUsd || 0,
-        tokens: stat._sum.totalTokens || 0,
-        requests: stat._count.id || 0,
+        cost_usd: stat.totalCostUsd || 0,
+        tokens: stat.totalTokens || 0,
+        requests: stat.count || 0,
       })),
       recent_logs: recentLogs,
-    }
-
+    };
   } catch (error) {
-    console.error('Cost stats error:', error)
+    console.error("Cost stats error:", error);
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to get cost statistics'
-    })
+      statusMessage: "Failed to get cost statistics",
+    });
   }
-})
+});
