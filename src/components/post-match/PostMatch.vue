@@ -86,6 +86,7 @@
     <div class="card">
       <MatchTimeline
         v-if="matchData.matchId"
+        :key="matchData.matchId"
         :match-id="matchData.matchId"
         :match-data="matchData"
       />
