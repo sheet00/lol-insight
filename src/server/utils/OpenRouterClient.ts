@@ -69,14 +69,6 @@ export class OpenRouterClient {
     const apiKey = process.env.OPENROUTER_API_KEY;
     const baseURL = process.env.OPENROUTER_BASE_URL;
 
-    // デバッグログを追加
-    console.log("[DEBUG] OpenRouterClient constructor - process.env:", {
-      hasApiKey: !!apiKey,
-      baseURL: baseURL,
-      OPENROUTER_API_KEY: apiKey ? "exists" : "undefined",
-      OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL || "undefined",
-    });
-
     if (!apiKey) throw new Error("OPENROUTER_API_KEY が未設定です");
 
     if (!baseURL) throw new Error("OPENROUTER_BASE_URL が未設定です");
@@ -101,25 +93,21 @@ export class OpenRouterClient {
     const modelToUse = payload.model;
     if (!modelToUse) throw new Error("モデルが指定されていません");
 
-    try {
-      const my = Array.isArray(payload.myTeam)
-        ? payload.myTeam.map((p) => p.championName)
-        : [];
-      const en = Array.isArray(payload.enemyTeam)
-        ? payload.enemyTeam.map((p) => p.championName)
-        : [];
-      console.log("[AI] Request summary", {
-        model: modelToUse,
-        gameId: payload.gameId,
-        gameMode: payload.gameInfo?.gameMode,
-        queueId: payload.gameInfo?.queueId,
-        myChampion: payload.myChampion?.championName,
-        myTeam: my,
-        enemyTeam: en,
-      });
-    } catch {
-      // noop
-    }
+    const my = Array.isArray(payload.myTeam)
+      ? payload.myTeam.map((p) => p.championName)
+      : [];
+    const en = Array.isArray(payload.enemyTeam)
+      ? payload.enemyTeam.map((p) => p.championName)
+      : [];
+    console.log("[AI] 試合前 pre-match request summary", {
+      model: modelToUse,
+      gameId: payload.gameId,
+      gameMode: payload.gameInfo?.gameMode,
+      queueId: payload.gameInfo?.queueId,
+      myChampion: payload.myChampion?.championName,
+      myTeam: my,
+      enemyTeam: en,
+    });
 
     // 共通API呼び出しメソッドを使用
     const response = await this.makeRequest(
@@ -188,20 +176,16 @@ export class OpenRouterClient {
     const modelToUse = payload.model;
     if (!modelToUse) throw new Error("モデルが指定されていません");
 
-    try {
-      console.log("[AI] Post-match request summary", {
-        model: modelToUse,
-        matchId: payload.matchId,
-        gameMode: payload.matchData?.gameInfo?.gameMode,
-        queueId: payload.matchData?.gameInfo?.queueId,
-        gameDuration: payload.matchData?.gameInfo?.gameDuration,
-        myChampion: payload.matchData?.myParticipant?.championName,
-        result: payload.matchData?.myParticipant?.win ? "WIN" : "LOSE",
-        timelineEventsCount: payload.matchData?.timelineEvents?.length || 0,
-      });
-    } catch {
-      // noop
-    }
+    console.log("[AI] 試合後 Post-match request summary", {
+      model: modelToUse,
+      matchId: payload.matchId,
+      gameMode: payload.matchData?.gameInfo?.gameMode,
+      queueId: payload.matchData?.gameInfo?.queueId,
+      gameDuration: payload.matchData?.gameInfo?.gameDuration,
+      myChampion: payload.matchData?.myParticipant?.championName,
+      result: payload.matchData?.myParticipant?.win ? "WIN" : "LOSE",
+      timelineEventsCount: payload.matchData?.timelineEvents?.length || 0,
+    });
 
     // 共通API呼び出しメソッドを使用
     const response = await this.makeRequest(

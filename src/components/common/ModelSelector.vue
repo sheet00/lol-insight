@@ -85,10 +85,7 @@ const onModelChange = () => {
 
 // 初期値設定（マウント時にデフォルト値をemit）
 onMounted(() => {
-  console.log("[DEBUG] ModelSelector mounted - selectedModel:", selectedModel.value);
-  console.log("[DEBUG] ModelSelector mounted - availableModels:", availableModels.value);
   if (selectedModel.value) {
-    console.log("[DEBUG] ModelSelector emitting initial value:", selectedModel.value);
     emit("update:modelValue", selectedModel.value);
     emit("change", selectedModel.value);
   }
