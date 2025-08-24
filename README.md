@@ -96,9 +96,6 @@ RIOT_API_KEY=your_riot_api_key_here
 # OpenRouter API Key (AIアドバイス機能用、任意)
 OPENROUTER_API_KEY=your_openrouter_api_key_here
 
-# デフォルトAIモデル (任意、未設定時はgoogle/gemini-2.5-flash)
-OPENROUTER_MODEL=google/gemini-2.5-flash
-
 # 利用可能なAIモデル一覧 (JSON形式)
 AVAILABLE_AI_MODELS=["google/gemini-2.5-flash","openai/gpt-4o-mini","anthropic/claude-3-haiku"]
 ```
@@ -124,6 +121,7 @@ npm run dev
 ## ☁️ Cloudflare Workers デプロイ
 
 ### 前提条件
+
 - Wrangler CLI がインストールされていること
 - Cloudflare アカウントでログイン済みであること
 
@@ -136,8 +134,7 @@ cd src
 npm run deploy
 
 # または手動で実行
-npm run build
-npx wrangler deploy
+npm run build; npx wrangler deploy
 ```
 
 ### 環境変数の設定
@@ -163,9 +160,28 @@ npx wrangler secret put AVAILABLE_AI_MODELS
 ```
 
 補足
+
 - 本プロジェクトは Cloudflare ランタイムの ENV を優先して参照します（`APP_PASSWORD` など）
 - シークレットを更新したら `npx wrangler deploy` で再デプロイしてください
 - `NUXT_SESSION_PASSWORD` はサーバー側セッション暗号化に必須です（公開しないでください）
+
+### ⚠️ 重要：環境変数の挙動について
+
+Cloudflare Workers では、環境変数の種類により `wrangler deploy` の挙動が異なります：
+
+- **シークレット変数**（`wrangler secret put` で設定）→ デプロイで **消えない** ✅
+- **テキスト変数**（ダッシュボード手動設定）→ デプロイで **消える** ❌
+
+**解決方法：**
+1. `scripts/deploy.sh` で `--keep-vars` オプションを使用（推奨）
+2. または `wrangler.jsonc` の `vars` セクションに記述
+
+```bash
+# 手動設定した環境変数を保持してデプロイ
+npx wrangler deploy --keep-vars
+```
+
+この仕様により、パブリックな設定（`NUXT_PUBLIC_*`）をダッシュボードで手動設定すると消える場合があります。
 
 ### 設定ファイル
 
@@ -198,6 +214,13 @@ npx wrangler secret put AVAILABLE_AI_MODELS
 - 複数の AI モデルに対応（Gemini, GPT 等）
 - 構造化された JSON レスポンス形式
 - プロンプトテンプレートによる一貫性のある出力
+
+### 環境変数取得ルール（Cloudflare対応）
+
+- **サーバーサイドAPI**: `process.env`から直接取得（`useRuntimeConfig`禁止）
+- **フロントエンドUI**: `NUXT_PUBLIC_*`変数のみ`useRuntimeConfig`使用可能
+- **理由**: Cloudflare Workers環境で`useRuntimeConfig`が正常に動作しないため
+- **デフォルト値設定**: 設定漏れ検知のため、デフォルト値設定を禁止
 
 ### コーディング規約
 

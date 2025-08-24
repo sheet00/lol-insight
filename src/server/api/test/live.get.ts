@@ -85,8 +85,7 @@ async function retryUntilClassicFound(
 }
 
 export default defineEventHandler(async () => {
-  const config = useRuntimeConfig();
-  const apiKey = (config as any)?.riotApiKey || process.env.RIOT_API_KEY;
+  const apiKey = process.env.RIOT_API_KEY;
   if (!apiKey) {
     throw createError({
       statusCode: 500,

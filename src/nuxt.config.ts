@@ -61,30 +61,12 @@ export default defineNuxtConfig({
 
   // 環境変数
   runtimeConfig: {
-    // プライベート（サーバーサイドのみ）
-    riotApiKey: process.env.RIOT_API_KEY,
-    appPassword: process.env.APP_PASSWORD,
-    // セッション（nuxt-auth-utils 用）
-    session: {
-      // Cloudflare Secrets: NUXT_SESSION_PASSWORD に設定する
-      // 型の都合で空文字を初期値にし、実運用ではSecretで上書きする
-      password: process.env.NUXT_SESSION_PASSWORD || "",
-    },
-    openRouter: {
-      apiKey: process.env.OPENROUTER_API_KEY,
-      model: process.env.OPENROUTER_MODEL,
-      baseURL:
-        process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1",
-      httpReferer: process.env.OPENROUTER_HTTP_REFERER,
-      xTitle: process.env.OPENROUTER_X_TITLE,
-    },
-
     // パブリック（クライアントサイドでも利用可能）
     public: {
       apiBase: "/api",
       // デフォルト値を設定。
       // この値は、環境変数 NUXT_PUBLIC_AVAILABLE_AI_MODELS によってランタイムで上書きされる。
-      availableAiModels: '[]',
+      availableAiModels: "[]",
     },
   },
 });

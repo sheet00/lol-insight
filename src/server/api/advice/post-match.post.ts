@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     hasMyParticipant: !!matchData?.myParticipant,
     hasTimelineEvents: Array.isArray(matchData?.timelineEvents),
     timelineEventsCount: Array.isArray(matchData?.timelineEvents) ? matchData.timelineEvents.length : 0,
-    model: model || 'default'
+    model: model
   })
 
   // バリデーション

@@ -17,8 +17,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const runtimeConfig = useRuntimeConfig();
-    const apiKey = runtimeConfig.riotApiKey;
+    const apiKey = process.env.RIOT_API_KEY;
 
     if (!apiKey) {
       throw createError({

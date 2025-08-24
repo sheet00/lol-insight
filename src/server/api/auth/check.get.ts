@@ -1,6 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const appPassword = config.appPassword
+  const appPassword = process.env.APP_PASSWORD
 
   // パスワードが設定されていない場合は常に認証済みとする
   if (!appPassword) {

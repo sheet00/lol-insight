@@ -6,7 +6,7 @@ import {
   PRE_MATCH_INSTRUCTION,
   POST_MATCH_INSTRUCTION,
   PRE_MATCH_SCHEMA,
-  POST_MATCH_SCHEMA
+  POST_MATCH_SCHEMA,
 } from "../constants/prompts";
 
 export type PreMatchAdvicePayload = {
@@ -57,7 +57,6 @@ export type PostMatchAdvicePayload = {
  */
 export class OpenRouterClient {
   private client: OpenAI;
-  private defaultModel: string;
 
   /**
    * OpenRouterClientのコンストラクター
@@ -65,33 +64,19 @@ export class OpenRouterClient {
    */
   constructor() {
     const config = useRuntimeConfig() as any;
-    const or = config?.openRouter || {};
 
-    if (!or?.apiKey) throw new Error("OPENROUTER_API_KEY が未設定です");
+    // process.envから直接取得
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    const baseURL = process.env.OPENROUTER_BASE_URL;
 
-    // デフォルトモデルの決定：ENVに設定があればそれを使用、なければAVAILABLE_AI_MODELSの先頭を使用
-    let defaultModel = or?.model;
-    if (!defaultModel) {
-      const availableModels = config?.public?.availableAiModels || [];
-      if (availableModels.length > 0) {
-        defaultModel = availableModels[0];
-      } else {
-        throw new Error(
-          "デフォルトモデルが設定されていません（OPENROUTER_MODEL または AVAILABLE_AI_MODELS が必要です）"
-        );
-      }
-    }
+    if (!apiKey) throw new Error("OPENROUTER_API_KEY が未設定です");
+
+    if (!baseURL) throw new Error("OPENROUTER_BASE_URL が未設定です");
 
     this.client = new OpenAI({
-      baseURL: or.baseURL || "https://openrouter.ai/api/v1",
-      apiKey: or.apiKey,
-      defaultHeaders: {
-        "HTTP-Referer":
-          or.httpReferer || "https://github.com/your-org/lol-teacher",
-        "X-Title": or.xTitle || "lol-teacher",
-      },
+      baseURL,
+      apiKey,
     });
-    this.defaultModel = defaultModel;
   }
 
   /**
@@ -104,28 +89,25 @@ export class OpenRouterClient {
     const inputJson = this.buildPromptPayload(payload);
     const schema = await this.loadJsonSchema("pre-match");
 
-    // payloadで指定されたモデルを使用、なければデフォルトモデル
-    const modelToUse = payload.model || this.defaultModel;
+    // payloadで指定されたモデルを使用（必須）
+    const modelToUse = payload.model;
+    if (!modelToUse) throw new Error("モデルが指定されていません");
 
-    try {
-      const my = Array.isArray(payload.myTeam)
-        ? payload.myTeam.map((p) => p.championName)
-        : [];
-      const en = Array.isArray(payload.enemyTeam)
-        ? payload.enemyTeam.map((p) => p.championName)
-        : [];
-      console.log("[AI] Request summary", {
-        model: modelToUse,
-        gameId: payload.gameId,
-        gameMode: payload.gameInfo?.gameMode,
-        queueId: payload.gameInfo?.queueId,
-        myChampion: payload.myChampion?.championName,
-        myTeam: my,
-        enemyTeam: en,
-      });
-    } catch {
-      // noop
-    }
+    const my = Array.isArray(payload.myTeam)
+      ? payload.myTeam.map((p) => p.championName)
+      : [];
+    const en = Array.isArray(payload.enemyTeam)
+      ? payload.enemyTeam.map((p) => p.championName)
+      : [];
+    console.log("[AI] 試合前 pre-match request summary", {
+      model: modelToUse,
+      gameId: payload.gameId,
+      gameMode: payload.gameInfo?.gameMode,
+      queueId: payload.gameInfo?.queueId,
+      myChampion: payload.myChampion?.championName,
+      myTeam: my,
+      enemyTeam: en,
+    });
 
     // 共通API呼び出しメソッドを使用
     const response = await this.makeRequest(
@@ -190,23 +172,20 @@ export class OpenRouterClient {
     const inputJson = this.buildPostMatchPromptPayload(payload);
     const schema = await this.loadJsonSchema("post-match");
 
-    // payloadで指定されたモデルを使用、なければデフォルトモデル
-    const modelToUse = payload.model || this.defaultModel;
+    // payloadで指定されたモデルを使用（必須）
+    const modelToUse = payload.model;
+    if (!modelToUse) throw new Error("モデルが指定されていません");
 
-    try {
-      console.log("[AI] Post-match request summary", {
-        model: modelToUse,
-        matchId: payload.matchId,
-        gameMode: payload.matchData?.gameInfo?.gameMode,
-        queueId: payload.matchData?.gameInfo?.queueId,
-        gameDuration: payload.matchData?.gameInfo?.gameDuration,
-        myChampion: payload.matchData?.myParticipant?.championName,
-        result: payload.matchData?.myParticipant?.win ? "WIN" : "LOSE",
-        timelineEventsCount: payload.matchData?.timelineEvents?.length || 0,
-      });
-    } catch {
-      // noop
-    }
+    console.log("[AI] 試合後 Post-match request summary", {
+      model: modelToUse,
+      matchId: payload.matchId,
+      gameMode: payload.matchData?.gameInfo?.gameMode,
+      queueId: payload.matchData?.gameInfo?.queueId,
+      gameDuration: payload.matchData?.gameInfo?.gameDuration,
+      myChampion: payload.matchData?.myParticipant?.championName,
+      result: payload.matchData?.myParticipant?.win ? "WIN" : "LOSE",
+      timelineEventsCount: payload.matchData?.timelineEvents?.length || 0,
+    });
 
     // 共通API呼び出しメソッドを使用
     const response = await this.makeRequest(
@@ -269,7 +248,7 @@ export class OpenRouterClient {
   private async loadPreMatchPrompts() {
     return {
       systemPrompt: SYSTEM_PROMPT.trim(),
-      instruction: PRE_MATCH_INSTRUCTION.trim()
+      instruction: PRE_MATCH_INSTRUCTION.trim(),
     };
   }
 
@@ -280,7 +259,7 @@ export class OpenRouterClient {
   private async loadPostMatchPrompts() {
     return {
       systemPrompt: SYSTEM_PROMPT.trim(),
-      instruction: POST_MATCH_INSTRUCTION.trim()
+      instruction: POST_MATCH_INSTRUCTION.trim(),
     };
   }
 
@@ -397,5 +376,4 @@ export class OpenRouterClient {
       );
     }
   }
-
 }
