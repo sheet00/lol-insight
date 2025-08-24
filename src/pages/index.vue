@@ -484,6 +484,11 @@ const onMatchSelected = (matchId: string, selectedMatchData: MatchDetail) => {
   aiDurationMs.value = null;
   postMatchAdvice.value = null;
 
+  // ページ最上部にスクロール
+  if (typeof window !== 'undefined') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   console.log("試合詳細が設定されました:", {
     matchId: selectedMatchData.matchId,
     champion: selectedMatchData.myParticipant?.championName,
