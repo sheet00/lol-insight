@@ -97,14 +97,27 @@
           </form>
         </div>
 
-        <!-- ログアウトボタン -->
-        <button
-          @click="handleLogout"
-          class="logout-button ml-4 flex items-center justify-center"
-          title="ログアウト"
-        >
-          🚪
-        </button>
+        <!-- 右側のボタン群 -->
+        <div class="flex items-center gap-2">
+          <!-- 管理者リンク -->
+          <NuxtLink
+            to="/admin/cost-logs"
+            class="admin-link text-xs px-3 py-1 rounded-lg transition-all shadow-sm hover:shadow-md"
+            style="background-color: var(--lol-gold); color: var(--lol-blue-1); font-weight: 600;"
+            title="コストログ管理"
+          >
+            💰 コスト管理
+          </NuxtLink>
+          
+          <!-- ログアウトボタン -->
+          <button
+            @click="handleLogout"
+            class="logout-button flex items-center justify-center"
+            title="ログアウト"
+          >
+            🚪
+          </button>
+        </div>
       </div>
     </div>
   </header>

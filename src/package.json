@@ -30,9 +30,13 @@
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@pinia/nuxt": "^0.11.2",
+    "@prisma/client": "^6.14.0",
+    "@types/uuid": "^10.0.0",
     "nuxt-auth-utils": "^0.5.23",
     "openai": "^5.15.0",
-    "pinia": "^3.0.3"
+    "pinia": "^3.0.3",
+    "prisma": "^6.14.0",
+    "uuid": "^11.1.0"
   },
   "overrides": {
     "replace-in-file": "^8.3.0",

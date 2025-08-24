@@ -5,9 +5,9 @@
  * 将来的にはCloudflare D1/KVストレージに対応予定
  */
 
-// SQLITE一時無効化: import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { CostCalculator, type CostResult } from './CostCalculator'
-// SQLITE一時無効化: import { PrismaDatabaseManager } from './PrismaDatabaseManager'
+import { PrismaDatabaseManager } from './PrismaDatabaseManager'
 
 export interface CostLogEntry {
   id: string                    // ユニークID (UUID)
@@ -48,30 +48,33 @@ export class CostLogger {
   private static async writeLog(logEntry: CostLogEntry, env?: any): Promise<void> {
     const logString = JSON.stringify(logEntry)
     
-    // SQLITE一時無効化: Prismaでコストログ保存
-    /* 
-    await PrismaDatabaseManager.saveCostLog(
-      {
-        id: logEntry.id,
-        timestamp: new Date(logEntry.timestamp),
-        endpoint: logEntry.endpoint,
-        model: logEntry.model,
-        promptTokens: logEntry.usage.prompt_tokens,
-        completionTokens: logEntry.usage.completion_tokens,
-        totalTokens: logEntry.usage.total_tokens,
-        inputCostUsd: logEntry.cost.input_cost_usd,
-        outputCostUsd: logEntry.cost.output_cost_usd,
-        totalCostUsd: logEntry.cost.total_cost_usd,
-        totalCostJpy: logEntry.cost.total_cost_jpy,
-        responseTimeMs: logEntry.response_time_ms,
-        success: logEntry.success,
-        error: logEntry.error,
-        metadata: logEntry.metadata,
-        level: 'info', // コストログは基本的にinfo
-      },
-      env
-    )
-    */
+    // Prismaでコストログ保存
+    try {
+      await PrismaDatabaseManager.saveCostLog(
+        {
+          id: logEntry.id,
+          timestamp: new Date(logEntry.timestamp),
+          endpoint: logEntry.endpoint,
+          model: logEntry.model,
+          promptTokens: logEntry.usage.prompt_tokens,
+          completionTokens: logEntry.usage.completion_tokens,
+          totalTokens: logEntry.usage.total_tokens,
+          inputCostUsd: logEntry.cost.input_cost_usd,
+          outputCostUsd: logEntry.cost.output_cost_usd,
+          totalCostUsd: logEntry.cost.total_cost_usd,
+          totalCostJpy: logEntry.cost.total_cost_jpy,
+          responseTimeMs: logEntry.response_time_ms,
+          success: logEntry.success,
+          error: logEntry.error,
+          metadata: logEntry.metadata,
+          level: 'info', // コストログは基本的にinfo
+        },
+        env
+      )
+    } catch (error) {
+      console.error('[CostLogger] Failed to save to database:', error)
+      // DB保存失敗してもconsole.logは継続
+    }
     
     if (this.isCloudflareWorkers()) {
       // Cloudflare Workers環境：console.logでログ出力
@@ -91,7 +94,7 @@ export class CostLogger {
     try {
       // 必須フィールドのデフォルト値設定
       const logEntry: CostLogEntry = {
-        id: 'temp-id-' + Date.now(), // SQLITE一時無効化: uuidv4(),
+        id: uuidv4(),
         timestamp: new Date().toISOString(),
         endpoint: entry.endpoint || 'unknown',
         model: entry.model || 'unknown',
