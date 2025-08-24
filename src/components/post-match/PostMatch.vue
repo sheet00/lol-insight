@@ -23,15 +23,18 @@
     <div class="card player-info">
       <div class="flex items-center justify-between gap-6">
         <!-- プレイヤー基本情報 -->
-        <div class="flex-1 min-w-0 p-3 bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-l-4 border-yellow-500">
+        <div
+          class="flex-1 min-w-0 p-3 bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-l-4 border-yellow-500"
+        >
           <h2 class="text-yellow-400 font-bold truncate">
             {{ matchData.myParticipant.summonerName }}
           </h2>
           <p class="text-blue-300 font-semibold truncate">
-            {{ getChampionName(matchData.myParticipant.championId) }} - {{ formatGameMode(matchData.gameInfo.queueId) }}
+            {{ getChampionName(matchData.myParticipant.championId) }} -
+            {{ formatGameMode(matchData.gameInfo.queueId) }}
           </p>
         </div>
-        
+
         <!-- 試合結果 -->
         <div class="flex-shrink-0 info-group">
           <span class="mr-2">試合結果:</span>
@@ -42,18 +45,20 @@
             {{ matchData.myParticipant.win ? "勝利" : "敗北" }}
           </span>
         </div>
-        
+
         <!-- KDA情報 -->
         <div class="flex-shrink-0 info-group">
           <span class="mr-2">KDA:</span>
           <span class="text-primary gaming-font mr-2">
-            {{ matchData.myParticipant.kills }}/{{ matchData.myParticipant.deaths }}/{{ matchData.myParticipant.assists }}
+            {{ matchData.myParticipant.kills }}/{{
+              matchData.myParticipant.deaths
+            }}/{{ matchData.myParticipant.assists }}
           </span>
           <span class="gaming-font">
             ({{ calculateKDA(matchData.myParticipant) }})
           </span>
         </div>
-        
+
         <!-- アクションボタン -->
         <div class="flex-shrink-0 flex items-center gap-2">
           <button
@@ -74,6 +79,12 @@
         </div>
       </div>
     </div>
+
+    <!-- AI試合後分析結果 -->
+    <PostMatchAnalysis 
+      v-if="postMatchAdvice"
+      :advice="postMatchAdvice" 
+    />
 
     <!-- チーム成績・オブジェクト情報 -->
     <TeamObjectiveStats
@@ -251,6 +262,7 @@ import championData from "@/data/champion.json";
 import TeamObjectiveStats from "~/components/pre-match/TeamObjectiveStats.vue";
 import PlayerDamageStats from "~/components/post-match/PlayerDamageStats.vue";
 import MatchTimeline from "~/components/post-match/MatchTimeline.vue";
+import PostMatchAnalysis from "~/components/post-match/PostMatchAnalysis.vue";
 import AIAnalysisButton from "~/components/common/AIAnalysisButton.vue";
 import "@/assets/styles/components/PostMatch.css";
 
@@ -259,6 +271,7 @@ interface Props {
   matchData: MatchDetail;
   isGeneratingAdvice?: boolean;
   hasAdvice?: boolean;
+  postMatchAdvice?: any | null;
 }
 
 const props = defineProps<Props>();

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen" style="background-color: var(--lol-bg-primary);">
+  <div class="min-h-screen" style="background-color: var(--lol-bg-primary)">
     <!-- ヘッダー -->
     <SearchHeader
       :search-form="searchForm"
@@ -54,14 +54,10 @@
             :match-data="matchData"
             :is-generating-advice="isPostMatchAdviceGenerating"
             :has-advice="!!postMatchAdvice"
+            :post-match-advice="postMatchAdvice"
             @download-json="downloadMatchAnalysisAsJson"
             @generate-post-match-advice="generatePostMatchAdvice"
           />
-        </div>
-
-        <!-- AI試合後分析結果 -->
-        <div v-if="postMatchAdvice" class="mb-8">
-          <PostMatchAnalysis :advice="postMatchAdvice" />
         </div>
 
         <!-- 試合履歴リスト（進行中試合がない場合に表示） -->
@@ -79,9 +75,7 @@
           <div class="flex items-center spacing-md">
             <div class="text-red-400">⚠️</div>
             <div>
-              <h3 class="heading-sm text-red-300">
-                エラーが発生しました
-              </h3>
+              <h3 class="heading-sm text-red-300">エラーが発生しました</h3>
               <p class="text-red-200">{{ error }}</p>
             </div>
           </div>
@@ -100,7 +94,6 @@ import type {
 import SearchHeader from "~/components/common/SearchHeader.vue";
 import PreMatch from "~/components/pre-match/PreMatch.vue";
 import PostMatch from "~/components/post-match/PostMatch.vue";
-import PostMatchAnalysis from "~/components/post-match/PostMatchAnalysis.vue";
 import MatchHistoryList from "~/components/post-match/MatchHistoryList.vue";
 import { formatGameMode, formatNumber } from "@/utils/gameFormatters";
 import {
@@ -148,7 +141,6 @@ let postMatchAdviceController: AbortController | null = null;
 
 // AIモデル選択
 const selectedAiModel = ref("");
-
 
 // モデル変更時の処理
 const onModelChange = (model: string) => {
@@ -282,30 +274,10 @@ const generateAdviceHandler = async () => {
   }
 };
 
-// 自動生成を無効化: ユーザーがボタンを押すまで実行しない
-// watch(
-//   () => liveMatchData.value?.gameId,
-//   async (id) => {
-//     if (id && typeof window !== "undefined") await generateAdviceHandler();
-//   },
-//   { immediate: false }
-// );
-
-// 自動生成を無効化: ユーザーがボタンを押すまで実行しない
-// watch(
-//   () => matchData.value?.matchId,
-//   async (id) => {
-//     if (id && typeof window !== "undefined" && !postMatchAdvice.value)
-//       await generatePostMatchAdvice();
-//   },
-//   { immediate: false }
-// );
-
 // 再生成ボタン
 const onRegenerateAdvice = () => {
   if (!isAdviceGenerating.value) generateAdviceHandler();
 };
-
 
 // 分析結果をJSONファイルとしてダウンロード
 const downloadMatchAnalysisAsJson = () => {
@@ -397,7 +369,10 @@ const generatePostMatchAdvice = async () => {
       result: matchData.value.myParticipant.win ? "WIN" : "LOSE",
       kda: `${matchData.value.myParticipant.kills}/${matchData.value.myParticipant.deaths}/${matchData.value.myParticipant.assists}`,
     });
-    console.log("[DEBUG] selectedAiModel.value before API call:", selectedAiModel.value);
+    console.log(
+      "[DEBUG] selectedAiModel.value before API call:",
+      selectedAiModel.value
+    );
 
     const response = (await $fetch("/api/advice/post-match", {
       method: "POST",
@@ -485,8 +460,8 @@ const onMatchSelected = (matchId: string, selectedMatchData: MatchDetail) => {
   postMatchAdvice.value = null;
 
   // ページ最上部にスクロール
-  if (typeof window !== 'undefined') {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (typeof window !== "undefined") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   console.log("試合詳細が設定されました:", {
