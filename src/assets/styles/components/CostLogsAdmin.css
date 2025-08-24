@@ -36,7 +36,7 @@
   background: linear-gradient(135deg, var(--lol-blue-2) 0%, var(--lol-blue-3) 100%);
   border-radius: 15px;
   padding: 20px;
-  min-width: 150px;
+  min-width: 240px;
   text-align: center;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
@@ -51,7 +51,7 @@
 }
 
 .stat-value {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: bold;
   color: var(--lol-gold-1);
   text-shadow: 0 0 8px rgba(200, 155, 60, 0.3);
@@ -99,12 +99,7 @@
   gap: 10px;
 }
 
-.btn-refresh,
-.btn-danger,
-.btn-detail,
-.btn-delete,
-.btn-page,
-.btn-cancel {
+.btn-refresh {
   padding: 10px 20px;
   border-radius: 10px;
   border: none;
@@ -112,9 +107,6 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.9rem;
-}
-
-.btn-refresh {
   background: linear-gradient(135deg, var(--lol-blue-2) 0%, var(--lol-blue-3) 100%);
   border: 1px solid var(--lol-gold-1);
   color: var(--lol-gold-2);
@@ -127,57 +119,6 @@
   transform: translateY(-2px);
 }
 
-.btn-danger {
-  background: linear-gradient(135deg, var(--loss) 0%, #dc2626 100%);
-  color: white;
-  border: 1px solid rgba(220, 38, 38, 0.5);
-  box-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
-}
-
-.btn-danger:hover {
-  background: linear-gradient(135deg, #dc2626 0%, var(--loss) 100%);
-  box-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
-  transform: translateY(-2px);
-}
-
-.btn-detail {
-  background: linear-gradient(135deg, var(--lol-gold-3) 0%, var(--lol-gold-1) 100%);
-  color: var(--lol-blue-1);
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: 1px solid var(--lol-gold-1);
-  box-shadow: 0 0 8px rgba(200, 155, 60, 0.3);
-}
-
-.btn-detail:hover {
-  background: linear-gradient(135deg, var(--lol-gold-1) 0%, var(--lol-gold-3) 100%);
-  box-shadow: 0 0 15px rgba(200, 155, 60, 0.5);
-}
-
-.btn-delete {
-  background: linear-gradient(135deg, var(--loss) 0%, #dc2626 100%);
-  color: white;
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  border: 1px solid rgba(220, 38, 38, 0.5);
-  box-shadow: 0 0 8px rgba(220, 38, 38, 0.3);
-}
-
-.btn-delete:hover {
-  background: linear-gradient(135deg, #dc2626 0%, var(--loss) 100%);
-  box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
-}
-
-.btn-cancel {
-  background: #95a5a6;
-  color: white;
-}
-
-.btn-cancel:hover {
-  background: #7f8c8d;
-}
-
 /* ログセクション */
 .logs-section {
   background: linear-gradient(135deg, var(--lol-bg-secondary) 0%, rgba(30, 35, 40, 0.9) 100%);
@@ -188,13 +129,7 @@
   border: 2px solid var(--lol-gold-1);
 }
 
-.loading {
-  padding: 40px;
-  text-align: center;
-  color: var(--lol-text-secondary);
-  font-size: 1.1rem;
-}
-
+.loading,
 .empty-state {
   padding: 40px;
   text-align: center;
@@ -205,62 +140,37 @@
 /* テーブル */
 .logs-table {
   width: 100%;
+  border-collapse: collapse;
 }
 
-.table-header {
-  display: grid;
-  grid-template-columns: 150px 200px 150px 100px 100px 80px 120px;
+.logs-table .table-header {
   background: linear-gradient(90deg, var(--lol-blue-1) 0%, var(--lol-blue-2) 100%);
-  padding: 15px;
   font-weight: bold;
   color: var(--lol-gold-1);
-  border-bottom: 2px solid var(--lol-gold-1);
   text-shadow: 0 0 5px rgba(200, 155, 60, 0.3);
 }
 
-.table-row {
-  display: grid;
-  grid-template-columns: 150px 200px 150px 100px 100px 80px 120px;
+.logs-table th,
+.logs-table td {
   padding: 12px 15px;
   border-bottom: 1px solid rgba(200, 155, 60, 0.2);
-  align-items: center;
-  transition: all 0.2s ease;
-  color: var(--lol-text-primary);
+  text-align: left;
+  vertical-align: middle;
 }
 
-.table-row:hover {
+.logs-table th {
+  padding: 15px;
+  font-weight: bold;
+}
+
+.logs-table tbody tr:hover {
   background: rgba(200, 155, 60, 0.1);
-  border-left: 3px solid var(--lol-gold-1);
-  padding-left: 12px;
 }
 
-.col-time {
-  font-size: 0.85rem;
-  color: var(--lol-text-muted);
-}
-
-.col-endpoint {
-  font-size: 0.9rem;
-  font-family: monospace;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.col-model {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.col-tokens,
-.col-cost {
-  text-align: right;
-  font-family: monospace;
-}
-
-.col-actions {
-  display: flex;
-  gap: 5px;
-}
+.col-time { width: 150px; font-size: 0.85rem; color: var(--lol-text-muted); white-space: nowrap; }
+.col-endpoint { font-size: 0.9rem; font-family: monospace; }
+.col-model { font-size: 0.9rem; font-weight: 500; }
+.col-tokens, .col-cost { text-align: right; font-family: monospace; }
 
 .status-success {
   color: var(--win);
@@ -286,6 +196,13 @@
 }
 
 .btn-page {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
   background: linear-gradient(135deg, var(--lol-blue-2) 0%, var(--lol-blue-3) 100%);
   border: 1px solid var(--lol-gold-1);
   color: var(--lol-gold-2);
@@ -312,185 +229,17 @@
   color: var(--lol-text-secondary);
 }
 
-/* モーダル */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: linear-gradient(135deg, var(--lol-bg-secondary) 0%, rgba(30, 35, 40, 0.95) 100%);
-  border: 2px solid var(--lol-gold-1);
-  border-radius: 15px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-.modal-header {
+.logs-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 25px;
-  border-bottom: 1px solid var(--lol-gold-1);
-  background: linear-gradient(90deg, var(--lol-blue-1) 0%, var(--lol-blue-2) 100%);
+  padding: 15px 20px;
+  border-bottom: 2px solid var(--lol-gold-1);
 }
 
-.modal-header h3 {
-  margin: 0;
-  color: var(--lol-gold-1);
-  font-size: 1.3rem;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(200, 155, 60, 0.3);
-}
-
-.modal-close {
-  background: none;
-  border: none;
+.logs-title {
   font-size: 1.5rem;
-  color: var(--lol-text-muted);
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-  background: rgba(200, 155, 60, 0.2);
+  font-weight: 700;
   color: var(--lol-gold-1);
-}
-
-.modal-body {
-  padding: 25px;
-}
-
-.detail-row {
-  display: flex;
-  margin-bottom: 15px;
-  align-items: flex-start;
-}
-
-.detail-row label {
-  font-weight: bold;
-  color: var(--lol-gold-1);
-  min-width: 140px;
-  margin-right: 15px;
-}
-
-.detail-row span,
-.detail-row pre {
-  color: var(--lol-text-primary);
-  flex: 1;
-}
-
-.error-text,
-.metadata-text {
-  background: var(--lol-blue-2);
-  border: 1px solid var(--lol-gold-3);
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 0.85rem;
-  overflow-x: auto;
-  max-height: 200px;
-  white-space: pre-wrap;
-  color: var(--lol-text-primary);
-}
-
-/* 削除モーダル */
-.cleanup-option {
-  margin-bottom: 20px;
-}
-
-.cleanup-option label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 500;
-  color: var(--lol-text-primary);
-}
-
-.cleanup-option input {
-  padding: 8px 12px;
-  border: 2px solid var(--lol-gold-3);
-  background: var(--lol-blue-2);
-  color: var(--lol-text-primary);
-  border-radius: 8px;
-  flex: 1;
-}
-
-.cleanup-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 25px;
-  padding-top: 20px;
-  border-top: 1px solid var(--lol-gold-1);
-}
-
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
-  .admin-cost-logs {
-    padding: 10px;
-  }
-  
-  .header-stats {
-    justify-content: center;
-  }
-  
-  .stat-card {
-    min-width: 120px;
-    padding: 15px;
-  }
-  
-  .filter-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .filter-row select,
-  .filter-row input {
-    width: 100%;
-  }
-  
-  .table-header,
-  .table-row {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    font-size: 0.8rem;
-  }
-  
-  .col-endpoint {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .modal-content {
-    width: 95%;
-    margin: 10px;
-  }
-  
-  .detail-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .detail-row label {
-    margin-bottom: 5px;
-    min-width: auto;
-  }
+  text-shadow: 0 0 8px rgba(200, 155, 60, 0.3);
 }
