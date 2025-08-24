@@ -38,35 +38,41 @@
         </div>
 
         <!-- 進行中試合分析結果 -->
-        <PreMatch
-          v-if="liveMatchData"
-          :live-match-data="liveMatchData"
-          :ai-advice="aiAdvice"
-          :is-advice-generating="isAdviceGenerating"
-          :ai-duration-ms="aiDurationMs"
-          @regenerate-advice="onRegenerateAdvice"
-        />
+        <div v-if="liveMatchData" class="mb-8">
+          <PreMatch
+            :live-match-data="liveMatchData"
+            :ai-advice="aiAdvice"
+            :is-advice-generating="isAdviceGenerating"
+            :ai-duration-ms="aiDurationMs"
+            @regenerate-advice="onRegenerateAdvice"
+          />
+        </div>
 
         <!-- 過去試合分析結果 -->
-        <PostMatch
-          v-if="matchData"
-          :match-data="matchData"
-          :is-generating-advice="isPostMatchAdviceGenerating"
-          :has-advice="!!postMatchAdvice"
-          @download-json="downloadMatchAnalysisAsJson"
-          @generate-post-match-advice="generatePostMatchAdvice"
-        />
+        <div v-if="matchData" class="mb-8">
+          <PostMatch
+            :match-data="matchData"
+            :is-generating-advice="isPostMatchAdviceGenerating"
+            :has-advice="!!postMatchAdvice"
+            @download-json="downloadMatchAnalysisAsJson"
+            @generate-post-match-advice="generatePostMatchAdvice"
+          />
+        </div>
 
         <!-- AI試合後分析結果 -->
-        <PostMatchAnalysis v-if="postMatchAdvice" :advice="postMatchAdvice" />
+        <div v-if="postMatchAdvice" class="mb-8">
+          <PostMatchAnalysis :advice="postMatchAdvice" />
+        </div>
 
         <!-- 試合履歴リスト（進行中試合がない場合に表示） -->
-        <ClientOnly v-if="summonerData && !liveMatchData && !loading">
-          <MatchHistoryList
-            :puuid="summonerData.account.puuid"
-            @match-selected="onMatchSelected"
-          />
-        </ClientOnly>
+        <div v-if="summonerData && !liveMatchData && !loading" class="mb-8">
+          <ClientOnly>
+            <MatchHistoryList
+              :puuid="summonerData.account.puuid"
+              @match-selected="onMatchSelected"
+            />
+          </ClientOnly>
+        </div>
 
         <!-- エラー表示 -->
         <div v-if="error" class="card card-md bg-red-900 border-red-700">

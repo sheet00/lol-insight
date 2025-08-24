@@ -86,11 +86,11 @@ export const useMatchHistory = () => {
   const loadMatchDetail = async (puuid: string, matchId: string) => {
     try {
       isMatchDetailLoading.value = true;
+      selectedMatchId.value = matchId;
       historyError.value = "";
 
       const matchDetail: MatchDetail = await getMatchDetail(puuid, matchId);
 
-      selectedMatchId.value = matchId;
       selectedMatchData.value = matchDetail;
     } catch (error: any) {
       console.error("試合詳細取得エラー:", error);
