@@ -45,9 +45,7 @@ interface Emits {
   (e: "change", value: string): void;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  modelValue: "",
-});
+const props = defineProps<Props>();
 
 const emit = defineEmits<Emits>();
 
@@ -66,8 +64,8 @@ const availableModels = computed(() => {
   }
 });
 
-// 単純なref（computedを使わない）
-const selectedModel = ref(props.modelValue || availableModels.value[0] || "");
+// 単純なref（computedを使わない）- ENV先頭をデフォルトとして採用
+const selectedModel = ref(props.modelValue || availableModels.value[0]);
 
 // propsが変更されたら内部状態も更新
 watch(
@@ -87,8 +85,12 @@ const onModelChange = () => {
 
 // 初期値設定（マウント時にデフォルト値をemit）
 onMounted(() => {
+  console.log("[DEBUG] ModelSelector mounted - selectedModel:", selectedModel.value);
+  console.log("[DEBUG] ModelSelector mounted - availableModels:", availableModels.value);
   if (selectedModel.value) {
+    console.log("[DEBUG] ModelSelector emitting initial value:", selectedModel.value);
     emit("update:modelValue", selectedModel.value);
+    emit("change", selectedModel.value);
   }
 });
 </script>

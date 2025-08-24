@@ -113,8 +113,7 @@ export default defineEventHandler(
       }
 
       // 環境変数からAPIキーを取得
-      const config = useRuntimeConfig();
-      const apiKey = config.riotApiKey || process.env.RIOT_API_KEY;
+      const apiKey = process.env.RIOT_API_KEY;
 
       if (!apiKey) {
         throw createError({

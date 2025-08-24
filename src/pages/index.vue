@@ -147,7 +147,8 @@ const selectedAiModel = ref("");
 // モデル変更時の処理
 const onModelChange = (model: string) => {
   selectedAiModel.value = model;
-  console.log("AIモデルが変更されました:", model);
+  console.log("[DEBUG] AIモデルが変更されました:", model);
+  console.log("[DEBUG] selectedAiModel.value:", selectedAiModel.value);
 
   // 既存のアドバイスがある場合は再生成を促す
   if (liveMatchData.value && aiAdvice.value) {
@@ -390,6 +391,7 @@ const generatePostMatchAdvice = async () => {
       result: matchData.value.myParticipant.win ? "WIN" : "LOSE",
       kda: `${matchData.value.myParticipant.kills}/${matchData.value.myParticipant.deaths}/${matchData.value.myParticipant.assists}`,
     });
+    console.log("[DEBUG] selectedAiModel.value before API call:", selectedAiModel.value);
 
     const response = (await $fetch("/api/advice/post-match", {
       method: "POST",
@@ -404,7 +406,7 @@ const generatePostMatchAdvice = async () => {
           analysisSummary: matchData.value.analysisSummary,
           timelineEvents: matchData.value.timelineEvents || [],
         },
-        model: selectedAiModel.value || undefined,
+        model: selectedAiModel.value,
       },
       signal: postMatchAdviceController.signal,
     })) as any;
