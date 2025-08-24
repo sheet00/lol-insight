@@ -165,6 +165,24 @@ npx wrangler secret put AVAILABLE_AI_MODELS
 - シークレットを更新したら `npx wrangler deploy` で再デプロイしてください
 - `NUXT_SESSION_PASSWORD` はサーバー側セッション暗号化に必須です（公開しないでください）
 
+### ⚠️ 重要：環境変数の挙動について
+
+Cloudflare Workers では、環境変数の種類により `wrangler deploy` の挙動が異なります：
+
+- **シークレット変数**（`wrangler secret put` で設定）→ デプロイで **消えない** ✅
+- **テキスト変数**（ダッシュボード手動設定）→ デプロイで **消える** ❌
+
+**解決方法：**
+1. `scripts/deploy.sh` で `--keep-vars` オプションを使用（推奨）
+2. または `wrangler.jsonc` の `vars` セクションに記述
+
+```bash
+# 手動設定した環境変数を保持してデプロイ
+npx wrangler deploy --keep-vars
+```
+
+この仕様により、パブリックな設定（`NUXT_PUBLIC_*`）をダッシュボードで手動設定すると消える場合があります。
+
 ### 設定ファイル
 
 - `wrangler.jsonc` - Cloudflare Workers 設定
