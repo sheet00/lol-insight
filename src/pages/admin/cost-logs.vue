@@ -5,7 +5,7 @@
       <h1 class="page-title">コストログ管理</h1>
       <div class="header-stats">
         <div class="stat-card">
-          <div class="stat-label">今日の費用</div>
+          <div class="stat-label">総費用</div>
           <div class="stat-value">${{ stats.total?.cost_usd?.toFixed(4) || '0.0000' }}</div>
         </div>
         <div class="stat-card">
@@ -19,36 +19,10 @@
       </div>
     </div>
 
-    <!-- フィルターセクション -->
-    <div class="filter-section">
-      <div class="filter-row">
-        <select v-model="filters.period" @change="loadStats">
-          <option value="today">今日</option>
-          <option value="week">1週間</option>
-          <option value="month">1ヶ月</option>
-        </select>
-        
-        <input 
-          v-model="filters.endpoint" 
-          placeholder="エンドポイントでフィルタ..."
-          @input="debouncedLoadLogs"
-        >
-        
-        <input 
-          v-model="filters.model" 
-          placeholder="モデルでフィルタ..."
-          @input="debouncedLoadLogs"
-        >
-        
-        <select v-model="filters.success" @change="loadLogs">
-          <option value="">全て</option>
-          <option value="true">成功</option>
-          <option value="false">失敗</option>
-        </select>
-      </div>
-
-      <div class="action-row">
-        <button @click="loadLogs" class="btn-refresh">更新</button>
+    <!-- アクションセクション -->
+    <div class="filter-section" style="margin-bottom: 1rem;">
+       <div class="action-row">
+        <button @click="loadLogs(true)" class="btn-refresh">更新</button>
         <button @click="showCleanupModal = true" class="btn-danger">ログ削除</button>
       </div>
     </div>
@@ -215,7 +189,7 @@ import "@/assets/styles/components/CostLogsAdmin.css"
 //   middleware: 'auth'
 // })
 
-const { $fetch } = useNuxtApp()
+
 
 // リアクティブデータ
 const stats = ref({})
@@ -223,13 +197,6 @@ const logs = ref([])
 const selectedLog = ref(null)
 const loading = ref(false)
 const showCleanupModal = ref(false)
-
-const filters = ref({
-  period: 'today',
-  endpoint: '',
-  model: '',
-  success: ''
-})
 
 const pagination = ref({
   total: 0,
@@ -247,9 +214,7 @@ const cleanupOptions = ref({
 // メソッド
 const loadStats = async () => {
   try {
-    const response = await $fetch('/api/admin/cost-stats', {
-      query: { period: filters.value.period }
-    })
+    const response = await $fetch('/api/admin/cost/summary')
     stats.value = response
   } catch (error) {
     console.error('Failed to load stats:', error)
@@ -266,29 +231,25 @@ const loadLogs = async (resetOffset = false) => {
     const query = {
       limit: pagination.value.limit,
       offset: pagination.value.offset,
-      period: filters.value.period
     }
 
-    if (filters.value.endpoint) query.endpoint = filters.value.endpoint
-    if (filters.value.model) query.model = filters.value.model
-    if (filters.value.success) query.success = filters.value.success
+    const response = await $fetch('/api/admin/cost/list', { query })
+    
+    const data = response.data || response.value || response
+    if (data && data.logs) {
+      logs.value = data.logs
+      pagination.value = data.pagination
+    } else {
+      logs.value = []
+      console.error('Unexpected response structure:', response)
+    }
 
-    const response = await $fetch('/api/admin/cost-logs', { query })
-    logs.value = response.logs
-    pagination.value = response.pagination
   } catch (error) {
     console.error('Failed to load logs:', error)
     logs.value = []
   } finally {
     loading.value = false
   }
-}
-
-// デバウンス用のローダー
-let debounceTimer = null
-const debouncedLoadLogs = () => {
-  clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(() => loadLogs(true), 300)
 }
 
 const showLogDetail = (log) => {
@@ -299,7 +260,7 @@ const deleteLog = async (logId) => {
   if (!confirm('このログを削除しますか？')) return
 
   try {
-    await $fetch(`/api/admin/cost-logs/${logId}`, {
+    await $fetch(`/api/admin/cost/${logId}`, {
       method: 'DELETE'
     })
     loadLogs()
@@ -323,7 +284,7 @@ const executeCleanup = async () => {
   }
 
   try {
-    const response = await $fetch('/api/admin/cost-logs/cleanup', {
+    const response = await $fetch('/api/admin/cost/cleanup', {
       method: 'POST',
       body: options
     })
