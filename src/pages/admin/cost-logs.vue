@@ -49,7 +49,7 @@
         </thead>
         <tbody>
           <tr v-for="log in logs" :key="log.id" class="table-row">
-            <td class="col-time">{{ formatTime(log.timestamp) }}</td>
+            <td class="col-time">{{ formatTime(log.createdAt) }}</td>
             <td class="col-endpoint">{{ log.endpoint }}</td>
             <td class="col-model">{{ log.model }}</td>
             <td class="col-cost">¥{{ log.totalCostJpy.toFixed(2) }}</td>

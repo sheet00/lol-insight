@@ -13,7 +13,6 @@ import * as schema from "../db/schema";
 // Drizzleのスキーマをベースにしたログエントリの型
 export type CostLogPayload = {
   id?: string;
-  timestamp?: string | Date;
   endpoint: string;
   model: string;
   promptTokens: number;
@@ -56,11 +55,8 @@ export class CostLogger {
    */
   static async logCost(payload: CostLogPayload): Promise<void> {
     try {
-      const now = new Date();
       const logData: typeof schema.costLogs.$inferInsert = {
         id: payload.id || uuidv4(),
-        timestamp: payload.timestamp ? new Date(payload.timestamp) : now,
-        createdAt: now,
         endpoint: payload.endpoint,
         model: payload.model,
         promptTokens: payload.promptTokens,

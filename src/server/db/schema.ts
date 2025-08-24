@@ -3,7 +3,6 @@ import { sql } from "drizzle-orm";
 
 export const costLogs = sqliteTable("cost_logs", {
   id: text("id").primaryKey(),
-  timestamp: integer("timestamp", { mode: "timestamp" }).notNull(),
   endpoint: text("endpoint").notNull(),
   model: text("model").notNull(),
   // usage情報
@@ -21,7 +20,7 @@ export const costLogs = sqliteTable("cost_logs", {
   error: text("error"),
   metadata: text("metadata"),
   level: text("level").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
+  createdAt: text("created_at")
     .notNull()
-    .default(sql`(strftime('%s', 'now'))`),
+    .default(sql`(datetime('now'))`),
 });

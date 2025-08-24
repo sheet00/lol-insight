@@ -4,40 +4,15 @@
  */
 import { DrizzleDatabaseManager } from "~/server/utils/DrizzleDatabaseManager";
 import { costLogs } from "~/server/db/schema";
-import { desc, count, sum, gte, eq, sql } from "drizzle-orm";
+import { desc, count, sum, eq } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
   try {
-    const query = getQuery(event);
-    const { period } = query; // デフォルト値を削除
 
     const db = DrizzleDatabaseManager.getInstance();
 
-    // 期間設定
-    let dateFilter: any = undefined;
-    if (period) {
-      const now = new Date();
-      switch (period) {
-        case "today":
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          dateFilter = gte(costLogs.createdAt, today);
-          break;
-        case "week":
-          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          dateFilter = gte(costLogs.createdAt, weekAgo);
-          break;
-        case "month":
-          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          dateFilter = gte(costLogs.createdAt, monthAgo);
-          break;
-      }
-    }
-
     // 基本統計のWHERE条件
-    const baseWhere = dateFilter
-      ? sql`${eq(costLogs.success, true)} AND ${dateFilter}`
-      : eq(costLogs.success, true);
+    const baseWhere = eq(costLogs.success, true);
 
     // 基本統計
     const totalStats = await db
@@ -77,7 +52,6 @@ export default defineEventHandler(async (event) => {
       .orderBy(desc(sum(costLogs.totalCostUsd)));
 
     // 最新のログ
-    const whereClause = dateFilter ? dateFilter : undefined;
     const recentLogs = await db
       .select({
         id: costLogs.id,
@@ -90,13 +64,11 @@ export default defineEventHandler(async (event) => {
         responseTimeMs: costLogs.responseTimeMs,
       })
       .from(costLogs)
-      .where(whereClause)
       .orderBy(desc(costLogs.createdAt))
       .limit(10);
 
     return {
       success: true,
-      period,
       total: {
         cost_usd: Number(totalStats[0]?.totalCostUsd) || 0,
         cost_jpy: Number(totalStats[0]?.totalCostJpy) || 0,

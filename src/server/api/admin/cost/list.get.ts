@@ -17,7 +17,6 @@ export default defineEventHandler(async (event) => {
     const logs = await db
       .select({
         id: costLogs.id,
-        timestamp: costLogs.timestamp,
         createdAt: costLogs.createdAt,
         endpoint: costLogs.endpoint,
         model: costLogs.model,

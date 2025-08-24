@@ -26,7 +26,6 @@ interface CostLogsListResponse {
   success: boolean;
   logs: Array<{
     id: string;
-    timestamp: string;
     createdAt: string;
     endpoint: string;
     model: string;
@@ -126,6 +125,12 @@ export function useCostLogs() {
   };
 
   const formatTime = (timestamp: string | number | Date) => {
+    // SQLiteのDATETIME文字列 (YYYY-MM-DD HH:MM:SS) をJavaScriptのDateオブジェクトが解析できるように調整
+    if (typeof timestamp === 'string' && timestamp.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+      // "YYYY-MM-DD HH:MM:SS" を "YYYY-MM-DDTHH:MM:SS.000Z" に変換してUTCとして扱う
+      const isoString = timestamp.replace(' ', 'T') + '.000Z';
+      return new Date(isoString).toLocaleString("ja-JP");
+    }
     return new Date(timestamp).toLocaleString("ja-JP");
   };
 
