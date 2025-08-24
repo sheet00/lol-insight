@@ -65,12 +65,24 @@ export class OpenRouterClient {
    */
   constructor() {
     const config = useRuntimeConfig() as any;
-    const or = config?.openRouter || {};
 
-    if (!or?.apiKey) throw new Error("OPENROUTER_API_KEY が未設定です");
+    // フラット構成での取得
+    const apiKey = config.openRouterApiKey;
+    const model = config.openRouterModel;
+    const baseURL = config.openRouterBaseURL || "https://openrouter.ai/api/v1";
+
+    // デバッグログを追加
+    console.log('[DEBUG] OpenRouterClient constructor - config:', {
+      hasConfig: !!config,
+      hasApiKey: !!apiKey,
+      hasModel: !!model,
+      configKeys: config ? Object.keys(config) : []
+    });
+
+    if (!apiKey) throw new Error("OPENROUTER_API_KEY が未設定です");
 
     // デフォルトモデルの決定：ENVに設定があればそれを使用、なければAVAILABLE_AI_MODELSの先頭を使用
-    let defaultModel = or?.model;
+    let defaultModel = model;
     if (!defaultModel) {
       const availableModels = config?.public?.availableAiModels || [];
       if (availableModels.length > 0) {
@@ -83,13 +95,8 @@ export class OpenRouterClient {
     }
 
     this.client = new OpenAI({
-      baseURL: or.baseURL || "https://openrouter.ai/api/v1",
-      apiKey: or.apiKey,
-      defaultHeaders: {
-        "HTTP-Referer":
-          or.httpReferer || "https://github.com/your-org/lol-teacher",
-        "X-Title": or.xTitle || "lol-teacher",
-      },
+      baseURL,
+      apiKey,
     });
     this.defaultModel = defaultModel;
   }

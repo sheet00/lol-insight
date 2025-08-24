@@ -70,14 +70,9 @@ export default defineNuxtConfig({
       // 型の都合で空文字を初期値にし、実運用ではSecretで上書きする
       password: process.env.NUXT_SESSION_PASSWORD || "",
     },
-    openRouter: {
-      apiKey: process.env.OPENROUTER_API_KEY,
-      model: process.env.OPENROUTER_MODEL,
-      baseURL:
-        process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1",
-      httpReferer: process.env.OPENROUTER_HTTP_REFERER,
-      xTitle: process.env.OPENROUTER_X_TITLE,
-    },
+    openRouterApiKey: process.env.OPENROUTER_API_KEY,
+    openRouterModel: process.env.OPENROUTER_MODEL,
+    openRouterBaseURL: process.env.OPENROUTER_BASE_URL,
 
     // パブリック（クライアントサイドでも利用可能）
     public: {
