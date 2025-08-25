@@ -74,6 +74,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useSearchStore } from '@/stores/search';
+import { usePostMatchAnalysis } from '@/composables/usePostMatchData';
 import type {
   MatchDetail,
 } from "~/types";
@@ -81,8 +82,26 @@ import PreMatch from "~/components/pre-match/PreMatch.vue";
 import PostMatch from "~/components/post-match/PostMatch.vue";
 import MatchHistoryList from "~/components/post-match/MatchHistoryList.vue";
 
-// Searchストア
+// インデックスページ専用スタイル
+import "@/assets/styles/components/IndexPage.css";
+
+/**
+ * Searchストアから状態とメソッドを取得
+ */
 const searchStore = useSearchStore();
+
+/**
+ * リアクティブな状態を取得
+ * - loading: 読み込み中フラグ
+ * - summonerData: サモナー情報
+ * - matchData: 過去試合データ
+ * - liveMatchData: 進行中試合データ
+ * - error: エラーメッセージ
+ * - aiAdvice: 試合前AIアドバイス
+ * - isAdviceGenerating: 試合前AI分析中フラグ
+ * - aiDurationMs: AI分析にかかった時間
+ * - selectedAiModel: 選択されたAIモデル
+ */
 const {
   loading,
   summonerData,
@@ -92,110 +111,67 @@ const {
   aiAdvice,
   isAdviceGenerating,
   aiDurationMs,
-  isPostMatchAdviceGenerating,
-  postMatchAdvice,
   selectedAiModel,
 } = storeToRefs(searchStore);
+
+/**
+ * ストアのメソッドを取得
+ */
 const { onRegenerateAdvice, onMatchSelected: storeOnMatchSelected } = searchStore;
 
-// 試合後AI分析関連
-let postMatchAdviceController: AbortController | null = null;
+/**
+ * 試合後AI分析＆データ最適化コンポーザブルから状態とメソッドを取得
+ * - isPostMatchAdviceGenerating: 試合後AI分析中フラグ
+ * - postMatchAdvice: 試合後AI分析結果
+ * - executePostMatchAdvice: 試合後AI分析を実行するメソッド
+ * - cancelPostMatchAdvice: 試合後AI分析をキャンセルするメソッド
+ * - downloadOptimizedDataAsJson: 最適化されたデータをJSONダウンロードするメソッド
+ */
+const {
+  isPostMatchAdviceGenerating,
+  postMatchAdvice,
+  generatePostMatchAdvice: executePostMatchAdvice,
+  cancelPostMatchAdvice,
+  downloadOptimizedDataAsJson,
+} = usePostMatchAnalysis();
 
+/**
+ * 試合後AI分析を実行する
+ * エラーハンドリングを含む上位レベルのラッパー関数
+ */
 const generatePostMatchAdvice = async () => {
-  if (!matchData.value) {
-    error.value = "試合データがないため、AI分析を実行できません";
-    return;
-  }
-  if (isPostMatchAdviceGenerating.value) return;
-
-  isPostMatchAdviceGenerating.value = true;
-  error.value = "";
-  postMatchAdvice.value = null;
-  postMatchAdviceController = new AbortController();
-
   try {
-    const response = (await $fetch("/api/advice/post-match", {
-      method: "POST",
-      body: {
-        matchId: matchData.value.matchId,
-        matchData: {
-          gameInfo: matchData.value.gameInfo,
-          myTeam: matchData.value.myTeam,
-          enemyTeam: matchData.value.enemyTeam,
-          myParticipant: matchData.value.myParticipant,
-          teamStats: matchData.value.teamStats,
-          analysisSummary: matchData.value.analysisSummary,
-          timelineEvents: matchData.value.timelineEvents || [],
-        },
-        model: selectedAiModel.value,
-      },
-      signal: postMatchAdviceController.signal,
-    })) as any;
-
-    if (response.success && response.analysis) {
-      postMatchAdvice.value = response.analysis;
-    } else {
-      throw new Error(
-        "AI分析に失敗しました: " + (response.message || "不明なエラー")
-      );
-    }
+    await executePostMatchAdvice(matchData.value, selectedAiModel.value);
   } catch (err: any) {
     if (err.name === "AbortError") {
       error.value = "AI分析がキャンセルされました";
     } else {
       error.value = `AI分析エラー: ${err.message || err.data?.message}`;
     }
-  } finally {
-    isPostMatchAdviceGenerating.value = false;
-    postMatchAdviceController = null;
   }
 };
 
+/**
+ * 最適化された試合データをJSONファイルとしてダウンロードする
+ * AI分析で使用される実際のデータを確認するためのデバッグ機能
+ */
 const downloadMatchAnalysisAsJson = () => {
-  if (!matchData.value) return;
-
-  const myItemPurchases =
-    matchData.value.timelineEvents?.filter(
-      (event: any) => event.type === "ITEM" && event.isMyself === true
-    ) || [];
-
-  const aiInputData = {
-    matchId: matchData.value.matchId,
-    myChampionName: matchData.value.myParticipant?.championName,
-    gameResult: matchData.value.myParticipant?.win ? "WIN" : "LOSE",
-    myItemPurchases: myItemPurchases.map((item: any) => ({
-      timeString: item.timeString,
-      timestamp: item.timestamp,
-      itemName: item.itemName,
-      itemId: item.itemId,
-      description: item.description,
-    })),
-    gameInfo: matchData.value.gameInfo,
-    myTeam: matchData.value.myTeam,
-    enemyTeam: matchData.value.enemyTeam,
-    myParticipant: matchData.value.myParticipant,
-    teamStats: matchData.value.teamStats,
-    analysisSummary: matchData.value.analysisSummary,
-    timelineEvents: matchData.value.timelineEvents || [],
-  };
-
-  const jsonString = JSON.stringify(aiInputData, null, 2);
-  const blob = new Blob([jsonString], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `LoL_AI_input_debug_${matchData.value.matchId}_${new Date().toISOString().split("T")[0]}.json`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadOptimizedDataAsJson(matchData.value);
 };
 
-const onMatchSelected = (matchId: string, selectedMatchData: MatchDetail) => {
+/**
+ * 試合履歴から試合が選択された時の処理
+ * @param _matchId 試合ID（使用しないためアンダースコア付き）
+ * @param selectedMatchData 選択された試合データ
+ */
+const onMatchSelected = (_matchId: string, selectedMatchData: MatchDetail) => {
   storeOnMatchSelected(selectedMatchData);
 };
 
-// メタ情報
+/**
+ * ページのメタ情報設定
+ * SEO対策とブラウザタブの表示内容を設定
+ */
 useHead({
   title: "LoL Teacher - 試合分析",
   meta: [
@@ -206,9 +182,3 @@ useHead({
   ],
 });
 </script>
-
-<style scoped>
-.main-content-width {
-  max-width: 1280px;
-}
-</style>

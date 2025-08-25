@@ -1,9 +1,9 @@
 /**
- * 試合データ管理用Composable
+ * 試合前データ管理用Composable
  */
 import type { LiveMatchDetail, MatchDetail } from '@/types'
 
-export const useMatchData = () => {
+export const usePreMatchData = () => {
   const liveMatchData = ref<LiveMatchDetail | null>(null)
   const matchData = ref<MatchDetail | null>(null)
   const loadingMatch = ref(false)

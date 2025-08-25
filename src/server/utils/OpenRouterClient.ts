@@ -216,30 +216,18 @@ export class OpenRouterClient {
    * @returns JSONペイロード文字列
    */
   private buildPostMatchPromptPayload(payload: PostMatchAdvicePayload) {
-    // 自分のアイテム購入履歴を抽出
-    const myItemPurchases =
-      payload.matchData?.timelineEvents?.filter(
-        (event: any) => event.type === "ITEM" && event.isMyself === true
-      ) || [];
-
     return JSON.stringify(
       {
         matchId: payload.matchId,
         myChampionName: payload.matchData?.myParticipant?.championName,
         gameResult: payload.matchData?.myParticipant?.win ? "WIN" : "LOSE",
-        myItemPurchases: myItemPurchases.map((item: any) => ({
-          timeString: item.timeString,
-          timestamp: item.timestamp,
-          itemName: item.itemName,
-          itemId: item.itemId,
-          description: item.description,
-        })),
         ...payload.matchData,
       },
       null,
       2
     );
   }
+
 
   /**
    * 試合前アドバイス用プロンプト取得（Cloudflare Workers対応）
